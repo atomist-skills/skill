@@ -31,6 +31,8 @@ export function mapSubscription<T = any>(result: any[]): T {
 	const mapper = (v: any) => {
 		if (isPrimitive(v)) {
 			return v;
+		} else if (v instanceof Date) {
+			return v;
 		} else if (Array.isArray(v)) {
 			return v.map(vr => mapper(vr));
 		} else {
@@ -55,8 +57,11 @@ export function mapSubscription<T = any>(result: any[]): T {
 		.filter(r => !!r)
 		.forEach(r => {
 			const value = {};
-			const key = nameFromKey(r["schema/entity-type"] || "unknownEntity");
+			let key = nameFromKey(r["schema/entity-type"] || "unknownEntity");
 			for (const k in r) {
+				if (k.startsWith("atomist.tx") && key === "unknownEntity") {
+					key = "tx";
+				}
 				if (k !== "schema/entity-type") {
 					value[nameFromKey(k)] = mapper(r[k]);
 				}

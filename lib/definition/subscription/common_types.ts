@@ -50,6 +50,7 @@ export interface DockerImage {
 }
 
 export enum DockerRegistryType {
+	Ecr = "ECR",
 	Gcr = "GCR",
 	DockerHub = "DOCKER_HUB",
 }
