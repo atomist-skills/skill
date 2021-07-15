@@ -16,7 +16,7 @@
 
 import { Response } from "node-fetch";
 
-import { warn } from "../log/console";
+import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
 import { Skill } from "../payload";
 import { retry } from "../retry";
@@ -78,6 +78,8 @@ ${
 ${options?.rules ? `:rules ${options.rules}` : ""}
  
 }`;
+		debug(`Datalog query: ${body}`);
+
 		const f = (await import("node-fetch")).default;
 		const result = await (
 			await retry<Response>(async () => {
@@ -106,6 +108,8 @@ ${options?.rules ? `:rules ${options.rules}` : ""}
 				}
 			})
 		).text();
+
+		debug(`Datalog result: ${result}`);
 
 		if (options.mode === "raw") {
 			return result;
