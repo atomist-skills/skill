@@ -118,7 +118,7 @@
     "lodash.sortby": "^4.7.0",
     "lodash.uniq": "^4.5.0",
     "node-fetch": "^2.6.1",
-    "p-retry": "^4.6.0",
+    "p-retry": "^4.6.1",
     "pluralize": "^8.0.0",
     "prettier": "^2.3.2",
     "semver": "^7.3.5",
