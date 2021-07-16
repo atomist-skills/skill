@@ -17,7 +17,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 
-import { bytes, pluralize } from "./util";
+import { bytes, formatDate, pluralize } from "./util";
 
 export async function render(
 	name: string,
@@ -79,6 +79,7 @@ async function hb(): Promise<any> {
 	handlebars.registerHelper("plural", (arg1, arg2, arg3, arg4) =>
 		pluralize(arg1, arg2, { include: arg3, includeOne: arg4 }),
 	);
+	handlebars.registerHelper("date", arg => formatDate(arg));
 	return handlebars;
 }
 

@@ -22,6 +22,7 @@ import { v4 as uuidv4 } from "uuid";
 import { error } from "./log/console";
 import { Arg } from "./payload";
 import sortBy = require("lodash.sortby");
+import * as dt from "luxon";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function hash(obj: any): string {
@@ -344,4 +345,15 @@ export function after<
 			await adviceFunc(...args);
 		}
 	}) as any;
+}
+
+export function formatDate(
+	date: Date,
+	format: dt.LocaleOptions & dt.DateTimeFormatOptions = {
+		...dt.DateTime.DATETIME_MED,
+		hour12: false,
+	},
+): string {
+	const dateTime = dt.DateTime.fromJSDate(date);
+	return dateTime.plus({ hours: 12 }).toUTC().toLocaleString(format);
 }

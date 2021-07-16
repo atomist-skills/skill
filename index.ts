@@ -114,6 +114,7 @@ export {
 	after,
 	before,
 	bytes,
+	formatDate,
 	guid,
 	handleError,
 	handleErrorSync,
