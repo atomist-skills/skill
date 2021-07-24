@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 *   Support in `run` command for GCP Cloud Run. [#400](https://github.com/atomist-skills/skill/issues/400)
 *   Check handler can set PR comment. [13f6c96](https://github.com/atomist-skills/skill/commit/13f6c9609ecc0b2129e1a3cd46a913fa5bb16a09)
 *   Add helpers to create and track tmp files and dirs. [1ef713a](https://github.com/atomist-skills/skill/commit/1ef713a76289358081102b2e6f29d7b205f9d88f)
+*   Add global option state handling. [2497452](https://github.com/atomist-skills/skill/commit/24974527b88e4ae1df928e9b4a1622c8345cfccc)
 
 ### Changed
 
