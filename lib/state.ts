@@ -25,9 +25,9 @@ import { guid, handleError, isPrimitive } from "./util";
 export async function hydrate<T>(
 	configurationName: string,
 	ctx: Contextual<any, any>,
-	options?: { value?: T; ttl?: number },
+	options?: { value?: T; ttl?: number; global?: boolean },
 ): Promise<T> {
-	const key = stateKey(configurationName, ctx);
+	const key = stateKey(configurationName, ctx, options?.global);
 	try {
 		const stateFile = await ctx.storage.retrieve(key, {
 			ttl: options?.ttl,
@@ -46,8 +46,9 @@ export async function save(
 	state: Record<string, any>,
 	configurationName: string,
 	ctx: Contextual<any, any>,
+	options?: { global?: boolean },
 ): Promise<void> {
-	const key = stateKey(configurationName, ctx);
+	const key = stateKey(configurationName, ctx, options?.global);
 	try {
 		const targetFilePath = path.join(os.tmpdir() || "/tmp", guid());
 		await fs.ensureDir(path.dirname(targetFilePath));
@@ -61,15 +62,25 @@ export async function save(
 function stateKey(
 	configurationName: string,
 	ctx: Contextual<any, any>,
+	global?: boolean,
 ): string {
-	return `state/${ctx.workspaceId}/${ctx.skill.namespace}/${
-		ctx.skill.name
-	}/${configurationName.replace(/[^a-zA-Z0-9-_/]/g, "").toLowerCase()}.json`;
+	return `state/${global ? "global" : ctx.workspaceId}/${
+		ctx.skill.namespace
+	}/${ctx.skill.name}/${configurationName
+		.replace(/[^a-zA-Z0-9-_/]/g, "")
+		.toLowerCase()}.json`;
 }
 
 export function cachify<
 	T extends (ctx: EventContext<any, any>, ...args: any) => Promise<any>,
->(func: T, options?: { resolver?: (...args: any) => string; ttl?: number }): T {
+>(
+	func: T,
+	options?: {
+		resolver?: (...args: any) => string;
+		ttl?: number;
+		global?: boolean;
+	},
+): T {
 	if (!func.name) {
 		throw new Error("cachify does not support anonymous functions");
 	}
@@ -86,17 +97,20 @@ export function cachify<
 				}
 			}, func.name || "cachify");
 		}
-		const resultKey = `${ctx.configuration.name}/${key.toLowerCase()}`;
+		const resultKey = `${ctx.configuration.name.toLowerCase()}/${key.toLowerCase()}`;
 		const old = await hydrate(resultKey, ctx, {
 			value: { result: undefined },
 			ttl: options?.ttl,
+			global: options?.global,
 		});
 		if (old.result) {
 			return JSON.parse(old.result);
 		}
 		const result = await func(ctx, ...args);
 		await handleError(() =>
-			save({ result: JSON.stringify(result) }, resultKey, ctx),
+			save({ result: JSON.stringify(result) }, resultKey, ctx, {
+				global: options?.global,
+			}),
 		);
 		return result;
 	}) as any;
