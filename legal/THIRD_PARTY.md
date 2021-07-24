@@ -8,22 +8,22 @@ This page details all runtime dependencies of `@atomist/skill`.
 
 ### Summary
 
-| License                         | Count |
-| ------------------------------- | ----- |
-| [0BSD](#0bsd)                   | 5     |
-| [Apache-2.0](#apache-20)        | 40    |
-| [BSD-2-Clause](#bsd-2-clause)   | 10    |
-| [BSD-3-Clause](#bsd-3-clause)   | 23    |
-| [CC-BY-3.0](#cc-by-30)          | 1     |
-| [CC-BY-4.0](#cc-by-40)          | 1     |
-| [CC0-1.0](#cc0-10)              | 5     |
-| [GPL-2.0](#gpl-20)              | 1     |
-| [GPL-3.0](#gpl-30)              | 1     |
-| [ISC](#isc)                     | 44    |
-| [MIT AND Zlib](#mit-and-zlib)   | 1     |
-| [MIT](#mit)                     | 643   |
-| [Public Domain](#public-domain) | 1     |
-| [Python-2.0](#python-20)        | 1     |
+| License                              | Count |
+| ------------------------------------ | ----- |
+| [0BSD](#0bsd)                        | 5     |
+| [Apache-2.0](#apache-20)             | 40    |
+| [BSD-2-Clause](#bsd-2-clause)        | 10    |
+| [BSD-3-Clause](#bsd-3-clause)        | 23    |
+| [CC-BY-3.0](#cc-by-30)               | 1     |
+| [CC-BY-4.0](#cc-by-40)               | 1     |
+| [CC0-1.0](#cc0-10)                   | 5     |
+| [GPL-2.0](#gpl-20)                   | 1     |
+| [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
+| [ISC](#isc)                          | 44    |
+| [MIT AND Zlib](#mit-and-zlib)        | 1     |
+| [MIT](#mit)                          | 643   |
+| [Public Domain](#public-domain)      | 1     |
+| [Python-2.0](#python-20)             | 1     |
 
 #### 0BSD
 
@@ -167,13 +167,13 @@ GNU General Public License v2.0 only - [https://www.gnu.org/licenses/old-license
 | ------------ | -------- | -------------------- | -------------------------------------------------------------------------------- |
 | `node-forge` | `0.10.0` | Digital Bazaar, Inc. | [https://github.com/digitalbazaar/forge](https://github.com/digitalbazaar/forge) |
 
-#### GPL-3.0
+#### GPL-3.0-or-later
 
-GNU General Public License v3.0 only - [https://www.gnu.org/licenses/gpl-3.0-standalone.html](https://www.gnu.org/licenses/gpl-3.0-standalone.html)
+GNU General Public License v3.0 or later - [https://www.gnu.org/licenses/gpl-3.0-standalone.html](https://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
 | Name    | Version | Publisher        | Repository                                                     |
 | ------- | ------- | ---------------- | -------------------------------------------------------------- |
-| `jszip` | `3.6.0` | Stuart Knightley | [https://github.com/Stuk/jszip](https://github.com/Stuk/jszip) |
+| `jszip` | `3.7.0` | Stuart Knightley | [https://github.com/Stuk/jszip](https://github.com/Stuk/jszip) |
 
 #### ISC
 
@@ -325,17 +325,17 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `@octokit/endpoint`                                  | `6.0.12`       |                                | [https://github.com/octokit/endpoint.js](https://github.com/octokit/endpoint.js)                                                                                                                     |
 | `@octokit/graphql`                                   | `4.6.4`        |                                | [https://github.com/octokit/graphql.js](https://github.com/octokit/graphql.js)                                                                                                                       |
 | `@octokit/openapi-types`                             | `8.2.1`        | Gregor Martynus                | [https://github.com/octokit/openapi-types.ts](https://github.com/octokit/openapi-types.ts)                                                                                                           |
-| `@octokit/openapi-types`                             | `9.1.0`        | Gregor Martynus                | [https://github.com/octokit/openapi-types.ts](https://github.com/octokit/openapi-types.ts)                                                                                                           |
+| `@octokit/openapi-types`                             | `9.1.1`        | Gregor Martynus                | [https://github.com/octokit/openapi-types.ts](https://github.com/octokit/openapi-types.ts)                                                                                                           |
 | `@octokit/plugin-paginate-rest`                      | `2.14.0`       |                                | [https://github.com/octokit/plugin-paginate-rest.js](https://github.com/octokit/plugin-paginate-rest.js)                                                                                             |
 | `@octokit/plugin-request-log`                        | `1.0.4`        |                                | [https://github.com/octokit/plugin-request-log.js](https://github.com/octokit/plugin-request-log.js)                                                                                                 |
-| `@octokit/plugin-rest-endpoint-methods`              | `5.5.0`        |                                | [https://github.com/octokit/plugin-rest-endpoint-methods.js](https://github.com/octokit/plugin-rest-endpoint-methods.js)                                                                             |
+| `@octokit/plugin-rest-endpoint-methods`              | `5.5.1`        |                                | [https://github.com/octokit/plugin-rest-endpoint-methods.js](https://github.com/octokit/plugin-rest-endpoint-methods.js)                                                                             |
 | `@octokit/plugin-retry`                              | `3.0.9`        |                                | [https://github.com/octokit/plugin-retry.js](https://github.com/octokit/plugin-retry.js)                                                                                                             |
 | `@octokit/plugin-throttling`                         | `3.5.1`        |                                | [https://github.com/octokit/plugin-throttling.js](https://github.com/octokit/plugin-throttling.js)                                                                                                   |
 | `@octokit/request-error`                             | `2.1.0`        |                                | [https://github.com/octokit/request-error.js](https://github.com/octokit/request-error.js)                                                                                                           |
 | `@octokit/request`                                   | `5.6.0`        |                                | [https://github.com/octokit/request.js](https://github.com/octokit/request.js)                                                                                                                       |
-| `@octokit/rest`                                      | `18.7.0`       |                                | [https://github.com/octokit/rest.js](https://github.com/octokit/rest.js)                                                                                                                             |
+| `@octokit/rest`                                      | `18.7.1`       |                                | [https://github.com/octokit/rest.js](https://github.com/octokit/rest.js)                                                                                                                             |
 | `@octokit/types`                                     | `6.18.1`       |                                | [https://github.com/octokit/types.ts](https://github.com/octokit/types.ts)                                                                                                                           |
-| `@octokit/types`                                     | `6.21.0`       |                                | [https://github.com/octokit/types.ts](https://github.com/octokit/types.ts)                                                                                                                           |
+| `@octokit/types`                                     | `6.21.1`       |                                | [https://github.com/octokit/types.ts](https://github.com/octokit/types.ts)                                                                                                                           |
 | `@samverschueren/stream-to-observable`               | `0.3.1`        |                                | [https://github.com/SamVerschueren/stream-to-observable](https://github.com/SamVerschueren/stream-to-observable)                                                                                     |
 | `@sindresorhus/is`                                   | `0.14.0`       | Sindre Sorhus                  | [https://github.com/sindresorhus/is](https://github.com/sindresorhus/is)                                                                                                                             |
 | `@szmarczak/http-timer`                              | `1.1.2`        | Szymon Marczak                 | [https://github.com/szmarczak/http-timer](https://github.com/szmarczak/http-timer)                                                                                                                   |
@@ -375,7 +375,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `@types/qs`                                          | `6.9.7`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/range-parser`                                | `1.2.4`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/retry`                                       | `0.12.1`       |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
-| `@types/semver`                                      | `7.3.7`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
+| `@types/semver`                                      | `7.3.8`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/serve-static`                                | `1.13.10`      |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/stack-trace`                                 | `0.0.29`       |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/uuid`                                        | `8.3.1`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
@@ -618,7 +618,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `json5`                                              | `2.2.0`        | Aseem Kishore                  | [https://github.com/json5/json5](https://github.com/json5/json5)                                                                                                                                     |
 | `jsonfile`                                           | `6.1.0`        | JP Richardson                  | [https://github.com/jprichardson/node-jsonfile](https://github.com/jprichardson/node-jsonfile)                                                                                                       |
 | `jsonwebtoken`                                       | `8.5.1`        | auth0                          | [https://github.com/auth0/node-jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)                                                                                                             |
-| `jszip`                                              | `3.6.0`        | Stuart Knightley               | [https://github.com/Stuk/jszip](https://github.com/Stuk/jszip)                                                                                                                                       |
+| `jszip`                                              | `3.7.0`        | Stuart Knightley               | [https://github.com/Stuk/jszip](https://github.com/Stuk/jszip)                                                                                                                                       |
 | `jwa`                                                | `1.4.1`        | Brian J. Brennan               | [https://github.com/brianloveswords/node-jwa](https://github.com/brianloveswords/node-jwa)                                                                                                           |
 | `jwa`                                                | `2.0.0`        | Brian J. Brennan               | [https://github.com/brianloveswords/node-jwa](https://github.com/brianloveswords/node-jwa)                                                                                                           |
 | `jws`                                                | `3.2.2`        | Brian J Brennan                | [https://github.com/brianloveswords/node-jws](https://github.com/brianloveswords/node-jws)                                                                                                           |
