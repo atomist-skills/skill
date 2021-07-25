@@ -23,9 +23,13 @@ import { guid } from "./util";
 
 export async function createDir(
 	ctx: Contextual<any, any>,
-	name?: string,
+	options?: string | { name?: string; path?: string },
 ): Promise<string> {
-	const tmpDir = path.join(os.tmpdir(), name || guid());
+	if (typeof options === "string") {
+		options = { name: options };
+	}
+	const tmpDir =
+		options?.path || path.join(os.tmpdir(), options?.name || guid());
 	await fs.ensureDir(tmpDir);
 	ctx.onComplete(async () => {
 		await fs.remove(tmpDir);
