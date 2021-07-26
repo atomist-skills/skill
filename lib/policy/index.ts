@@ -20,6 +20,7 @@ export {
 	CreatePolicyRun,
 	PolicyDetails,
 	whenAll,
+	whenOne,
 	whenParameter,
 } from "./check_handler";
 export {

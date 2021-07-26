@@ -34,7 +34,7 @@ export enum Severity {
 	Minimum = "minimum",
 }
 
-export type Annotation = UpdateCheck["annotations"][0];
+export type Annotation = UpdateCheck["annotations"][0] & { sha: string };
 export type Action = UpdateCheck["actions"][0];
 
 export function toConclusion(conclusion: string): Conclusion {

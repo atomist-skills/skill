@@ -33,6 +33,7 @@ import { Project } from "../project/project";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import { success } from "../status";
 import { isStaging } from "../util";
+import { transactAudit } from "./audit";
 import { markdownLink } from "./badge";
 import { Action, Annotation, Conclusion, Severity } from "./policy";
 
@@ -42,9 +43,16 @@ export type CreatePolicyRun<D, C> = (ctx: EventContext<D, C>) => {
 };
 
 export interface PolicyDetails {
-	name: string;
-	title: string;
-	body: string;
+	check?: {
+		name: string;
+		title: string;
+		body: string;
+		longRunning?: boolean;
+		includeAnnotations?: boolean;
+	};
+	audit?: {
+		name: string;
+	};
 }
 
 function createDetails<D, C>(
@@ -52,6 +60,21 @@ function createDetails<D, C>(
 ): ChainedHandler<D, C, { details?: PolicyDetails }> {
 	return async ctx => {
 		ctx.chain.details = options(ctx as any);
+	};
+}
+
+export function whenOne<S, C>(
+	...whens: Array<(ctx: EventContext<S, C>) => HandlerStatus | undefined>
+): (ctx: EventContext<S, C>) => HandlerStatus | undefined {
+	return ctx => {
+		let result;
+		for (const when of whens) {
+			result = when(ctx);
+			if (!result) {
+				return undefined;
+			}
+		}
+		return result;
 	};
 }
 
@@ -89,18 +112,13 @@ export function checkHandler<S, C>(parameters: {
 	when?: (ctx: EventContext<S, C>) => HandlerStatus | undefined;
 	id: CreateRepositoryId<S, C>;
 	clone?: (ctx: EventContext<S, C>) => CloneOptions | string[] | boolean;
-	details: (ctx: EventContext<S, C>) => {
-		name: string;
-		title: string;
-		body: string;
-		longRunning?: boolean;
-	};
+	details?: (ctx: EventContext<S, C>) => PolicyDetails;
 	execute: (
 		ctx: EventContext<S, C> & {
 			chain: {
 				id: AuthenticatedRepositoryId<any>;
 				details: PolicyDetails;
-				check: Check;
+				check?: Check;
 				project?: Project;
 			};
 		},
@@ -121,7 +139,7 @@ export function checkHandler<S, C>(parameters: {
 		{
 			id: AuthenticatedRepositoryId<any>;
 			details: PolicyDetails;
-			check: Check;
+			check?: Check;
 			project?: Project;
 		}
 	>(
@@ -157,6 +175,9 @@ export function checkHandler<S, C>(parameters: {
 		},
 		createDetails<S, C>(parameters.details),
 		async ctx => {
+			if (!ctx.chain.details.check) {
+				return undefined;
+			}
 			const app = isStaging() ? "atomista" : "atomist";
 			const tx = (ctx.trigger as SubscriptionIncoming).subscription.tx;
 			const checks = (
@@ -164,7 +185,7 @@ export function checkHandler<S, C>(parameters: {
 					owner: ctx.chain.id.owner,
 					repo: ctx.chain.id.repo,
 					ref: ctx.chain.id.sha,
-					check_name: ctx.chain.details.name,
+					check_name: ctx.chain.details.check.name,
 					filter: "latest",
 				})
 			).data;
@@ -180,48 +201,72 @@ export function checkHandler<S, C>(parameters: {
 			}
 			return undefined;
 		},
-		createCheck<S, C>(async (ctx: any) => ({
-			name: ctx.chain.details.name,
-			title: ctx.chain.details.title,
-			body: `${await markdownLink({
-				sha: ctx.chain.id.sha,
-				workspace: ctx.workspaceId,
-				name: ctx.chain.details.name,
-				title: ctx.chain.details.title,
-			})}\n\n${
-				ctx.chain.details.body ? `\n\n${ctx.chain.details.body}` : ""
-			}`,
-			longRunning: ctx.chain.details.longRunning,
-		})),
+		async ctx => {
+			if (!ctx.chain.details.check) {
+				return undefined;
+			}
+			return createCheck<S, C>(async (ctx: any) => ({
+				name: ctx.chain.details.check.name,
+				title: ctx.chain.details.check.title,
+				body: `${await markdownLink({
+					sha: ctx.chain.id.sha,
+					workspace: ctx.workspaceId,
+					name: ctx.chain.details.check.name,
+					title: ctx.chain.details.check.title,
+				})}\n\n${
+					ctx.chain.details.check.body
+						? `\n\n${ctx.chain.details.check.body}`
+						: ""
+				}`,
+				longRunning: ctx.chain.details.check.longRunning,
+			}))(ctx);
+		},
 		async ctx => {
 			const result = await parameters.execute(ctx);
 
-			const badge = await markdownLink({
-				sha: ctx.chain.id.sha,
-				workspace: ctx.workspaceId,
-				name: ctx.chain.details.name,
-				title: ctx.chain.details.title,
-				conclusion: result.conclusion,
-				severity: result.severity,
-			});
-
-			const body = `${badge}${result.body ? `\n\n${result.body}` : ""}`;
-			await ctx.chain.check.update({
-				conclusion: result.conclusion,
-				body,
-				annotations: result.annotations,
-				actions: result.actions,
-			});
-
-			if (result.comment) {
-				const comment = pr => `${badge}\n\n${result.comment(pr)}`;
-				await commentPullRequest(
+			if (ctx.chain.details.audit && result.annotations?.length > 0) {
+				await transactAudit(
 					ctx,
-					ctx.chain.project,
-					ctx.chain.id.sha,
-					comment,
-					"vulnerability_report",
+					ctx.chain.id,
+					ctx.chain.details.audit.name,
+					result.message,
+					result.annotations,
 				);
+			}
+
+			if (ctx.chain.details.check) {
+				const badge = await markdownLink({
+					sha: ctx.chain.id.sha,
+					workspace: ctx.workspaceId,
+					name: ctx.chain.details.check.name,
+					title: ctx.chain.details.check.title,
+					conclusion: result.conclusion,
+					severity: result.severity,
+				});
+
+				const body = `${badge}${
+					result.body ? `\n\n${result.body}` : ""
+				}`;
+
+				await ctx.chain.check.update({
+					conclusion: result.conclusion,
+					body,
+					annotations: ctx.chain.details.check.includeAnnotations
+						? result.annotations
+						: [],
+					actions: result.actions,
+				});
+
+				if (result.comment) {
+					const comment = pr => `${badge}\n\n${result.comment(pr)}`;
+					await commentPullRequest(
+						ctx,
+						ctx.chain.project,
+						ctx.chain.id.sha,
+						comment,
+						"vulnerability_report",
+					);
+				}
 			}
 
 			return result.status;
