@@ -21,7 +21,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
 | [ISC](#isc)                          | 44    |
 | [MIT AND Zlib](#mit-and-zlib)        | 1     |
-| [MIT](#mit)                          | 643   |
+| [MIT](#mit)                          | 645   |
 | [Public Domain](#public-domain)      | 1     |
 | [Python-2.0](#python-20)             | 1     |
 
@@ -357,6 +357,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `@types/lodash.chunk`                                | `4.2.6`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/lodash.clonedeep`                            | `4.5.6`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/lodash.forown`                               | `4.4.6`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
+| `@types/lodash.groupby`                              | `4.6.6`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/lodash.kebabcase`                            | `4.1.6`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/lodash.map`                                  | `4.6.13`       |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/lodash.merge`                                | `4.6.6`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
@@ -639,6 +640,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `lodash.difference`                                  | `4.5.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.forown`                                      | `4.4.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.get`                                         | `4.4.2`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
+| `lodash.groupby`                                     | `4.6.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.includes`                                    | `4.3.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.isboolean`                                   | `3.0.3`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.isinteger`                                   | `4.0.4`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
