@@ -77,7 +77,15 @@ export async function transactAudit(
 				  )
 				? ":sarif.result.level/warning"
 				: ":sarif.result.level/note",
-			"kind": ":sarif.kind.result/open",
+			"kind": annotationsByPath[path].find(
+				a => a.annotationLevel === "failure",
+			)
+				? ":sarif.result.kind/fail"
+				: annotationsByPath[path].find(
+						a => a.annotationLevel === "warning",
+				  )
+				? ":sarif.result.kind/review"
+				: ":sarif.result.kind/open",
 			"sarif.result.message/text": message,
 			"locations": {
 				set: entityRefs(locationEntities),
