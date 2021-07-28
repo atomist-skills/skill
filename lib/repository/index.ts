@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-export { matchesRefFilter, matchesRepoFilter } from "./filter";
+export {
+	commitMatchesRepoFilter,
+	matchesRefFilter,
+	matchesRepoFilter,
+} from "./filter";
 export {
 	AuthenticatedRepositoryId,
 	gitHubComRepository as gitHub,

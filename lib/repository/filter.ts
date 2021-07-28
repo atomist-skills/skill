@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Commit } from "../definition/subscription/common_types";
 import {
 	OnPushSubscription,
 	OnTagSubscription,
@@ -25,6 +26,20 @@ import { toArray } from "../util";
  * @deprecated use matchesRepoFilter
  */
 export const matchesFilter = matchesRepoFilter;
+
+export function commitMatchesRepoFilter(
+	commit: Commit,
+	parameterName: string,
+	ctx: Contextual<any, any>,
+): boolean {
+	return matchesRepoFilter(
+		commit?.repo?.graphqlId,
+		commit?.repo?.org?.graphqlId,
+		ctx.configuration.name,
+		parameterName,
+		ctx,
+	);
+}
 
 export function matchesRepoFilter(
 	repoId: string,
