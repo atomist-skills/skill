@@ -24,6 +24,42 @@ import {
 
 describe("filter", () => {
 	describe("matchesRepoFilter", () => {
+		it("should not match repository with repoFilter param without value", () => {
+			const ctx: Contextual<any, any> = {
+				configuration: [
+					{
+						name: "test",
+						parameters: {
+							repos: null,
+						},
+					},
+				],
+			} as any;
+			assert.deepStrictEqual(
+				matchesRepoFilter("foo", "bar", "test", "repos", ctx),
+				false,
+			);
+		});
+		it("should match any repository with repoFilter", () => {
+			const ctx: Contextual<any, any> = {
+				configuration: [
+					{
+						name: "test",
+						parameters: {
+							repos: {
+								includes: null,
+								excludes: null,
+							},
+						},
+					},
+				],
+			} as any;
+			assert.deepStrictEqual(
+				matchesRepoFilter("foo", "bar", "test", "repos", ctx),
+				true,
+			);
+		});
+
 		it("should match repository with no repoFilter param", () => {
 			const ctx: Contextual<any, any> = {
 				configuration: [

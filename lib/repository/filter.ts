@@ -36,6 +36,13 @@ export function matchesRepoFilter(
 	const cfg = toArray(ctx.configuration).find(
 		c => c.name === configurationName,
 	);
+	// New case for empty repository filter
+	if (
+		Object.keys(cfg.parameters).includes(parameterName) &&
+		!cfg.parameters[parameterName]
+	) {
+		return false;
+	}
 	const repoFilter = cfg.parameters[parameterName];
 	if (repoFilter) {
 		const excludes = repoFilter.excludes || [];
