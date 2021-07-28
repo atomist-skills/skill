@@ -15,9 +15,11 @@
  */
 
 export interface Repo {
+	graphqlId: string;
 	name: string;
 	defaultBranch: string;
 	org: {
+		graphqlId: string;
 		installationToken: string;
 		name: string;
 		url: string;
