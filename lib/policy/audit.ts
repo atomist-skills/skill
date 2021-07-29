@@ -52,7 +52,7 @@ export async function transactAudit(
 		}),
 	];
 
-	if (annotations.length > 0) {
+	if (annotations?.length > 0) {
 		const annotationsByPath = groupBy(annotations, "path");
 		for (const path in annotationsByPath) {
 			const locationEntities = annotationsByPath[path].map(a =>
