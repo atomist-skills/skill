@@ -60,7 +60,7 @@ describe("filter", () => {
 			);
 		});
 
-		it("should match repository with no repoFilter param", () => {
+		it("should not match repository with no repoFilter param", () => {
 			const ctx: Contextual<any, any> = {
 				configuration: [
 					{
@@ -71,7 +71,7 @@ describe("filter", () => {
 			} as any;
 			assert.deepStrictEqual(
 				matchesRepoFilter("foo", "bar", "test", "repos", ctx),
-				true,
+				false,
 			);
 		});
 
