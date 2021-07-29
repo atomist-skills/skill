@@ -29,18 +29,12 @@ export async function transactAudit(
 	message: string,
 	annotations: Annotation[],
 ): Promise<void> {
-	if (annotations.length === 0) {
-		return;
-	}
-
 	const repo = (
 		await api(id).repos.get({
 			owner: id.owner,
 			repo: id.repo,
 		})
 	).data;
-
-	const annotationsByPath = groupBy(annotations, "path");
 
 	const entities = [
 		entity("git/repo", "$repo", {
@@ -54,55 +48,60 @@ export async function transactAudit(
 		}),
 		entity("sarif/run", "$sarif-run", {
 			"commit": "$commit",
-			"sarif.tool.driver/name": "atomist",
+			"sarif.tool.driver/name": `${ctx.skill.namespace}/${ctx.skill.name}#${ctx.name}`,
 		}),
 	];
 
-	for (const path in annotationsByPath) {
-		const locationEntities = annotationsByPath[path].map(a =>
-			entity("sarif/physical-location", {
-				"uri": a.path,
-				"sarif.physical-location.region/startLine": a.startLine,
-			}),
-		);
-		const sarifResultEntity = entity("sarif/result", "$result", {
-			"run": "$sarif-run",
-			ruleId,
-			"level": annotationsByPath[path].find(
-				a => a.annotationLevel === "failure",
-			)
-				? ":sarif.result.level/error"
-				: annotationsByPath[path].find(
-						a => a.annotationLevel === "warning",
-				  )
-				? ":sarif.result.level/warning"
-				: ":sarif.result.level/note",
-			"kind": annotationsByPath[path].find(
-				a => a.annotationLevel === "failure",
-			)
-				? ":sarif.result.kind/fail"
-				: annotationsByPath[path].find(
-						a => a.annotationLevel === "warning",
-				  )
-				? ":sarif.result.kind/review"
-				: ":sarif.result.kind/open",
-			"sarif.result.message/text": message,
-			"locations": {
-				set: entityRefs(locationEntities),
-			},
-		});
-		const gitFileEntity = entity("git/file", {
-			path,
-			sha: annotationsByPath[path][0].sha,
-			scanResults: {
-				add: ["$result"],
-			},
-		});
-		await ctx.datalog.transact([
-			...entities,
-			...locationEntities,
-			sarifResultEntity,
-			gitFileEntity,
-		]);
+	if (annotations.length > 0) {
+		const annotationsByPath = groupBy(annotations, "path");
+		for (const path in annotationsByPath) {
+			const locationEntities = annotationsByPath[path].map(a =>
+				entity("sarif/physical-location", {
+					"uri": a.path,
+					"sarif.physical-location.region/startLine": a.startLine,
+				}),
+			);
+			const sarifResultEntity = entity("sarif/result", "$result", {
+				"run": "$sarif-run",
+				ruleId,
+				"level": annotationsByPath[path].find(
+					a => a.annotationLevel === "failure",
+				)
+					? ":sarif.result.level/error"
+					: annotationsByPath[path].find(
+							a => a.annotationLevel === "warning",
+					  )
+					? ":sarif.result.level/warning"
+					: ":sarif.result.level/note",
+				"kind": annotationsByPath[path].find(
+					a => a.annotationLevel === "failure",
+				)
+					? ":sarif.result.kind/fail"
+					: annotationsByPath[path].find(
+							a => a.annotationLevel === "warning",
+					  )
+					? ":sarif.result.kind/review"
+					: ":sarif.result.kind/open",
+				"sarif.result.message/text": message,
+				"locations": {
+					set: entityRefs(locationEntities),
+				},
+			});
+			const gitFileEntity = entity("git/file", {
+				path,
+				sha: annotationsByPath[path][0].sha,
+				scanResults: {
+					add: ["$result"],
+				},
+			});
+			await ctx.datalog.transact([
+				...entities,
+				...locationEntities,
+				sarifResultEntity,
+				gitFileEntity,
+			]);
+		}
+	} else {
+		await ctx.datalog.transact(entities);
 	}
 }

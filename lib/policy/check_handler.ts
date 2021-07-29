@@ -224,7 +224,7 @@ export function checkHandler<S, C>(parameters: {
 		async ctx => {
 			const result = await parameters.execute(ctx);
 
-			if (ctx.chain.details.audit && result.annotations?.length > 0) {
+			if (ctx.chain.details.audit) {
 				await transactAudit(
 					ctx,
 					ctx.chain.id,
