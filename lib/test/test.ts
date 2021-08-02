@@ -79,7 +79,7 @@ export async function assertSkill(
 			},
 		} as any;
 
-		const stats = { facts: 0 };
+		const stats = { facts: 0, entities: 0 };
 		context.onComplete(async () => {
 			debug(`Transaction stats: ${JSON.stringify(stats)}`);
 		});
@@ -94,6 +94,7 @@ export async function assertSkill(
 					);
 					return p + facts.length;
 				}, stats.facts);
+				stats.entities += toArray(entities).length;
 				debug(
 					`Transacting entities: ${JSON.stringify(
 						entities,

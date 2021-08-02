@@ -33,7 +33,7 @@ export function createTransact(
 		process.env.ATOMIST_TOPIC || `${workspaceId}-${skillId}-response`;
 	let topic;
 
-	const stats = { facts: 0 };
+	const stats = { facts: 0, entities: 0 };
 	ctx.onComplete(async () => {
 		debug(`Transaction stats: ${JSON.stringify(stats)}`);
 	});
@@ -60,6 +60,7 @@ export function createTransact(
 			);
 			return p + facts.length;
 		}, stats.facts);
+		stats.entities += toArray(entities).length;
 
 		const message = {
 			api_version: "1",
