@@ -80,7 +80,7 @@ export async function assertSkill(
 		} as any;
 
 		const stats = { facts: 0 };
-		ctx.onComplete(async () => {
+		context.onComplete(async () => {
 			debug(`Transaction stats: ${JSON.stringify(stats)}`);
 		});
 		context.datalog = {
@@ -101,13 +101,23 @@ export async function assertSkill(
 					)}`,
 				);
 			},
-			query: createDatalogClient(
-				apiKeySecret.value,
-				ctx.workspaceId,
-				ctx.correlationId,
-				ctx.skill as any,
-				{ onComplete: ctx.onComplete },
-			).query,
+			query: async (
+				query: string,
+				parameters?: any,
+				options?: {
+					configurationName?: string;
+					tx?: number;
+					mode?: "raw" | "map" | "obj";
+					rules?: string;
+				},
+			) =>
+				createDatalogClient(
+					apiKeySecret.value,
+					ctx.workspaceId,
+					ctx.correlationId,
+					ctx.skill as any,
+					{ onComplete: ctx.onComplete },
+				).query(query, parameters, options),
 		};
 		return {
 			...context,
