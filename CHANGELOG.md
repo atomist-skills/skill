@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 *   Ensure dirs exist when cloneFiles is used. [4a54eb9](https://github.com/atomist-skills/skill/commit/4a54eb973a89716682787fa7d9acbea8ded14b41)
 *   Create baseDir on project.load. [e201264](https://github.com/atomist-skills/skill/commit/e201264041011cd91f48001b5ad5c2e1d27aa252)
 *   Bind ?ctx. [beffcb4](https://github.com/atomist-skills/skill/commit/beffcb419fa23512cd352f4ef7502cd45903e81f)
+*   Missing staging support in Datalog query client. [#429](https://github.com/atomist-skills/skill/issues/429)
 
 ## [0.11.0](https://github.com/atomist/skill/compare/0.10.0...0.11.0) - 2021-04-26
 
