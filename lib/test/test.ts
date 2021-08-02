@@ -37,7 +37,7 @@ import {
 	WebhookIncoming,
 } from "../payload";
 import { apiKey } from "../script/skill_register";
-import { guid, handlerLoader, replacer, toArray } from "../util";
+import { guid, handlerLoader, replacer } from "../util";
 
 export async function assertSkill(
 	payload: CommandIncoming | EventIncoming | WebhookIncoming,
@@ -79,22 +79,8 @@ export async function assertSkill(
 			},
 		} as any;
 
-		const stats = { facts: 0, entities: 0 };
-		context.onComplete(async () => {
-			debug(`Transaction stats: ${JSON.stringify(stats)}`);
-		});
 		context.datalog = {
 			transact: async (entities: any) => {
-				stats.facts = toArray(entities).reduce((p, c) => {
-					const facts = Object.keys(c).filter(
-						f =>
-							f !== "schema/entity" &&
-							f !== "schema/entity-type" &&
-							f !== "db/id",
-					);
-					return p + facts.length;
-				}, stats.facts);
-				stats.entities += toArray(entities).length;
 				debug(
 					`Transacting entities: ${JSON.stringify(
 						entities,
@@ -112,13 +98,11 @@ export async function assertSkill(
 					rules?: string;
 				},
 			) =>
-				createDatalogClient(
-					apiKeySecret.value,
-					context.workspaceId,
-					context.correlationId,
-					context.skill as any,
-					{ onComplete: context.onComplete },
-				).query(query, parameters, options),
+				createDatalogClient(apiKeySecret.value, context).query(
+					query,
+					parameters,
+					options,
+				),
 		};
 		return {
 			...context,

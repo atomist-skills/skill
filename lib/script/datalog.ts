@@ -51,17 +51,12 @@ export async function query(args: {
 		} as any;
 	}
 
-	const client = createDatalogClient(
-		await apiKey(),
-		await wid(args.workspace),
-		guid(),
+	const client = createDatalogClient(await apiKey(), {
+		workspaceId: await wid(args.workspace),
+		correlationId: guid(),
 		skill,
-		{
-			onComplete: () => {
-				// Intentionally left empty
-			},
-		},
-	);
+		onComplete: undefined,
+	});
 
 	const query = (
 		await fs.readFile(path.join(args.cwd, args.query))

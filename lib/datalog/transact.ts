@@ -24,19 +24,22 @@ import { replacer, toArray } from "../util";
 export type DatalogTransact = (entities: any | any[]) => Promise<void>;
 
 export function createTransact(
-	workspaceId: string,
-	correlationId: string,
-	skillId: string,
-	ctx?: Pick<Contextual<any, any>, "onComplete">,
+	ctx: Pick<
+		Contextual<any, any>,
+		"onComplete" | "workspaceId" | "correlationId" | "skill"
+	>,
 ): DatalogTransact {
 	const topicName =
-		process.env.ATOMIST_TOPIC || `${workspaceId}-${skillId}-response`;
+		process.env.ATOMIST_TOPIC ||
+		`${ctx.workspaceId}-${ctx.skill.id}-response`;
 	let topic;
 
 	const stats = { facts: 0, entities: 0 };
-	ctx.onComplete(async () => {
-		debug(`Transaction stats: ${JSON.stringify(stats)}`);
-	});
+	if (ctx.onComplete) {
+		ctx.onComplete(async () => {
+			debug(`Transaction stats: ${JSON.stringify(stats)}`);
+		});
+	}
 
 	return async entities => {
 		const invalidEntities = toArray(entities).filter(e =>
@@ -64,9 +67,9 @@ export function createTransact(
 
 		const message = {
 			api_version: "1",
-			correlation_id: correlationId,
+			correlation_id: ctx.correlationId,
 			team: {
-				id: workspaceId,
+				id: ctx.workspaceId,
 			},
 			type: "facts_ingestion",
 			entities: toEDNStringFromSimpleObject(toArray(entities)).replace(
@@ -85,7 +88,7 @@ export function createTransact(
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
 			await topic.publishMessage({
 				data: messageBuffer,
-				orderingKey: correlationId,
+				orderingKey: ctx.correlationId,
 			});
 		} catch (err) {
 			error(`Error occurred sending message: ${err.message}`);

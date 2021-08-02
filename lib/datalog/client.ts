@@ -19,10 +19,9 @@ import { Response } from "node-fetch";
 import { Contextual } from "../handler/handler";
 import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
-import { Skill } from "../payload";
 import { retry } from "../retry";
 import { isStaging, toArray } from "../util";
-import { createTransact } from "./transact";
+import { createTransact, DatalogTransact } from "./transact";
 
 export interface DatalogClient {
 	transact(entities: any | any[]): Promise<void>;
@@ -42,19 +41,19 @@ class NodeFetchDatalogClient implements DatalogClient {
 	constructor(
 		private readonly apiKey: string,
 		private readonly url: string,
-		private readonly workspaceId: string,
-		private readonly correlationId: string,
-		private readonly skill: Skill,
-		private readonly ctx: Pick<Contextual<any, any>, "onComplete">,
+		private readonly ctx: Pick<
+			Contextual<any, any>,
+			"onComplete" | "workspaceId" | "correlationId" | "skill"
+		>,
 	) {}
 
+	private transactInstance: DatalogTransact;
+
 	public async transact(entities: any): Promise<void> {
-		return createTransact(
-			this.workspaceId,
-			this.correlationId,
-			this.skill.id,
-			this.ctx,
-		)(entities);
+		if (!this.transactInstance) {
+			this.transactInstance = createTransact(this.ctx);
+		}
+		return this.transactInstance(entities);
 	}
 
 	public async query<T = any, P = any>(
@@ -75,7 +74,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 ${options?.tx ? `:tx-range {:start ${options.tx} }` : ""}
 ${
 	options?.configurationName
-		? `:skill-ref {:name "${this.skill.name}" :namespace "${this.skill.namespace}" :configuration-name "${options.configurationName}"}`
+		? `:skill-ref {:name "${this.ctx.skill.name}" :namespace "${this.ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`
 		: ""
 }
 ${options?.rules ? `:rules ${options.rules}` : ""}
@@ -135,24 +134,17 @@ ${options?.rules ? `:rules ${options.rules}` : ""}
 
 export function createDatalogClient(
 	apiKey: string,
-	wid: string,
-	correlationId: string,
-	skill: Skill,
-	ctx: Pick<Contextual<any, any>, "onComplete">,
+	ctx: Pick<
+		Contextual<any, any>,
+		"onComplete" | "workspaceId" | "correlationId" | "skill"
+	>,
 	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
 		(isStaging()
 			? "https://api-staging.atomist.services/datalog"
 			: "https://api.atomist.com/datalog"),
 ): DatalogClient {
-	const url = `${endpoint}/team/${wid}`;
-	return new NodeFetchDatalogClient(
-		apiKey,
-		url,
-		wid,
-		correlationId,
-		skill,
-		ctx,
-	);
+	const url = `${endpoint}/team/${ctx.workspaceId}`;
+	return new NodeFetchDatalogClient(apiKey, url, ctx);
 }
 
 export function resolveParameters(query: string, parameters: any = {}): string {
