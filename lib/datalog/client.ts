@@ -20,7 +20,7 @@ import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
 import { Skill } from "../payload";
 import { retry } from "../retry";
-import { toArray } from "../util";
+import { isStaging, toArray } from "../util";
 import { createTransact } from "./transact";
 
 export interface DatalogClient {
@@ -136,7 +136,9 @@ export function createDatalogClient(
 	correlationId: string,
 	skill: Skill,
 	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
-		"https://api.atomist.com/datalog",
+		(isStaging()
+			? "https://api-staging.atomist.services/datalog"
+			: "https://api.atomist.com/datalog"),
 ): DatalogClient {
 	const url = `${endpoint}/team/${wid}`;
 	return new NodeFetchDatalogClient(apiKey, url, wid, correlationId, skill);
