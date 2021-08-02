@@ -16,6 +16,7 @@
 
 import { Response } from "node-fetch";
 
+import { Contextual } from "../handler/handler";
 import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
 import { Skill } from "../payload";
@@ -44,6 +45,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 		private readonly workspaceId: string,
 		private readonly correlationId: string,
 		private readonly skill: Skill,
+		private readonly ctx?: Pick<Contextual<any, any>, "onComplete">,
 	) {}
 
 	public async transact(entities: any): Promise<void> {
@@ -51,6 +53,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 			this.workspaceId,
 			this.correlationId,
 			this.skill.id,
+			this.ctx,
 		)(entities);
 	}
 
@@ -135,6 +138,7 @@ export function createDatalogClient(
 	wid: string,
 	correlationId: string,
 	skill: Skill,
+	ctx: Pick<Contextual<any, any>, "onComplete">,
 	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
 		(isStaging()
 			? "https://api-staging.atomist.services/datalog"

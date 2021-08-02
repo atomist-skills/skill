@@ -17,6 +17,7 @@
 import { PubSub } from "@google-cloud/pubsub";
 import { toEDNStringFromSimpleObject } from "edn-data";
 
+import { Contextual } from "../handler/handler";
 import { debug, error } from "../log/console";
 import { replacer, toArray } from "../util";
 
@@ -26,10 +27,17 @@ export function createTransact(
 	workspaceId: string,
 	correlationId: string,
 	skillId: string,
+	ctx?: Pick<Contextual<any, any>, "onComplete">,
 ): DatalogTransact {
 	const topicName =
 		process.env.ATOMIST_TOPIC || `${workspaceId}-${skillId}-response`;
 	let topic;
+
+	const stats = { facts: 0 };
+	ctx.onComplete(async () => {
+		debug(`Transaction stats: ${JSON.stringify(stats)}`);
+	});
+
 	return async entities => {
 		const invalidEntities = toArray(entities).filter(e =>
 			Object.values(e).some(v => v === undefined),
@@ -42,6 +50,16 @@ export function createTransact(
 			);
 			throw new Error("Entities with 'undefined' properties detected");
 		}
+
+		stats.facts = toArray(entities).reduce((p, c) => {
+			const facts = Object.keys(c).filter(
+				f =>
+					f !== "schema/entity" &&
+					f !== "schema/entity-type" &&
+					f !== "db/id",
+			);
+			return p + facts.length;
+		}, stats.facts);
 
 		const message = {
 			api_version: "1",

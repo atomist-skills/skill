@@ -56,6 +56,11 @@ export async function query(args: {
 		await wid(args.workspace),
 		guid(),
 		skill,
+		{
+			onComplete: () => {
+				// Intentionally left empty
+			},
+		},
 	);
 
 	const query = (
