@@ -113,10 +113,10 @@ export async function assertSkill(
 			) =>
 				createDatalogClient(
 					apiKeySecret.value,
-					ctx.workspaceId,
-					ctx.correlationId,
-					ctx.skill as any,
-					{ onComplete: ctx.onComplete },
+					context.workspaceId,
+					context.correlationId,
+					context.skill as any,
+					{ onComplete: context.onComplete },
 				).query(query, parameters, options),
 		};
 		return {
