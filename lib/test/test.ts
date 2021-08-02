@@ -22,6 +22,7 @@ import {
 	createContext,
 	loggingCreateContext,
 } from "../context";
+import { createDatalogClient } from "../datalog/client";
 import { processCommand, processEvent, processWebhook } from "../function";
 import { Contextual, HandlerStatus } from "../handler/handler";
 import { debug } from "../log/console";
@@ -36,7 +37,7 @@ import {
 	WebhookIncoming,
 } from "../payload";
 import { apiKey } from "../script/skill_register";
-import { guid, handlerLoader, replacer } from "../util";
+import { guid, handlerLoader, replacer, toArray } from "../util";
 
 export async function assertSkill(
 	payload: CommandIncoming | EventIncoming | WebhookIncoming,
@@ -77,8 +78,22 @@ export async function assertSkill(
 				);
 			},
 		} as any;
+
+		const stats = { facts: 0 };
+		ctx.onComplete(async () => {
+			debug(`Transaction stats: ${JSON.stringify(stats)}`);
+		});
 		context.datalog = {
 			transact: async (entities: any) => {
+				stats.facts = toArray(entities).reduce((p, c) => {
+					const facts = Object.keys(c).filter(
+						f =>
+							f !== "schema/entity" &&
+							f !== "schema/entity-type" &&
+							f !== "db/id",
+					);
+					return p + facts.length;
+				}, stats.facts);
 				debug(
 					`Transacting entities: ${JSON.stringify(
 						entities,
@@ -86,9 +101,13 @@ export async function assertSkill(
 					)}`,
 				);
 			},
-			query: async () => {
-				return undefined;
-			},
+			query: createDatalogClient(
+				apiKeySecret.value,
+				ctx.workspaceId,
+				ctx.correlationId,
+				ctx.skill as any,
+				{ onComplete: ctx.onComplete },
+			).query,
 		};
 		return {
 			...context,
