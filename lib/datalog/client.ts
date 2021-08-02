@@ -45,7 +45,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 		private readonly workspaceId: string,
 		private readonly correlationId: string,
 		private readonly skill: Skill,
-		private readonly ctx?: Pick<Contextual<any, any>, "onComplete">,
+		private readonly ctx: Pick<Contextual<any, any>, "onComplete">,
 	) {}
 
 	public async transact(entities: any): Promise<void> {
@@ -145,7 +145,14 @@ export function createDatalogClient(
 			: "https://api.atomist.com/datalog"),
 ): DatalogClient {
 	const url = `${endpoint}/team/${wid}`;
-	return new NodeFetchDatalogClient(apiKey, url, wid, correlationId, skill);
+	return new NodeFetchDatalogClient(
+		apiKey,
+		url,
+		wid,
+		correlationId,
+		skill,
+		ctx,
+	);
 }
 
 export function resolveParameters(query: string, parameters: any = {}): string {
