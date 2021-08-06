@@ -52,6 +52,7 @@ export async function runSkill(skill?: string): Promise<void> {
 		app.post("/", async (req, res) => {
 			const message = req.body.message;
 			const eventId = message.messageId;
+			const traceId = req.get("x-cloud-trace-context");
 			const start = Date.now();
 
 			try {
@@ -62,6 +63,7 @@ export async function runSkill(skill?: string): Promise<void> {
 					},
 					loggingCreateContext(createContext, {
 						payload: true,
+						traceId: traceId ? traceId.split("/")[0] : undefined,
 						before: () => debug("Cloud Run execution started"),
 						after: async () =>
 							debug(

@@ -32,6 +32,7 @@ export function initLogging(
 		correlationId: string;
 		workspaceId: string;
 		skillId: string;
+		traceId?: string;
 	},
 	onComplete: (callback: () => Promise<void>) => void,
 	labels: Record<string, any> = {},

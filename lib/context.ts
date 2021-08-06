@@ -69,6 +69,7 @@ export function loggingCreateContext(
 		payload: boolean;
 		before?: (ctx: Contextual<any, any>) => void;
 		after?: () => Promise<void>;
+		traceId?: string;
 	} = { payload: true },
 ): ContextFactory {
 	return (payload, ctx) => {
@@ -80,6 +81,7 @@ export function loggingCreateContext(
 					eventId: ctx.eventId,
 					correlationId: context.correlationId,
 					workspaceId: context.workspaceId,
+					traceId: options?.traceId,
 				},
 				context.onComplete,
 				{
