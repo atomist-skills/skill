@@ -42,9 +42,9 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 | Name                                  | Version         | Publisher             | Repository                                                                                                                             |
 | ------------------------------------- | --------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `@atomist/skill-logging`              | `1.0.8-main.19` | Atomist, Inc.         | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
+| `@atomist/skill-logging`              | `1.0.8-main.20` | Atomist, Inc.         | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
 | `@atomist/slack-messages`             | `1.2.2`         | Atomist               | [https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)                                                 |
-| `@google-cloud/common`                | `3.7.0`         | Google Inc.           | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
+| `@google-cloud/common`                | `3.7.1`         | Google Inc.           | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
 | `@google-cloud/functions-framework`   | `1.9.0`         | Google Inc.           | [https://github.com/GoogleCloudPlatform/functions-framework-nodejs](https://github.com/GoogleCloudPlatform/functions-framework-nodejs) |
 | `@google-cloud/logging`               | `8.2.0`         | Google Inc.           | [https://github.com/googleapis/nodejs-logging](https://github.com/googleapis/nodejs-logging)                                           |
 | `@google-cloud/paginator`             | `3.0.5`         | Google Inc.           | [https://github.com/googleapis/nodejs-paginator](https://github.com/googleapis/nodejs-paginator)                                       |
@@ -52,7 +52,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@google-cloud/projectify`            | `2.0.1`         | Google Inc.           | [https://github.com/googleapis/nodejs-projectify](https://github.com/googleapis/nodejs-projectify)                                     |
 | `@google-cloud/promisify`             | `2.0.3`         | Google Inc.           | [https://github.com/googleapis/nodejs-promisify](https://github.com/googleapis/nodejs-promisify)                                       |
 | `@google-cloud/pubsub`                | `2.16.1`        | Google Inc.           | [https://github.com/googleapis/nodejs-pubsub](https://github.com/googleapis/nodejs-pubsub)                                             |
-| `@google-cloud/storage`               | `5.12.0`        | Google Inc.           | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
+| `@google-cloud/storage`               | `5.13.0`        | Google Inc.           | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
 | `@grpc/grpc-js`                       | `1.3.2`         | Google Inc.           | [https://github.com/grpc/grpc-node/tree/master/packages/grpc-js](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js)       |
 | `@grpc/proto-loader`                  | `0.6.2`         | Google Inc.           | [https://github.com/grpc/grpc-node](https://github.com/grpc/grpc-node)                                                                 |
 | `@opencensus/core`                    | `0.0.22`        | Google Inc.           | [https://github.com/census-instrumentation/opencensus-node](https://github.com/census-instrumentation/opencensus-node)                 |
@@ -69,7 +69,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `gcp-metadata`                        | `4.2.1`         | Stephen Sawchuk       | [https://github.com/googleapis/gcp-metadata](https://github.com/googleapis/gcp-metadata)                                               |
 | `google-auth-library`                 | `6.1.6`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                 | `7.3.0`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
-| `google-auth-library`                 | `7.4.1`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
+| `google-auth-library`                 | `7.5.0`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-gax`                          | `2.19.0`        | Google API Authors    | [https://github.com/googleapis/gax-nodejs](https://github.com/googleapis/gax-nodejs)                                                   |
 | `hex2dec`                             | `1.1.2`         |                       | [https://github.com/donmccurdy/hex2dec](https://github.com/donmccurdy/hex2dec)                                                         |
 | `json-to-pretty-yaml`                 | `1.2.2`         |                       | [https://github.com/alexcrist/json-to-pretty-yaml](https://github.com/alexcrist/json-to-pretty-yaml)                                   |
@@ -78,7 +78,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `remedial`                            | `1.0.8`         | AJ ONeal              |                                                                                                                                        |
 | `rxjs`                                | `6.6.7`         | Ben Lesh              | [https://github.com/reactivex/rxjs](https://github.com/reactivex/rxjs)                                                                 |
 | `spdx-correct`                        | `3.1.1`         | Kyle E. Mitchell      | [https://github.com/jslicense/spdx-correct.js](https://github.com/jslicense/spdx-correct.js)                                           |
-| `teeny-request`                       | `7.0.1`         | fhinkel               | [https://github.com/googleapis/teeny-request](https://github.com/googleapis/teeny-request)                                             |
+| `teeny-request`                       | `7.1.1`         | fhinkel               | [https://github.com/googleapis/teeny-request](https://github.com/googleapis/teeny-request)                                             |
 | `validate-npm-package-license`        | `3.0.4`         | Kyle E. Mitchell      | [https://github.com/kemitchell/validate-npm-package-license.js](https://github.com/kemitchell/validate-npm-package-license.js)         |
 | `yaml-ast-parser`                     | `0.0.43`        |                       | [https://github.com/mulesoft-labs/yaml-ast-parser](https://github.com/mulesoft-labs/yaml-ast-parser)                                   |
 
