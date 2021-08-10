@@ -24,7 +24,7 @@ import {
 	isWebhookIncoming,
 } from "../payload";
 import { handleErrorSync, replacer } from "../util";
-import { clearLogger, debug, setLogger } from "./console";
+import { debug, setLogger } from "./console";
 
 export function initLogging(
 	context: {
@@ -41,7 +41,6 @@ export function initLogging(
 	setLogger(logger);
 	onComplete(async () => {
 		await logger.close();
-		clearLogger();
 	});
 }
 

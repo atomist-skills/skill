@@ -17,6 +17,7 @@
 import { Logger } from "@atomist/skill-logging";
 import * as util from "util";
 
+import * as namespace from "../cls";
 import { redact } from "./redact";
 import { enabled } from "./util";
 
@@ -60,16 +61,12 @@ export function error(message: string, ...optionalParams: any[]): void {
 	log("error", message, ...optionalParams);
 }
 
-export function clearLogger(): void {
-	(global as any)._logger = undefined;
-}
-
 export function setLogger(logger: Logger): void {
-	(global as any)._logger = logger;
+	return namespace.set<Logger>("logger", logger);
 }
 
 function getLogger(): Logger {
-	return (global as any)._logger;
+	return namespace.get<Logger>("logger");
 }
 
 function log(level: string, message: string, ...optionalParams: any[]): void {

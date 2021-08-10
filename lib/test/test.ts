@@ -17,6 +17,7 @@
 import { Attachment } from "@atomist/slack-messages";
 
 import { eventHandlerLoader } from "../action";
+import * as namespace from "../cls";
 import {
 	ContextFactory,
 	createContext,
@@ -110,27 +111,29 @@ export async function assertSkill(
 		} as any;
 	};
 
-	if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-		await processEvent(
-			payload,
-			{ eventId: guid() },
-			eventHandlerLoader("events"),
-			factory,
-		);
-	} else if (isCommandIncoming(payload)) {
-		await processCommand(
-			payload,
-			{ eventId: guid() },
-			handlerLoader("commands"),
-			factory,
-		);
-	} else if (isWebhookIncoming(payload)) {
-		await processWebhook(
-			payload,
-			{ eventId: guid() },
-			handlerLoader("webhooks"),
-			factory,
-		);
-	}
+	await namespace.run(async () => {
+		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
+			await processEvent(
+				payload,
+				{ eventId: guid() },
+				eventHandlerLoader("events"),
+				factory,
+			);
+		} else if (isCommandIncoming(payload)) {
+			await processCommand(
+				payload,
+				{ eventId: guid() },
+				handlerLoader("commands"),
+				factory,
+			);
+		} else if (isWebhookIncoming(payload)) {
+			await processWebhook(
+				payload,
+				{ eventId: guid() },
+				handlerLoader("webhooks"),
+				factory,
+			);
+		}
+	});
 	return status;
 }
