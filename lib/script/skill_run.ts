@@ -17,6 +17,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 
+import * as namespace from "../cls";
 import { createContext, loggingCreateContext } from "../context";
 import {
 	configurableEntryPoint,
@@ -56,22 +57,26 @@ export async function runSkill(skill?: string): Promise<void> {
 			const start = Date.now();
 
 			try {
-				await configurableEntryPoint(
-					message,
-					{
-						eventId,
-					},
-					loggingCreateContext(createContext, {
-						payload: true,
-						traceId: traceId ? traceId.split("/")[0] : undefined,
-						before: () => debug("Cloud Run execution started"),
-						after: async () =>
-							debug(
-								`Cloud Run execution took ${
-									Date.now() - start
-								} ms, finished with status: 'ok'`,
-							),
-					}),
+				await namespace.run(() =>
+					configurableEntryPoint(
+						message,
+						{
+							eventId,
+						},
+						loggingCreateContext(createContext, {
+							payload: true,
+							traceId: traceId
+								? traceId.split("/")[0]
+								: undefined,
+							before: () => debug("Cloud Run execution started"),
+							after: async () =>
+								debug(
+									`Cloud Run execution took ${
+										Date.now() - start
+									} ms, finished with status: 'ok'`,
+								),
+						}),
+					),
 				);
 			} catch (e) {
 				// Ignore
@@ -94,24 +99,25 @@ export async function runSkill(skill?: string): Promise<void> {
 
 		const payload = await fs.readJson(payloadPath || "/atm/payload.json");
 		const ctx = { eventId: process.env.ATOMIST_EVENT_ID };
-
-		if (isEventIncoming(payload)) {
-			if (skill) {
-				payload.extensions.operationName = skill;
+		await namespace.run(async () => {
+			if (isEventIncoming(payload)) {
+				if (skill) {
+					payload.extensions.operationName = skill;
+				}
+				await processEvent(payload, ctx);
+			} else if (isSubscriptionIncoming(payload)) {
+				if (skill) {
+					payload.subscription.name = skill;
+				}
+				await processEvent(payload, ctx);
+			} else if (isCommandIncoming(payload)) {
+				if (skill) {
+					payload.command = skill;
+				}
+				await processCommand(payload, ctx);
+			} else if (isWebhookIncoming(payload)) {
+				await processWebhook(payload, ctx);
 			}
-			await processEvent(payload, ctx);
-		} else if (isSubscriptionIncoming(payload)) {
-			if (skill) {
-				payload.subscription.name = skill;
-			}
-			await processEvent(payload, ctx);
-		} else if (isCommandIncoming(payload)) {
-			if (skill) {
-				payload.command = skill;
-			}
-			await processCommand(payload, ctx);
-		} else if (isWebhookIncoming(payload)) {
-			await processWebhook(payload, ctx);
-		}
+		});
 	}
 }
