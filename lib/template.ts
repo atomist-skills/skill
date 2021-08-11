@@ -15,6 +15,7 @@
  */
 
 import * as fs from "fs-extra";
+import * as dt from "luxon";
 import * as path from "path";
 
 import { bytes, formatDate, pluralize } from "./util";
@@ -79,7 +80,9 @@ async function hb(): Promise<any> {
 	handlebars.registerHelper("plural", (arg1, arg2, arg3, arg4) =>
 		pluralize(arg1, arg2, { include: arg3, includeOne: arg4 }),
 	);
-	handlebars.registerHelper("date", arg => formatDate(arg));
+	handlebars.registerHelper("date", (arg, format) =>
+		formatDate(arg, format ? dt.DateTime[format] : undefined),
+	);
 	return handlebars;
 }
 
