@@ -355,5 +355,5 @@ export function formatDate(
 	},
 ): string {
 	const dateTime = dt.DateTime.fromJSDate(date);
-	return dateTime.plus({ hours: 12 }).toUTC().toLocaleString(format);
+	return dateTime.toLocaleString({ ...format, timeZone: "UTC" });
 }

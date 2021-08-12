@@ -15,10 +15,12 @@
  */
 
 import * as assert from "assert";
+import * as dt from "luxon";
 
 import {
 	bytes,
 	extractParameters,
+	formatDate,
 	guid,
 	levenshteinSort,
 	pluralize,
@@ -141,6 +143,17 @@ describe("util", () => {
 			const elems = ["slow", "faster", "fastest"];
 			const result = levenshteinSort("fast", elems);
 			assert.deepStrictEqual(result, ["faster", "fastest", "slow"]);
+		});
+	});
+
+	describe("formatDate", () => {
+		it("should format date correctly", () => {
+			const dateStr = "2021-08-12T20:31:53.469Z";
+			const date = new Date(dateStr);
+			assert.strictEqual(
+				formatDate(date, dt.DateTime.DATETIME_FULL),
+				"August 12, 2021, 8:31 PM UTC",
+			);
 		});
 	});
 });
