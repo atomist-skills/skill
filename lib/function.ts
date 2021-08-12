@@ -18,6 +18,7 @@
 import "source-map-support/register";
 
 import { eventHandlerLoader } from "./action";
+import * as namespace from "./cls";
 import { ContextFactory, createContext, loggingCreateContext } from "./context";
 import {
 	CommandContext,
@@ -54,14 +55,16 @@ export const entryPoint = async (
 	pubSubEvent: PubSubMessage,
 	context: { eventId: string },
 ): Promise<void> => {
-	const payload = await resolvePayload(pubSubEvent);
-	if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-		await processEvent(payload, context);
-	} else if (isCommandIncoming(payload)) {
-		await processCommand(payload, context);
-	} else if (isWebhookIncoming(payload)) {
-		await processWebhook(payload, context);
-	}
+	await namespace.run(async () => {
+		const payload = await resolvePayload(pubSubEvent);
+		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
+			await processEvent(payload, context);
+		} else if (isCommandIncoming(payload)) {
+			await processCommand(payload, context);
+		} else if (isWebhookIncoming(payload)) {
+			await processWebhook(payload, context);
+		}
+	});
 };
 
 export const configurableEntryPoint = async (
@@ -69,14 +72,16 @@ export const configurableEntryPoint = async (
 	context: { eventId: string },
 	factory?: ContextFactory,
 ): Promise<void> => {
-	const payload = await resolvePayload(pubSubEvent);
-	if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-		await processEvent(payload, context, undefined, factory);
-	} else if (isCommandIncoming(payload)) {
-		await processCommand(payload, context, undefined, factory);
-	} else if (isWebhookIncoming(payload)) {
-		await processWebhook(payload, context, undefined, factory);
-	}
+	await namespace.run(async () => {
+		const payload = await resolvePayload(pubSubEvent);
+		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
+			await processEvent(payload, context, undefined, factory);
+		} else if (isCommandIncoming(payload)) {
+			await processCommand(payload, context, undefined, factory);
+		} else if (isWebhookIncoming(payload)) {
+			await processWebhook(payload, context, undefined, factory);
+		}
+	});
 };
 
 export async function processEvent(

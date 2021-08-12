@@ -57,26 +57,22 @@ export async function runSkill(skill?: string): Promise<void> {
 			const start = Date.now();
 
 			try {
-				await namespace.run(() =>
-					configurableEntryPoint(
-						message,
-						{
-							eventId,
-						},
-						loggingCreateContext(createContext, {
-							payload: true,
-							traceId: traceId
-								? traceId.split("/")[0]
-								: undefined,
-							before: () => debug("Cloud Run execution started"),
-							after: async () =>
-								debug(
-									`Cloud Run execution took ${
-										Date.now() - start
-									} ms, finished with status: 'ok'`,
-								),
-						}),
-					),
+				await configurableEntryPoint(
+					message,
+					{
+						eventId,
+					},
+					loggingCreateContext(createContext, {
+						payload: true,
+						traceId: traceId ? traceId.split("/")[0] : undefined,
+						before: () => debug("Cloud Run execution started"),
+						after: async () =>
+							debug(
+								`Cloud Run execution took ${
+									Date.now() - start
+								} ms, finished with status: 'ok'`,
+							),
+					}),
 				);
 			} catch (e) {
 				// Ignore
