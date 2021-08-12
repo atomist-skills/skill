@@ -261,8 +261,7 @@ export function checkHandler<S, C>(parameters: {
 					const comment = pr => `${badge}\n\n${result.comment(pr)}`;
 					await commentPullRequest(
 						ctx,
-						ctx.chain.project,
-						ctx.chain.id.sha,
+						ctx.chain.id,
 						comment,
 						"vulnerability_report",
 					);

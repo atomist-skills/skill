@@ -21,6 +21,7 @@ import * as git from "../git/operation";
 import { Contextual, HandlerStatus } from "../handler/handler";
 import { debug } from "../log/console";
 import { Project } from "../project/project";
+import { AuthenticatedRepositoryId } from "../repository/id";
 import * as status from "../status";
 import { hash } from "../util";
 import { truncateText } from "./check";
@@ -468,8 +469,7 @@ interface OpenPullRequestByShaVariables {
 
 export async function commentPullRequest(
 	ctx: Contextual<any, any>,
-	project: Project,
-	sha: string,
+	id: AuthenticatedRepositoryId<any>,
 	comment: ((pr: { url: string; number: number }) => string) | string,
 	type: string,
 ): Promise<void> {
@@ -477,9 +477,9 @@ export async function commentPullRequest(
 		OpenPullRequestByShaResponse,
 		OpenPullRequestByShaVariables
 	>(OpenPullRequestByShaQuery, {
-		sha,
-		owner: project.id.owner,
-		repo: project.id.repo,
+		sha: id.sha,
+		owner: id.owner,
+		repo: id.repo,
 	});
 	if (openPrs?.PullRequest?.length > 0) {
 		const openPr = openPrs.PullRequest[0];
@@ -491,18 +491,18 @@ export async function commentPullRequest(
 		);
 		const body = typeof comment === "function" ? comment(openPr) : comment;
 		if (existingComment) {
-			await api(project.id).issues.updateComment({
-				owner: project.id.owner,
-				repo: project.id.repo,
+			await api(id).issues.updateComment({
+				owner: id.owner,
+				repo: id.repo,
 				comment_id: +existingComment.commentId,
 				body: `${body}
 
 ${formatMarkers(ctx, `atomist-comment-type:${type}`)}`,
 			});
 		} else {
-			await api(project.id).issues.createComment({
-				owner: project.id.owner,
-				repo: project.id.repo,
+			await api(id).issues.createComment({
+				owner: id.owner,
+				repo: id.repo,
 				issue_number: openPr.number,
 				body: `${body}
 
