@@ -180,8 +180,7 @@ export function checkHandler<S, C>(parameters: {
 				return undefined;
 			}
 			const app = isStaging() ? "atomista" : "atomist";
-			const tx =
-				(ctx.trigger as SubscriptionIncoming).subscription.tx || -1;
+			const tx = (ctx.trigger as SubscriptionIncoming).subscription.tx;
 			const checks = (
 				await api(ctx.chain.id).checks.listForRef({
 					owner: ctx.chain.id.owner,
@@ -195,7 +194,7 @@ export function checkHandler<S, C>(parameters: {
 				checks.check_runs
 					.filter(c => c.app.slug === app)
 					.filter(c => !isNaN(+c.external_id))
-					.some(c => +c.external_id > tx)
+					.some(c => tx > 0 && +c.external_id > tx)
 			) {
 				return success(
 					"Skipping execution of outdated subscription result",
