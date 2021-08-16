@@ -81,7 +81,7 @@ export async function createCheck(
 ): Promise<Check> {
 	let terminated = false;
 	const externalId = isSubscriptionIncoming(ctx.trigger)
-		? ctx.trigger.subscription.tx.toString()
+		? ctx.trigger.subscription.tx?.toString()
 		: ctx.correlationId;
 	// Check if there is a check open with that name
 	const openChecks = (
