@@ -47,6 +47,7 @@ export interface PolicyDetails {
 		name: string;
 		title: string;
 		body: string;
+		reuse?: boolean;
 		longRunning?: boolean;
 		includeAnnotations?: boolean;
 	};
@@ -218,6 +219,7 @@ export function checkHandler<S, C>(parameters: {
 						? `\n\n${ctx.chain.details.check.body}`
 						: ""
 				}`,
+				reuse: ctx.chain.details.check.reuse,
 				longRunning: ctx.chain.details.check.longRunning,
 			}))(ctx);
 		},
