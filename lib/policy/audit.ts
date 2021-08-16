@@ -48,7 +48,7 @@ export async function transactAudit(
 		}),
 		entity("sarif/run", "$sarif-run", {
 			"commit": "$commit",
-			"sarif.tool.driver/name": `${ctx.skill.namespace}/${ctx.skill.name}#${ctx.name}`,
+			"sarif.tool.driver/name": `${ctx.skill.namespace}/${ctx.skill.name}#${ruleId}`,
 		}),
 	];
 
