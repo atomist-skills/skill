@@ -180,7 +180,8 @@ export function checkHandler<S, C>(parameters: {
 				return undefined;
 			}
 			const app = isStaging() ? "atomista" : "atomist";
-			const tx = (ctx.trigger as SubscriptionIncoming).subscription.tx;
+			const tx =
+				(ctx.trigger as SubscriptionIncoming).subscription.tx || -1;
 			const checks = (
 				await api(ctx.chain.id).checks.listForRef({
 					owner: ctx.chain.id.owner,
