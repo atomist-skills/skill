@@ -11,7 +11,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | License                              | Count |
 | ------------------------------------ | ----- |
 | [0BSD](#0bsd)                        | 4     |
-| [Apache-2.0](#apache-20)             | 39    |
+| [Apache-2.0](#apache-20)             | 42    |
 | [BSD-2-Clause](#bsd-2-clause)        | 10    |
 | [BSD-3-Clause](#bsd-3-clause)        | 23    |
 | [CC-BY-3.0](#cc-by-30)               | 1     |
@@ -51,7 +51,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@google-cloud/precise-date`          | `2.0.3`         | Google Inc.           | [https://github.com/googleapis/nodejs-precise-date](https://github.com/googleapis/nodejs-precise-date)                                 |
 | `@google-cloud/projectify`            | `2.0.1`         | Google Inc.           | [https://github.com/googleapis/nodejs-projectify](https://github.com/googleapis/nodejs-projectify)                                     |
 | `@google-cloud/promisify`             | `2.0.3`         | Google Inc.           | [https://github.com/googleapis/nodejs-promisify](https://github.com/googleapis/nodejs-promisify)                                       |
-| `@google-cloud/pubsub`                | `2.16.3`        | Google Inc.           | [https://github.com/googleapis/nodejs-pubsub](https://github.com/googleapis/nodejs-pubsub)                                             |
+| `@google-cloud/pubsub`                | `2.16.4`        | Google Inc.           | [https://github.com/googleapis/nodejs-pubsub](https://github.com/googleapis/nodejs-pubsub)                                             |
 | `@google-cloud/storage`               | `5.13.0`        | Google Inc.           | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
 | `@grpc/grpc-js`                       | `1.3.2`         | Google Inc.           | [https://github.com/grpc/grpc-node/tree/master/packages/grpc-js](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js)       |
 | `@grpc/proto-loader`                  | `0.6.2`         | Google Inc.           | [https://github.com/grpc/grpc-node](https://github.com/grpc/grpc-node)                                                                 |
@@ -70,10 +70,13 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `google-auth-library`                 | `6.1.6`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                 | `7.3.0`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                 | `7.5.0`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
+| `google-auth-library`                 | `7.6.1`         | Google Inc.           | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-gax`                          | `2.19.0`        | Google API Authors    | [https://github.com/googleapis/gax-nodejs](https://github.com/googleapis/gax-nodejs)                                                   |
+| `google-gax`                          | `2.24.1`        | Google API Authors    | [https://github.com/googleapis/gax-nodejs](https://github.com/googleapis/gax-nodejs)                                                   |
 | `hex2dec`                             | `1.1.2`         |                       | [https://github.com/donmccurdy/hex2dec](https://github.com/donmccurdy/hex2dec)                                                         |
 | `json-to-pretty-yaml`                 | `1.2.2`         |                       | [https://github.com/alexcrist/json-to-pretty-yaml](https://github.com/alexcrist/json-to-pretty-yaml)                                   |
 | `long`                                | `4.0.0`         | Daniel Wirtz          | [https://github.com/dcodeIO/long.js](https://github.com/dcodeIO/long.js)                                                               |
+| `proto3-json-serializer`              | `0.1.1`         |                       | [https://github.com/googleapis/proto3-json-serializer-nodejs](https://github.com/googleapis/proto3-json-serializer-nodejs)             |
 | `rc`                                  | `1.2.8`         | Dominic Tarr          | [https://github.com/dominictarr/rc](https://github.com/dominictarr/rc)                                                                 |
 | `remedial`                            | `1.0.8`         | AJ ONeal              |                                                                                                                                        |
 | `rxjs`                                | `6.6.7`         | Ben Lesh              | [https://github.com/reactivex/rxjs](https://github.com/reactivex/rxjs)                                                                 |
