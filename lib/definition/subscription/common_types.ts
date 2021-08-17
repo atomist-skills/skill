@@ -16,6 +16,7 @@
 
 export interface Repo {
 	graphqlId: string;
+	sourceId: string;
 	name: string;
 	defaultBranch: string;
 	org: {
