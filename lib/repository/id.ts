@@ -22,6 +22,7 @@ export enum RepositoryProviderType {
 }
 
 export interface RepositoryId {
+	sourceId?: string;
 	owner: string;
 	repo: string;
 
@@ -44,6 +45,7 @@ export function gitHubComRepository(details: {
 	repo: string;
 	branch?: string;
 	sha?: string;
+	sourceId?: string;
 	credential: GitHubCredential | GitHubAppCredential;
 }): AuthenticatedRepositoryId<GitHubCredential | GitHubAppCredential> {
 	return {

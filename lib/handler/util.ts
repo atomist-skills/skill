@@ -116,7 +116,7 @@ export function chain<D, C, S = any>(
 
 export type CreateRepositoryId<D, C> = (
 	ctx: EventContext<D, C>,
-) => Pick<RepositoryId, "owner" | "repo" | "sha" | "branch">;
+) => Pick<RepositoryId, "sourceId" | "owner" | "repo" | "sha" | "branch">;
 
 export function createRef<D, C>(
 	id: CreateRepositoryId<D, C>,

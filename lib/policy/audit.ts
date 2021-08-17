@@ -29,16 +29,20 @@ export async function transactAudit(
 	message: string,
 	annotations: Annotation[],
 ): Promise<void> {
-	const repo = (
-		await api(id).repos.get({
-			owner: id.owner,
-			repo: id.repo,
-		})
-	).data;
-
+	let repoId;
+	if (id?.sourceId) {
+		repoId = id.sourceId;
+	} else {
+		repoId = (
+			await api(id).repos.get({
+				owner: id.owner,
+				repo: id.repo,
+			})
+		).data.id.toString();
+	}
 	const entities = [
 		entity("git/repo", "$repo", {
-			"sourceId": repo.id.toString(),
+			"sourceId": repoId,
 			"git.provider/url": "https://github.com",
 		}),
 		entity("git/commit", "$commit", {
