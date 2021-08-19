@@ -66,7 +66,9 @@ export type AtomistSkillInput = {
 	technologies?: Maybe<Array<AtomistSkillTechnology>>;
 	version: Scalars["String"];
 	videoUrl?: Maybe<Scalars["String"]>;
-	datalogSubscriptions?: Maybe<Array<{ name: string; query: string }>>;
+	datalogSubscriptions?: Maybe<
+		Array<{ name: string; query: string; limit?: number }>
+	>;
 	schemata?: Maybe<Array<{ name: string; schema: string }>>;
 };
 
@@ -334,25 +336,33 @@ export async function createJavaScriptSkillInput(
 		subscriptions.push(...subs);
 	}
 
-	const datalogSubscriptions = [...(is.datalogSubscriptions || [])];
+	const datalogSubscriptions = [];
 	datalogSubscriptions.push(
-		...(await withGlobMatches<{ name: string; query: string }>(
-			cwd,
-			"**/datalog/subscription/*.edn",
-			async file => {
-				const filePath = path.join(cwd, file);
-				const fileName = path.basename(filePath);
-				const extName = path.extname(fileName);
-				return {
-					query: (await fs.readFile(path.join(cwd, file))).toString(),
-					name: fileName.replace(extName, ""),
-				};
-			},
-		)),
+		...(await withGlobMatches<{
+			name: string;
+			query: string;
+		}>(cwd, "**/datalog/subscription/*.edn", async file => {
+			const filePath = path.join(cwd, file);
+			const fileName = path.basename(filePath);
+			const extName = path.extname(fileName);
+			return {
+				query: (await fs.readFile(path.join(cwd, file))).toString(),
+				name: fileName.replace(extName, ""),
+			};
+		})),
 	);
 	datalogSubscriptions.forEach(dl => {
 		if (dl.query.startsWith("@")) {
 			dl.query = namedDatalog(dl.query);
+		}
+	});
+	(is.datalogSubscriptions || []).forEach(d => {
+		const eds = datalogSubscriptions.find(ds => d.name === ds.name);
+		if (eds) {
+			eds.query = d.query;
+			eds.limit = d.limit;
+		} else {
+			datalogSubscriptions.push(d);
 		}
 	});
 	const schemata = [...(is.schemata || [])];

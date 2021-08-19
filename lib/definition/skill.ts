@@ -283,7 +283,11 @@ export interface Operations {
 
 	subscriptions?: string[];
 
-	datalogSubscriptions?: Array<{ name: string; query: string }>;
+	datalogSubscriptions?: Array<{
+		name: string;
+		query: string;
+		limit?: number;
+	}>;
 
 	schemata?: Array<{ name: string; schema: string }>;
 

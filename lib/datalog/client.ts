@@ -64,6 +64,10 @@ class NodeFetchDatalogClient implements DatalogClient {
 			tx?: number;
 			mode?: "raw" | "map" | "obj";
 			rules?: string;
+			paging?: {
+				limit: number;
+				offset: number;
+			};
 		} = {},
 	): Promise<T[] | string> {
 		const body = `{
@@ -78,6 +82,11 @@ ${
 		: ""
 }
 ${options?.rules ? `:rules ${options.rules}` : ""}
+${
+	options?.paging
+		? `:limit ${options.paging.limit} :offset ${options.paging.offset}`
+		: ""
+}
  
 }`;
 		debug(`Datalog query: ${body}`);
