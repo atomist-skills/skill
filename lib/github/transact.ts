@@ -49,7 +49,7 @@ export interface ResponseTransactor<I, O> {
 /**
  * Transact pull request entities on creation
  */
-const PullRequestTransactor: ResponseTransactor<
+export const PullRequestTransactor: ResponseTransactor<
 	| RestEndpointMethodTypes["pulls"]["create"]["parameters"]
 	| RestEndpointMethodTypes["pulls"]["update"]["parameters"],
 	| RestEndpointMethodTypes["pulls"]["create"]["response"]
@@ -112,7 +112,7 @@ const PullRequestTransactor: ResponseTransactor<
  * Transact check run and check suite entities
  * on CheckRun creation and updates
  */
-const CheckRunTransactor: ResponseTransactor<
+export const CheckRunTransactor: ResponseTransactor<
 	| RestEndpointMethodTypes["checks"]["create"]["parameters"]
 	| RestEndpointMethodTypes["checks"]["update"]["parameters"],
 	| RestEndpointMethodTypes["checks"]["create"]["response"]
@@ -171,8 +171,8 @@ const CheckRunTransactor: ResponseTransactor<
 };
 
 const Transactors: ResponseTransactor<any, any>[] = [
+	// CheckRunTransactor,
 	PullRequestTransactor,
-	CheckRunTransactor,
 ];
 
 /**
