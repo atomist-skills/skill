@@ -335,16 +335,16 @@ export function before<
 
 export function after<
 	T extends (...args: any[]) => Promise<any>,
-	A extends (result: any, ...args: any[]) => Promise<void>,
+	A extends (result: any, ...args: any[]) => Promise<any>,
 >(func: T, adviceFunc: A): T {
 	return (async (...args: any[]) => {
 		let result;
 		try {
 			result = await func(...args);
-			return result;
 		} finally {
-			await adviceFunc(result, ...args);
+			result = await adviceFunc(result, ...args);
 		}
+		return result;
 	}) as any;
 }
 
