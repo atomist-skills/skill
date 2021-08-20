@@ -359,7 +359,7 @@ export async function createJavaScriptSkillInput(
 	(is.datalogSubscriptions || []).forEach(d => {
 		const eds = datalogSubscriptions.find(ds => d.name === ds.name);
 		if (eds) {
-			eds.query = d.query;
+			eds.query = d.query ? d.query : eds.query;
 			eds.limit = d.limit;
 		} else {
 			datalogSubscriptions.push(d);
