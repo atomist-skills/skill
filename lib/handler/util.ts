@@ -114,6 +114,43 @@ export function chain<D, C, S = any>(
 	};
 }
 
+export function all<D, C, S = any>(
+	...handlers: Array<ChainedHandler<D, C, S>>
+): EventHandler<D, C> {
+	return async (ctx: EventContext<D, C> & { chain: S }) => {
+		ctx.chain = {} as any;
+		const results = [];
+		for (const handler of handlers) {
+			const result = await handler(ctx);
+			if (result) {
+				results.push(result);
+			}
+		}
+		let reason;
+		if (results.some(r => r.visibility !== "hidden")) {
+			reason = results
+				.filter(r => r.visibility !== "hidden")
+				.map(r => r.reason)
+				.join(", ");
+		} else {
+			reason = results.map(r => r.reason).join(", ");
+		}
+		return {
+			code: results.reduce((p, c) => {
+				if (c.code !== 0) {
+					return c.code;
+				} else {
+					return 0;
+				}
+			}, 0),
+			reason,
+			visibility: results.some(r => r.visibility !== "hidden")
+				? undefined
+				: "hidden",
+		};
+	};
+}
+
 export type CreateRepositoryId<D, C> = (
 	ctx: EventContext<D, C>,
 ) => Pick<RepositoryId, "sourceId" | "owner" | "repo" | "sha" | "branch">;
