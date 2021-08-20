@@ -67,7 +67,7 @@ export type AtomistSkillInput = {
 	version: Scalars["String"];
 	videoUrl?: Maybe<Scalars["String"]>;
 	datalogSubscriptions?: Maybe<
-		Array<{ name: string; query: string; limit?: number }>
+		Array<{ name?: string; query?: string; limit?: number }>
 	>;
 	schemata?: Maybe<Array<{ name: string; schema: string }>>;
 };

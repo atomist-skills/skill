@@ -284,8 +284,8 @@ export interface Operations {
 	subscriptions?: string[];
 
 	datalogSubscriptions?: Array<{
-		name: string;
-		query: string;
+		name?: string;
+		query?: string;
 		limit?: number;
 	}>;
 
