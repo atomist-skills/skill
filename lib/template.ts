@@ -86,6 +86,32 @@ async function hb(): Promise<any> {
 	handlebars.registerHelper("date", (arg, format) =>
 		formatDate(arg, format ? dt.DateTime[format] : undefined),
 	);
+	handlebars.registerHelper("ifCond", function (v1, operator, v2, options) {
+		switch (operator) {
+			case "==":
+				return v1 == v2 ? options.fn(this) : options.inverse(this);
+			case "===":
+				return v1 === v2 ? options.fn(this) : options.inverse(this);
+			case "!=":
+				return v1 != v2 ? options.fn(this) : options.inverse(this);
+			case "!==":
+				return v1 !== v2 ? options.fn(this) : options.inverse(this);
+			case "<":
+				return v1 < v2 ? options.fn(this) : options.inverse(this);
+			case "<=":
+				return v1 <= v2 ? options.fn(this) : options.inverse(this);
+			case ">":
+				return v1 > v2 ? options.fn(this) : options.inverse(this);
+			case ">=":
+				return v1 >= v2 ? options.fn(this) : options.inverse(this);
+			case "&&":
+				return v1 && v2 ? options.fn(this) : options.inverse(this);
+			case "||":
+				return v1 || v2 ? options.fn(this) : options.inverse(this);
+			default:
+				return options.inverse(this);
+		}
+	});
 	return handlebars;
 }
 
