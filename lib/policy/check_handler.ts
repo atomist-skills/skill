@@ -132,6 +132,7 @@ export function checkHandler<S, C>(parameters: {
 		annotations?: Annotation[];
 		actions?: Action[];
 		status: HandlerStatus;
+		badge?: boolean;
 	}>;
 }): EventHandler<S, C> {
 	return chain<
@@ -237,18 +238,20 @@ export function checkHandler<S, C>(parameters: {
 			}
 
 			if (ctx.chain.details.check) {
-				const badge = await markdownLink({
-					sha: ctx.chain.id.sha,
-					workspace: ctx.workspaceId,
-					name: ctx.chain.details.check.name,
-					title: ctx.chain.details.check.title,
-					conclusion: result.conclusion,
-					severity: result.severity,
-				});
+				let badge = "";
+				// Require explicit false for backwards compatability
+				if (result.badge !== false) {
+					badge = `${await markdownLink({
+						sha: ctx.chain.id.sha,
+						workspace: ctx.workspaceId,
+						name: ctx.chain.details.check.name,
+						title: ctx.chain.details.check.title,
+						conclusion: result.conclusion,
+						severity: result.severity,
+					})}\n\n}`;
+				}
 
-				const body = `${badge}${
-					result.body ? `\n\n${result.body}` : ""
-				}`;
+				const body = `${badge}${result.body ? result.body : ""}`;
 
 				await ctx.chain.check.update({
 					conclusion: result.conclusion,
@@ -260,7 +263,7 @@ export function checkHandler<S, C>(parameters: {
 				});
 
 				if (result.comment) {
-					const comment = pr => `${badge}\n\n${result.comment(pr)}`;
+					const comment = pr => `${badge}${result.comment(pr)}`;
 					await commentPullRequest(
 						ctx,
 						ctx.chain.id,
