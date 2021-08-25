@@ -112,6 +112,9 @@ async function hb(): Promise<any> {
 				return options.inverse(this);
 		}
 	});
+	handlebars.registerHelper("encodeUrl", arg =>
+		arg !== undefined ? encodeURIComponent(arg) : undefined,
+	);
 	return handlebars;
 }
 
