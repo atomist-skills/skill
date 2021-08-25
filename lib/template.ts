@@ -15,6 +15,7 @@
  */
 
 import * as fs from "fs-extra";
+import * as _handlebars from "handlebars";
 import * as dt from "luxon";
 import * as path from "path";
 
@@ -23,15 +24,17 @@ import { bytes, formatDate, pluralize } from "./util";
 export async function render(
 	name: string,
 	view: Record<string, any>,
+	options?: _handlebars.RuntimeOptions,
 ): Promise<string> {
 	const handlebars = await hb();
 	const templates = await findTemplate(name);
 	const template = handlebars.compile(templates.template, { noEscape: true });
-	const partials = {};
+	const partials = options?.partials || {};
 	templates.partials.forEach(
 		p => (partials[p.name] = handlebars.compile(p.partial)),
 	);
 	return template(view, {
+		...(options || {}),
 		partials,
 	}).toString();
 }
