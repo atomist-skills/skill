@@ -50,6 +50,7 @@ export interface PolicyDetails {
 		reuse?: boolean;
 		longRunning?: boolean;
 		includeAnnotations?: boolean;
+		includeBadge?: boolean;
 	};
 	audit?: {
 		name: string;
@@ -132,7 +133,6 @@ export function checkHandler<S, C>(parameters: {
 		annotations?: Annotation[];
 		actions?: Action[];
 		status: HandlerStatus;
-		badge?: boolean;
 	}>;
 }): EventHandler<S, C> {
 	return chain<
@@ -210,12 +210,16 @@ export function checkHandler<S, C>(parameters: {
 			return createCheck<S, C>(async (ctx: any) => ({
 				name: ctx.chain.details.check.name,
 				title: ctx.chain.details.check.title,
-				body: `${await markdownLink({
-					sha: ctx.chain.id.sha,
-					workspace: ctx.workspaceId,
-					name: ctx.chain.details.check.name,
-					title: ctx.chain.details.check.title,
-				})}\n\n${
+				body: `${
+					ctx.chain.details.check.includeBadge !== false
+						? (await markdownLink({
+								sha: ctx.chain.id.sha,
+								workspace: ctx.workspaceId,
+								name: ctx.chain.details.check.name,
+								title: ctx.chain.details.check.title,
+						  })) + "\n\n"
+						: ""
+				}${
 					ctx.chain.details.check.body
 						? `\n\n${ctx.chain.details.check.body}`
 						: ""
@@ -240,7 +244,7 @@ export function checkHandler<S, C>(parameters: {
 			if (ctx.chain.details.check) {
 				let badge = "";
 				// Require explicit false for backwards compatability
-				if (result.badge !== false) {
+				if (ctx.chain.details.check.includeBadge !== false) {
 					badge = `${await markdownLink({
 						sha: ctx.chain.id.sha,
 						workspace: ctx.workspaceId,
@@ -248,7 +252,7 @@ export function checkHandler<S, C>(parameters: {
 						title: ctx.chain.details.check.title,
 						conclusion: result.conclusion,
 						severity: result.severity,
-					})}\n\n}`;
+					})}\n\n`;
 				}
 
 				const body = `${badge}${result.body ? result.body : ""}`;
