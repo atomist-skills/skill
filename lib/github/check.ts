@@ -17,7 +17,7 @@
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
 
 import { Contextual } from "../handler/handler";
-import { url } from "../log/util";
+import { dsoUrl, url } from "../log/util";
 import { isSubscriptionIncoming } from "../payload";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import { GitHubAppCredential, GitHubCredential } from "../secret/provider";
@@ -124,7 +124,7 @@ export async function createCheck(
 			started_at: parameters.startedAt || new Date().toISOString(),
 			external_id: externalId,
 			details_url: ctx.configuration?.parameters?.atomist?.policy
-				? undefined
+				? dsoUrl(ctx)
 				: url(ctx),
 			status: "in_progress",
 			conclusion: undefined,
@@ -150,7 +150,7 @@ export async function createCheck(
 			started_at: parameters.startedAt || new Date().toISOString(),
 			external_id: externalId,
 			details_url: ctx.configuration?.parameters?.atomist?.policy
-				? undefined
+				? dsoUrl(ctx)
 				: url(ctx),
 			status: "in_progress",
 			output: {

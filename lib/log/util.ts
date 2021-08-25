@@ -23,7 +23,7 @@ import {
 	isSubscriptionIncoming,
 	isWebhookIncoming,
 } from "../payload";
-import { handleErrorSync, replacer } from "../util";
+import { handleErrorSync, isStaging, replacer } from "../util";
 import { debug, setLogger } from "./console";
 
 export function initLogging(
@@ -56,12 +56,16 @@ export function enabled(level: string): boolean {
 	return configuredLevel >= Level[level];
 }
 
+export function dsoUrl(ctx: Contextual<any, any>): string {
+	return `https://dso.atomist.${isStaging() ? "services" : "com"}/${
+		ctx.workspaceId
+	}/overview?correlation_id=${ctx.correlationId}`;
+}
+
 export function url(ctx: Contextual<any, any>): string {
-	return `https://go.atomist.${
-		(process.env.ATOMIST_GRAPHQL_ENDPOINT || "").includes("staging")
-			? "services"
-			: "com"
-	}/log/${ctx.workspaceId}/${ctx.correlationId}`;
+	return `https://go.atomist.${isStaging() ? "services" : "com"}/log/${
+		ctx.workspaceId
+	}/${ctx.correlationId}`;
 }
 
 export function runtime(): {
