@@ -119,6 +119,11 @@ export function formatMarkers(
 }
 
 export function formatFooter(ctx: Contextual<any, any>): string {
+	// Do not format footer for DSO skills
+	if (ctx.configuration?.parameters?.atomist?.policy) {
+		return "";
+	}
+
 	const skillUrl =
 		ctx.configuration?.parameters?.atomist?.skillUrl ||
 		`https://go.atomist.com/catalog/skills/${ctx.skill.namespace}/${ctx.skill.name}`;
