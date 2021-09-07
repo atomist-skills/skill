@@ -21,7 +21,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
 | [ISC](#isc)                          | 44    |
 | [MIT AND Zlib](#mit-and-zlib)        | 1     |
-| [MIT](#mit)                          | 653   |
+| [MIT](#mit)                          | 654   |
 | [Public Domain](#public-domain)      | 1     |
 | [Python-2.0](#python-20)             | 1     |
 
@@ -700,6 +700,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `no-case`                                            | `3.0.4`        | Blake Embrey                   | [https://github.com/blakeembrey/change-case](https://github.com/blakeembrey/change-case)                                                                                                             |
 | `node-eta`                                           | `0.9.0`        | Constantin Titarenko           | [https://github.com/titarenko/eta](https://github.com/titarenko/eta)                                                                                                                                 |
 | `node-fetch`                                         | `2.6.1`        | David Frank                    | [https://github.com/bitinn/node-fetch](https://github.com/bitinn/node-fetch)                                                                                                                         |
+| `node-fetch`                                         | `2.6.2`        | David Frank                    | [https://github.com/bitinn/node-fetch](https://github.com/bitinn/node-fetch)                                                                                                                         |
 | `node-int64`                                         | `0.4.0`        | Robert Kieffer                 | [https://github.com/broofa/node-int64](https://github.com/broofa/node-int64)                                                                                                                         |
 | `node-releases`                                      | `1.1.73`       | Sergey Rubanov                 | [https://github.com/chicoxyzzy/node-releases](https://github.com/chicoxyzzy/node-releases)                                                                                                           |
 | `normalize-path`                                     | `2.1.1`        | Jon Schlinkert                 | [https://github.com/jonschlinkert/normalize-path](https://github.com/jonschlinkert/normalize-path)                                                                                                   |
