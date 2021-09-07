@@ -57,6 +57,7 @@ export interface Project<C = any> {
 export async function load<C>(
 	id: AuthenticatedRepositoryId<C>,
 	baseDir: string,
+	options: { userConfig: boolean } = { userConfig: true },
 ): Promise<Project<C>> {
 	const project: Project<C> = {
 		id,
@@ -77,7 +78,9 @@ export async function load<C>(
 	if (!(await fs.pathExists(path.join(baseDir, ".git")))) {
 		await init(baseDir);
 	}
-	await handleError(() => setUserConfig(project));
+	if (options?.userConfig) {
+		await handleError(() => setUserConfig(project));
+	}
 	return project;
 }
 

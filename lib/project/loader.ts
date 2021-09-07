@@ -26,6 +26,7 @@ export interface ProjectLoader {
 	load<C>(
 		id: AuthenticatedRepositoryId<C>,
 		baseDir: string,
+		options?: { userConfig: boolean },
 	): Promise<Project<C>>;
 
 	clone<C>(
@@ -48,8 +49,9 @@ export class DefaultProjectLoader implements ProjectLoader {
 	public async load(
 		id: AuthenticatedRepositoryId<any>,
 		baseDir: string,
+		options?: { userConfig: boolean },
 	): Promise<Project> {
-		return load(id, baseDir);
+		return load(id, baseDir, options);
 	}
 
 	public async clone(
