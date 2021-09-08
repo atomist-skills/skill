@@ -104,7 +104,7 @@
     "graphql": "^15.5.3",
     "graphql-tag": "^2.12.5",
     "handlebars": "^4.7.7",
-    "jose": "^3.16.0",
+    "jose": "^3.16.1",
     "js-yaml": "^4.1.0",
     "jszip": "^3.7.1",
     "lodash.camelcase": "^4.3.0",
