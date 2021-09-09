@@ -220,6 +220,8 @@ export interface OnDockerImageUnlinked {
 	registry: DockerRegistry;
 }
 
+export type OrderedList = Array<{ ordinal: number; string: string }>;
+
 /**
  * Subscription type to be used with the on_dockerfile datalog subscription
  */
@@ -234,7 +236,7 @@ export interface OnDockerFile extends WithCommitAndRegistry {
 			instruction: string;
 			argsMap: Record<string, string>;
 			argsString: string;
-			argsList: Array<{ ordinal: number; string: string }>;
+			argsList: OrderedList;
 		}>;
 	};
 }
@@ -256,4 +258,10 @@ export interface OnDockerAnalysisComplete {
  */
 export interface OnPush {
 	commit: Commit;
+}
+
+import sortBy = require("lodash.sortby");
+
+export function orderedListToArray(list: OrderedList): string[] {
+	return sortBy(list, "ordinal").map(l => l.string);
 }
