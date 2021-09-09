@@ -233,8 +233,8 @@ export interface OnDockerFile extends WithCommitAndRegistry {
 			number: number;
 			instruction: string;
 			argsMap: Record<string, string>;
-			argsArray: string[];
 			argsString: string;
+			argsList: Array<{ ordinal: number; string: string }>;
 		}>;
 	};
 }
