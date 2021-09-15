@@ -63,7 +63,7 @@
     "@graphql-codegen/cli": "^2.2.0",
     "@graphql-codegen/typescript": "^1.23.0",
     "@graphql-codegen/typescript-operations": "^1.18.4",
-    "@octokit/plugin-rest-endpoint-methods": "^5.10.3",
+    "@octokit/plugin-rest-endpoint-methods": "^5.10.4",
     "@octokit/rest": "^18.10.0",
     "@types/body-parser": "^1.19.1",
     "@types/cross-spawn": "^6.0.2",
