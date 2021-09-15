@@ -70,25 +70,32 @@ class NodeFetchDatalogClient implements DatalogClient {
 			};
 		} = {},
 	): Promise<T[] | string> {
+		const argsAndQuery = prepareArgs(query, parameters);
+
+		const bodyParts = [`:query ${argsAndQuery.query}`];
+		if (argsAndQuery.args?.length > 0) {
+			bodyParts.push(`:args [${argsAndQuery.args}]`);
+		}
+		if (options?.tx) {
+			bodyParts.push(`:tx-range {:start ${options.tx} }`);
+		}
+		if (options?.configurationName) {
+			bodyParts.push(
+				`:skill-ref {:name "${this.ctx.skill.name}" :namespace "${this.ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`,
+			);
+		}
+		if (options?.rules) {
+			bodyParts.push(`:rules ${options.rules}`);
+		}
+		if (options?.paging) {
+			bodyParts.push(
+				`:limit ${options.paging.limit} :offset ${options.paging.offset}`,
+			);
+		}
 		const body = `{
-:query
-
-	${resolveParameters(query, parameters)}
-
-${options?.tx ? `:tx-range {:start ${options.tx} }` : ""}
-${
-	options?.configurationName
-		? `:skill-ref {:name "${this.ctx.skill.name}" :namespace "${this.ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`
-		: ""
-}
-${options?.rules ? `:rules ${options.rules}` : ""}
-${
-	options?.paging
-		? `:limit ${options.paging.limit} :offset ${options.paging.offset}`
-		: ""
-}
- 
+${bodyParts.join("\n\n")}
 }`;
+
 		debug(`Datalog query: ${body}`);
 
 		const f = (await import("node-fetch")).default;
@@ -156,18 +163,39 @@ export function createDatalogClient(
 	return new NodeFetchDatalogClient(apiKey, url, ctx);
 }
 
-export function resolveParameters(query: string, parameters: any = {}): string {
-	let newQuery = query;
+export function prepareArgs(
+	query: string,
+	parameters: any = {},
+): { query: string; args: string } {
+	const args = [];
+	const names = [];
 	for (const key of Object.keys(parameters)) {
 		const value = parameters[key];
-		newQuery = newQuery.replace(
-			new RegExp(`\\?${key}`, "g"),
+		const escapedValue =
 			typeof value === "string"
 				? value.startsWith(":")
 					? value
 					: `"${value}"`
-				: value,
-		);
+				: value;
+		args.push(escapedValue);
+		names.push(key);
 	}
-	return newQuery;
+	if (args.length === 0) {
+		return {
+			query,
+			args: "",
+		};
+	}
+	const untuple = `[(untuple ?args) [${names.map(n => `?${n}`).join(" ")}]]`;
+	const inRegExp = /(:in[\s\S]*?)(?::where|:with)/m;
+	const match = inRegExp.exec(query);
+	const newQuery = query
+		.split(match[1])
+		.join(`${match[1]}${!match[1].includes("?ctx") ? "?ctx " : ""}?args\n`)
+		.split(":where")
+		.join(`:where\n ${untuple}`);
+	return {
+		query: newQuery,
+		args: args.join(" "),
+	};
 }
