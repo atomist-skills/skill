@@ -63,7 +63,7 @@ export class DefaultProjectLoader implements ProjectLoader {
 			this.ctx.onComplete(() =>
 				handleError(
 					async () => fs.remove(p.path()),
-					() => {
+					async () => {
 						// Intentionally left empty
 					},
 				),

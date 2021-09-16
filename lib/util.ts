@@ -216,7 +216,7 @@ export function bytes(x: string): string {
 
 export async function handleError<T>(
 	f: () => Promise<T>,
-	cb?: (err: Error) => T | undefined,
+	cb?: (err: Error) => Promise<T | undefined>,
 ): Promise<T | undefined> {
 	if (!cb) {
 		cb = loggingErrorHandler();
