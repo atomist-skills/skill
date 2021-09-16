@@ -171,12 +171,14 @@ export function prepareArgs(
 	const names = [];
 	for (const key of Object.keys(parameters)) {
 		const value = parameters[key];
-		const escapedValue =
-			typeof value === "string"
-				? value.startsWith(":")
-					? value
-					: `"${value}"`
-				: value;
+		let escapedValue;
+		const escape = (v: string) =>
+			typeof v === "string" ? (v.startsWith(":") ? v : `"${v}"`) : v;
+		if (Array.isArray(value)) {
+			escapedValue = `[${value.map(escape).join(" ")}]`;
+		} else {
+			escapedValue = escape(value);
+		}
 		args.push(escapedValue);
 		names.push(key);
 	}
