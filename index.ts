@@ -46,6 +46,7 @@ export {
 	Technology,
 } from "./lib/definition/skill";
 export * as subscription from "./lib/definition/subscription";
+export * as docker from "./lib/docker";
 // lib/git
 export * as git from "./lib/git";
 // lib/github
