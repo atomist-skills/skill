@@ -55,7 +55,7 @@ export function entity<
 	const prefix = type.replace(/\//g, ".");
 	for (const attribute of Object.keys(attributesToUse)) {
 		const value = attributesToUse[attribute];
-		if (value) {
+		if (value !== undefined) {
 			if (attribute.includes("/")) {
 				e[attribute] = value;
 			} else {
