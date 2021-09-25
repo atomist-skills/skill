@@ -80,6 +80,7 @@ export function createTransact(
 
 		try {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
+			const start = Date.now();
 			if (!topic) {
 				topic = new PubSub().topic(topicName, {
 					messageOrdering: true,
@@ -90,6 +91,7 @@ export function createTransact(
 				data: messageBuffer,
 				orderingKey: ctx.correlationId,
 			});
+			debug(`Sent message in ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error occurred sending message: ${err.message}`);
 		}

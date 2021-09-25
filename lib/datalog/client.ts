@@ -19,6 +19,7 @@ import { Response } from "node-fetch";
 import { Contextual } from "../handler/handler";
 import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
+import { SkillConfiguration, SubscriptionIncoming } from "../payload";
 import { retry } from "../retry";
 import { isStaging, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
@@ -43,7 +44,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 		private readonly url: string,
 		private readonly ctx: Pick<
 			Contextual<any, any>,
-			"onComplete" | "workspaceId" | "correlationId" | "skill"
+			"onComplete" | "workspaceId" | "correlationId" | "skill" | "trigger"
 		>,
 	) {}
 
@@ -70,6 +71,20 @@ class NodeFetchDatalogClient implements DatalogClient {
 			};
 		} = {},
 	): Promise<T[] | string> {
+		if ((this.ctx.trigger as SubscriptionIncoming)?.subscription?.tx) {
+			options = {
+				...(options || {}),
+				tx:
+					options?.tx ||
+					(this.ctx.trigger as SubscriptionIncoming).subscription.tx,
+				configurationName:
+					options?.configurationName ||
+					(
+						(this.ctx.trigger as SubscriptionIncoming).skill
+							.configuration as SkillConfiguration
+					).name,
+			};
+		}
 		const argsAndQuery = prepareArgs(query, parameters);
 
 		const bodyParts = [`:query ${argsAndQuery.query}`];
@@ -152,7 +167,7 @@ export function createDatalogClient(
 	apiKey: string,
 	ctx: Pick<
 		Contextual<any, any>,
-		"onComplete" | "workspaceId" | "correlationId" | "skill"
+		"onComplete" | "workspaceId" | "correlationId" | "skill" | "trigger"
 	>,
 	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
 		(isStaging()

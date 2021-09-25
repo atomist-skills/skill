@@ -56,6 +56,7 @@ export async function query(args: {
 		correlationId: guid(),
 		skill,
 		onComplete: undefined,
+		trigger: undefined,
 	});
 
 	const query = (

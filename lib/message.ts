@@ -625,12 +625,13 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 	}
 
 	public async sendResponse(message: any): Promise<void> {
-		const topicName =
-			process.env.ATOMIST_TOPIC ||
-			`${this.workspaceId}-${this.request.skill.id}-response`;
 		try {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
+			const start = Date.now();
 			if (!this.topic) {
+				const topicName =
+					process.env.ATOMIST_TOPIC ||
+					`${this.workspaceId}-${this.request.skill.id}-response`;
 				this.topic = new PubSub().topic(topicName, {
 					messageOrdering: true,
 				});
@@ -640,6 +641,7 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 				data: messageBuffer,
 				orderingKey: this.correlationId,
 			});
+			debug(`Sent message in ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error occurred sending message: ${err.message}`);
 		}

@@ -38,8 +38,8 @@ export async function doAuthed<T>(
 ): Promise<T> {
 	let error;
 	for (const registry of registries) {
-		await authenticate(ctx, [registry]);
 		try {
+			await authenticate(ctx, [registry]);
 			const result = await cb();
 			return result;
 		} catch (e) {
