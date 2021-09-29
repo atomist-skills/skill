@@ -95,7 +95,9 @@ export async function authenticate(
 					if (
 						registry.serverUrl?.startsWith(
 							"registry.hub.docker.com",
-						)
+						) &&
+						registry.username &&
+						registry.secret
 					) {
 						dockerConfig.auths["https://index.docker.io/v1/"] = {
 							auth: Buffer.from(
