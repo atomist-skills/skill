@@ -11,7 +11,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | License                              | Count |
 | ------------------------------------ | ----- |
 | [0BSD](#0bsd)                        | 5     |
-| [Apache-2.0](#apache-20)             | 99    |
+| [Apache-2.0](#apache-20)             | 98    |
 | [BSD-2-Clause](#bsd-2-clause)        | 11    |
 | [BSD-3-Clause](#bsd-3-clause)        | 23    |
 | [CC-BY-3.0](#cc-by-30)               | 1     |
@@ -139,7 +139,6 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `rxjs`                                      | `6.6.7`         | Ben Lesh                    | [https://github.com/reactivex/rxjs](https://github.com/reactivex/rxjs)                                                                 |
 | `spdx-correct`                              | `3.1.1`         | Kyle E. Mitchell            | [https://github.com/jslicense/spdx-correct.js](https://github.com/jslicense/spdx-correct.js)                                           |
 | `teeny-request`                             | `7.1.1`         | fhinkel                     | [https://github.com/googleapis/teeny-request](https://github.com/googleapis/teeny-request)                                             |
-| `typescript`                                | `4.4.3`         | Microsoft Corp.             | [https://github.com/Microsoft/TypeScript](https://github.com/Microsoft/TypeScript)                                                     |
 | `validate-npm-package-license`              | `3.0.4`         | Kyle E. Mitchell            | [https://github.com/kemitchell/validate-npm-package-license.js](https://github.com/kemitchell/validate-npm-package-license.js)         |
 | `yaml-ast-parser`                           | `0.0.43`        |                             | [https://github.com/mulesoft-labs/yaml-ast-parser](https://github.com/mulesoft-labs/yaml-ast-parser)                                   |
 
@@ -460,7 +459,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `ansi-escapes`                                       | `4.3.2`        | Sindre Sorhus                  | [https://github.com/sindresorhus/ansi-escapes](https://github.com/sindresorhus/ansi-escapes)                                                                                                         |
 | `ansi-regex`                                         | `2.1.1`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-regex](https://github.com/chalk/ansi-regex)                                                                                                                           |
 | `ansi-regex`                                         | `3.0.0`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-regex](https://github.com/chalk/ansi-regex)                                                                                                                           |
-| `ansi-regex`                                         | `5.0.0`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-regex](https://github.com/chalk/ansi-regex)                                                                                                                           |
+| `ansi-regex`                                         | `5.0.1`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-regex](https://github.com/chalk/ansi-regex)                                                                                                                           |
 | `ansi-regex`                                         | `6.0.1`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-regex](https://github.com/chalk/ansi-regex)                                                                                                                           |
 | `ansi-styles`                                        | `2.2.1`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-styles](https://github.com/chalk/ansi-styles)                                                                                                                         |
 | `ansi-styles`                                        | `3.2.1`        | Sindre Sorhus                  | [https://github.com/chalk/ansi-styles](https://github.com/chalk/ansi-styles)                                                                                                                         |
