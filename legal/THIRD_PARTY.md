@@ -11,7 +11,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | License                              | Count |
 | ------------------------------------ | ----- |
 | [0BSD](#0bsd)                        | 5     |
-| [Apache-2.0](#apache-20)             | 98    |
+| [Apache-2.0](#apache-20)             | 99    |
 | [BSD-2-Clause](#bsd-2-clause)        | 11    |
 | [BSD-3-Clause](#bsd-3-clause)        | 23    |
 | [CC-BY-3.0](#cc-by-30)               | 1     |
@@ -21,7 +21,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
 | [ISC](#isc)                          | 44    |
 | [MIT AND Zlib](#mit-and-zlib)        | 1     |
-| [MIT](#mit)                          | 658   |
+| [MIT](#mit)                          | 661   |
 | [Public Domain](#public-domain)      | 1     |
 | [Python-2.0](#python-20)             | 1     |
 
@@ -43,7 +43,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 | Name                                        | Version         | Publisher                   | Repository                                                                                                                             |
 | ------------------------------------------- | --------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `@atomist/skill-logging`                    | `1.0.8-main.23` | Atomist, Inc.               | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
+| `@atomist/skill-logging`                    | `1.0.8-main.28` | Atomist, Inc.               | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
 | `@atomist/slack-messages`                   | `1.2.2`         | Atomist                     | [https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)                                                 |
 | `@aws-crypto/ie11-detection`                | `1.0.0`         | AWS Crypto Tools Team       | [https://github.com/aws/aws-sdk-js-crypto-helpers](https://github.com/aws/aws-sdk-js-crypto-helpers)                                   |
 | `@aws-crypto/sha256-browser`                | `1.2.1`         | AWS Crypto Tools Team       | [https://github.com/aws/aws-sdk-js-crypto-helpers](https://github.com/aws/aws-sdk-js-crypto-helpers)                                   |
@@ -102,15 +102,15 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@aws-sdk/util-utf8-node`                   | `3.32.0`        | AWS SDK for JavaScript Team | [https://github.com/aws/aws-sdk-js-v3](https://github.com/aws/aws-sdk-js-v3)                                                           |
 | `@aws-sdk/util-waiter`                      | `3.32.0`        | AWS SDK for JavaScript Team | [https://github.com/aws/aws-sdk-js-v3](https://github.com/aws/aws-sdk-js-v3)                                                           |
 | `@google-cloud/common`                      | `3.7.1`         | Google Inc.                 | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
-| `@google-cloud/functions-framework`         | `1.9.0`         | Google Inc.                 | [https://github.com/GoogleCloudPlatform/functions-framework-nodejs](https://github.com/GoogleCloudPlatform/functions-framework-nodejs) |
+| `@google-cloud/functions-framework`         | `1.10.0`        | Google Inc.                 | [https://github.com/GoogleCloudPlatform/functions-framework-nodejs](https://github.com/GoogleCloudPlatform/functions-framework-nodejs) |
 | `@google-cloud/logging`                     | `8.2.0`         | Google Inc.                 | [https://github.com/googleapis/nodejs-logging](https://github.com/googleapis/nodejs-logging)                                           |
 | `@google-cloud/paginator`                   | `3.0.5`         | Google Inc.                 | [https://github.com/googleapis/nodejs-paginator](https://github.com/googleapis/nodejs-paginator)                                       |
 | `@google-cloud/precise-date`                | `2.0.3`         | Google Inc.                 | [https://github.com/googleapis/nodejs-precise-date](https://github.com/googleapis/nodejs-precise-date)                                 |
 | `@google-cloud/projectify`                  | `2.0.1`         | Google Inc.                 | [https://github.com/googleapis/nodejs-projectify](https://github.com/googleapis/nodejs-projectify)                                     |
 | `@google-cloud/promisify`                   | `2.0.3`         | Google Inc.                 | [https://github.com/googleapis/nodejs-promisify](https://github.com/googleapis/nodejs-promisify)                                       |
-| `@google-cloud/pubsub`                      | `2.17.0`        | Google Inc.                 | [https://github.com/googleapis/nodejs-pubsub](https://github.com/googleapis/nodejs-pubsub)                                             |
+| `@google-cloud/pubsub`                      | `2.18.1`        | Google Inc.                 | [https://github.com/googleapis/nodejs-pubsub](https://github.com/googleapis/nodejs-pubsub)                                             |
 | `@google-cloud/secret-manager`              | `3.10.1`        | Google LLC                  | [https://github.com/googleapis/nodejs-secret-manager](https://github.com/googleapis/nodejs-secret-manager)                             |
-| `@google-cloud/storage`                     | `5.14.2`        | Google Inc.                 | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
+| `@google-cloud/storage`                     | `5.14.5`        | Google Inc.                 | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
 | `@grpc/grpc-js`                             | `1.3.2`         | Google Inc.                 | [https://github.com/grpc/grpc-node/tree/master/packages/grpc-js](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js)       |
 | `@grpc/proto-loader`                        | `0.6.2`         | Google Inc.                 | [https://github.com/grpc/grpc-node](https://github.com/grpc/grpc-node)                                                                 |
 | `@opencensus/core`                          | `0.0.22`        | Google Inc.                 | [https://github.com/census-instrumentation/opencensus-node](https://github.com/census-instrumentation/opencensus-node)                 |
@@ -139,6 +139,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `rxjs`                                      | `6.6.7`         | Ben Lesh                    | [https://github.com/reactivex/rxjs](https://github.com/reactivex/rxjs)                                                                 |
 | `spdx-correct`                              | `3.1.1`         | Kyle E. Mitchell            | [https://github.com/jslicense/spdx-correct.js](https://github.com/jslicense/spdx-correct.js)                                           |
 | `teeny-request`                             | `7.1.1`         | fhinkel                     | [https://github.com/googleapis/teeny-request](https://github.com/googleapis/teeny-request)                                             |
+| `typescript`                                | `4.4.3`         | Microsoft Corp.             | [https://github.com/Microsoft/TypeScript](https://github.com/Microsoft/TypeScript)                                                     |
 | `validate-npm-package-license`              | `3.0.4`         | Kyle E. Mitchell            | [https://github.com/kemitchell/validate-npm-package-license.js](https://github.com/kemitchell/validate-npm-package-license.js)         |
 | `yaml-ast-parser`                           | `0.0.43`        |                             | [https://github.com/mulesoft-labs/yaml-ast-parser](https://github.com/mulesoft-labs/yaml-ast-parser)                                   |
 
@@ -410,6 +411,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `@tootallnate/once`                                  | `1.1.2`        | Nathan Rajlich                 | [https://github.com/TooTallNate/once](https://github.com/TooTallNate/once)                                                                                                                           |
 | `@types/better-queue`                                | `3.8.3`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/body-parser`                                 | `1.19.1`       |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
+| `@types/chunk-text`                                  | `1.0.0`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/connect`                                     | `3.4.35`       |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/cross-spawn`                                 | `6.0.2`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/duplexify`                                   | `3.6.0`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
@@ -505,6 +507,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `change-case`                                        | `4.1.2`        | Blake Embrey                   | [https://github.com/blakeembrey/change-case](https://github.com/blakeembrey/change-case)                                                                                                             |
 | `chardet`                                            | `0.7.0`        | Dmitry Shirokov                | [https://github.com/runk/node-chardet](https://github.com/runk/node-chardet)                                                                                                                         |
 | `chokidar`                                           | `3.5.2`        | Paul Miller                    | [https://github.com/paulmillr/chokidar](https://github.com/paulmillr/chokidar)                                                                                                                       |
+| `chunk-text`                                         | `2.0.1`        | Raymond RUTJES                 | [https://github.com/algolia/chunk-text](https://github.com/algolia/chunk-text)                                                                                                                       |
 | `cli-cursor`                                         | `2.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/cli-cursor](https://github.com/sindresorhus/cli-cursor)                                                                                                             |
 | `cli-cursor`                                         | `3.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/cli-cursor](https://github.com/sindresorhus/cli-cursor)                                                                                                             |
 | `cli-truncate`                                       | `0.2.1`        | Sindre Sorhus                  | [https://github.com/sindresorhus/cli-truncate](https://github.com/sindresorhus/cli-truncate)                                                                                                         |
@@ -849,6 +852,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `reusify`                                            | `1.0.4`        | Matteo Collina                 | [https://github.com/mcollina/reusify](https://github.com/mcollina/reusify)                                                                                                                           |
 | `run-async`                                          | `2.4.1`        | Simon Boudrias                 | [https://github.com/SBoudrias/run-async](https://github.com/SBoudrias/run-async)                                                                                                                     |
 | `run-parallel`                                       | `1.2.0`        | Feross Aboukhadijeh            | [https://github.com/feross/run-parallel](https://github.com/feross/run-parallel)                                                                                                                     |
+| `runes`                                              | `0.4.3`        | Vitaly Domnikov                | [https://github.com/dotcypress/runes](https://github.com/dotcypress/runes)                                                                                                                           |
 | `safe-buffer`                                        | `5.1.2`        | Feross Aboukhadijeh            | [https://github.com/feross/safe-buffer](https://github.com/feross/safe-buffer)                                                                                                                       |
 | `safe-buffer`                                        | `5.2.1`        | Feross Aboukhadijeh            | [https://github.com/feross/safe-buffer](https://github.com/feross/safe-buffer)                                                                                                                       |
 | `safer-buffer`                                       | `2.1.2`        | Nikita Skovoroda               | [https://github.com/ChALkeR/safer-buffer](https://github.com/ChALkeR/safer-buffer)                                                                                                                   |
