@@ -320,7 +320,9 @@ function extractConfigurationParameters(
 			parameters[p.name] = p.value;
 		}
 	});
-	return parameters;
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const dot = require("dot-object");
+	return dot.object(parameters);
 }
 
 function extractConfigurationResourceProviders(
