@@ -21,7 +21,7 @@ import {
 	DockerRegistry,
 	DockerRegistryType,
 } from "../definition/subscription/common_types";
-import { Contextual } from "../handler/handler";
+import { Configuration, Contextual } from "../handler/handler";
 import { createFile } from "../tmp_fs";
 
 export type ExtendedDockerRegistry = DockerRegistry & {
@@ -53,7 +53,13 @@ export async function doAuthed<T>(
 }
 
 export async function authenticate(
-	ctx: Contextual<any, any>,
+	ctx: Contextual<
+		any,
+		Configuration<{
+			dockerhub: { username: string; apiKey: string };
+			github: { atomistBot: { pat: string } };
+		}>
+	>,
 	registries: ExtendedDockerRegistry[],
 ): Promise<void> {
 	const dockerConfig = {
@@ -114,6 +120,30 @@ export async function authenticate(
 					break;
 			}
 		}
+	}
+	// Add default creds
+	if (
+		ctx.configuration.parameters?.dockerhub &&
+		!dockerConfig.auths["https://index.docker.io/v1/"]
+	) {
+		dockerConfig.auths["https://index.docker.io/v1/"] = {
+			auth: Buffer.from(
+				ctx.configuration.parameters?.dockerhub.username +
+					":" +
+					ctx.configuration.parameters?.dockerhub.apiKey,
+			)?.toString("base64"),
+		};
+	}
+	if (
+		ctx.configuration.parameters?.github &&
+		!dockerConfig.auths["ghcr.io"]
+	) {
+		dockerConfig.auths["ghcr.io"] = {
+			auth: Buffer.from(
+				"atomist-bot:" +
+					ctx.configuration.parameters?.github.atomistBot.pat,
+			)?.toString("base64"),
+		};
 	}
 	const dockerConfigPath = path.join(os.homedir(), ".docker", "config.json");
 	await createFile(ctx, {

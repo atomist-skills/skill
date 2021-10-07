@@ -322,7 +322,7 @@ function extractConfigurationParameters(
 	});
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const dot = require("dot-object");
-	return dot.object(parameters);
+	return dot.object(parameters, s => camelCase(s));
 }
 
 function extractConfigurationResourceProviders(
