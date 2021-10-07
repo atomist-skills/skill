@@ -141,7 +141,7 @@ export function extractParameters(intent: string): Arg[] {
 }
 
 function keyToHide(key: string): boolean {
-	return /token|password|jwt|url|secret|authorization|key|cert|pass|user|address|email/i.test(
+	return /token|password|jwt|url|secret|authorization|key|cert|pass|user|address|email|pat/i.test(
 		key,
 	);
 }
