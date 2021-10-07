@@ -310,6 +310,7 @@ export function extractConfiguration(
 function extractConfigurationParameters(
 	params: Array<{ name: string; value: any }>,
 ): Record<string, any> {
+	let nested = false;
 	const parameters = {};
 	params?.forEach(p => {
 		if (p.name.startsWith("atomist://")) {
@@ -319,10 +320,17 @@ function extractConfigurationParameters(
 		} else {
 			parameters[p.name] = p.value;
 		}
+		if (p.name.includes(".")) {
+			nested = true;
+		}
 	});
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const dot = require("dot-object");
-	return dot.object(parameters, s => camelCase(s));
+	if (nested) {
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const dot = require("dot-object");
+		return dot.object(parameters);
+	} else {
+		return parameters;
+	}
 }
 
 function extractConfigurationResourceProviders(

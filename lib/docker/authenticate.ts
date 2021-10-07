@@ -56,8 +56,8 @@ export async function authenticate(
 	ctx: Contextual<
 		any,
 		Configuration<{
-			dockerhub: { username: string; apiKey: string };
-			github: { atomistBot: { pat: string } };
+			dockerhub: { "username": string; "api-key": string };
+			github: { "atomist-bot": { pat: string } };
 		}>
 	>,
 	registries: ExtendedDockerRegistry[],
@@ -130,7 +130,7 @@ export async function authenticate(
 			auth: Buffer.from(
 				ctx.configuration.parameters?.dockerhub.username +
 					":" +
-					ctx.configuration.parameters?.dockerhub.apiKey,
+					ctx.configuration.parameters?.dockerhub["api-key"],
 			)?.toString("base64"),
 		};
 	}
@@ -141,7 +141,7 @@ export async function authenticate(
 		dockerConfig.auths["ghcr.io"] = {
 			auth: Buffer.from(
 				"atomist-bot:" +
-					ctx.configuration.parameters?.github.atomistBot.pat,
+					ctx.configuration.parameters?.github["atomist-bot"].pat,
 			)?.toString("base64"),
 		};
 	}
