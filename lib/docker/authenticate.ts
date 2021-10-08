@@ -56,8 +56,8 @@ export async function authenticate(
 	ctx: Contextual<
 		any,
 		Configuration<{
-			dockerhub: { "username": string; "api-key": string };
-			github: { "atomist-bot": { pat: string } };
+			dockerhub?: { "username": string; "api-key": string };
+			github?: { "atomist-bot": { pat: string } };
 		}>
 	>,
 	registries: ExtendedDockerRegistry[],
