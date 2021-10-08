@@ -52,14 +52,13 @@ export async function doAuthed<T>(
 	return undefined;
 }
 
+export interface DefaultDockerCredentials {
+	dockerhub?: { "username": string; "api-key": string };
+	github?: { "atomist-bot": { pat: string } };
+}
+
 export async function authenticate(
-	ctx: EventContext<
-		any,
-		{
-			dockerhub?: { "username": string; "api-key": string };
-			github?: { "atomist-bot": { pat: string } };
-		}
-	>,
+	ctx: EventContext<any, any & DefaultDockerCredentials>,
 	registries: ExtendedDockerRegistry[],
 ): Promise<void> {
 	const dockerConfig = {
