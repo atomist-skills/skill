@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 *   Add global option state handling. [2497452](https://github.com/atomist-skills/skill/commit/24974527b88e4ae1df928e9b4a1622c8345cfccc)
 *   Transact audit result. [0db7b18](https://github.com/atomist-skills/skill/commit/0db7b184a06a25a298734755ee9c3bd07db7a9a3)
 *   Add support for Datalog query args. [d594a5d](https://github.com/atomist-skills/skill/commit/d594a5d0e6181a6b9b96c0ed7874dc66d34b67d2)
+*   New authentication methods. [#482](https://github.com/atomist-skills/skill/issues/482)
 
 ### Changed
 
