@@ -21,7 +21,7 @@ import {
 	DockerRegistry,
 	DockerRegistryType,
 } from "../definition/subscription/common_types";
-import { Configuration, Contextual } from "../handler/handler";
+import { Contextual, EventContext } from "../handler/handler";
 import { createFile } from "../tmp_fs";
 
 export type ExtendedDockerRegistry = DockerRegistry & {
@@ -32,7 +32,7 @@ export type ExtendedDockerRegistry = DockerRegistry & {
 };
 
 export async function doAuthed<T>(
-	ctx: Contextual<any, any>,
+	ctx: EventContext<any, any>,
 	registries: ExtendedDockerRegistry[],
 	cb: () => Promise<T>,
 ): Promise<T> {
@@ -53,12 +53,12 @@ export async function doAuthed<T>(
 }
 
 export async function authenticate(
-	ctx: Contextual<
+	ctx: EventContext<
 		any,
-		Configuration<{
+		{
 			dockerhub?: { "username": string; "api-key": string };
 			github?: { "atomist-bot": { pat: string } };
-		}>
+		}
 	>,
 	registries: ExtendedDockerRegistry[],
 ): Promise<void> {
