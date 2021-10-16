@@ -129,8 +129,8 @@ export const CheckRunTransactor: ResponseTransactor<
 		const check = response.data;
 		const repo = (
 			await gh.repos.get({
-				owner: options.owner,
-				repo: options.repo,
+				owner: options.owner as any,
+				repo: options.repo as any,
 			})
 		).data;
 		const repoEntity = entity("git/repo", {

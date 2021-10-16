@@ -24,7 +24,7 @@ import { error } from "../lib/log";
 
 // tslint:disable-next-line:no-unused-expression
 void yargs
-	.command(
+	.command<{ skill: string }>(
 		"run",
 		"Start container skill",
 		args =>
@@ -41,7 +41,7 @@ void yargs
 			);
 		},
 	)
-	.command(
+	.command<{ cwd: string; validate: boolean; artifacts: boolean }>(
 		["generate", "gen"],
 		"Generate skill metadata",
 		args =>
@@ -69,14 +69,20 @@ void yargs
 				await (
 					await import("../lib/script/skill_input")
 				).generateSkill(argv.cwd, argv.validate, argv.artifacts);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{
+		cwd: string;
+		minify: boolean;
+		sourceMap: boolean;
+		file: string;
+		verbose: boolean;
+	}>(
 		["bundle"],
 		"Bundle skill and dependencies",
 		args =>
@@ -123,14 +129,14 @@ void yargs
 					argv.verbose,
 					argv.file,
 				);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{ cwd: string; verbose: boolean }>(
 		["package", "pkg"],
 		"Package skill archive",
 		args =>
@@ -153,14 +159,14 @@ void yargs
 				await (
 					await import("../lib/script/skill_package")
 				).packageSkill(argv.cwd, argv.verbose);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{ cwd: string; workspace: string }>(
 		["upload", "up"],
 		"Upload skill metadata",
 		args =>
@@ -182,14 +188,14 @@ void yargs
 				await (
 					await import("../lib/script/skill_upload")
 				).uploadSkill(argv.cwd, argv.workspace);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{ cwd: string; workspace: string }>(
 		["download", "down"],
 		"Download skill metadata",
 		args =>
@@ -211,14 +217,14 @@ void yargs
 				await (
 					await import("../lib/script/skill_download")
 				).downloadSkill(argv.cwd, argv.workspace);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{ cwd: string; verbose: boolean }>(
 		["clean"],
 		"Clean skill archive",
 		args =>
@@ -241,14 +247,19 @@ void yargs
 				await (
 					await import("../lib/script/skill_clean")
 				).cleanSkill(argv.cwd);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{
+		cwd: string;
+		workspace: string;
+		version: string;
+		verbose: boolean;
+	}>(
 		["register", "reg"],
 		"Register skill",
 		args =>
@@ -286,14 +297,14 @@ void yargs
 					argv.version,
 					argv.verbose,
 				);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{ cwd: string; workspace: string }>(
 		["gql-fetch"],
 		"Fetch GraphQL schema",
 		args =>
@@ -315,14 +326,14 @@ void yargs
 				await (
 					await import("../lib/script/gql_fetch")
 				).fetchGql(argv.cwd, argv.workspace);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{ cwd: string; config: string }>(
 		["gql-generate"],
 		"Generate types from GraphQL",
 		args =>
@@ -345,14 +356,21 @@ void yargs
 				await (
 					await import("../lib/script/gql_generate")
 				).generateGql(argv);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
 			}
 		},
 	)
-	.command(
+	.command<{
+		cwd: string;
+		query: string;
+		config: string;
+		workspace: string;
+		parse: boolean;
+		tx: number;
+	}>(
 		["datalog-query"],
 		"Run a Datalog query",
 		args =>
@@ -385,7 +403,7 @@ void yargs
 					alias: "p",
 					description: "Parse and convert to JSON",
 					demandOption: false,
-					defaultValue: false,
+					default: false,
 				},
 				tx: {
 					type: "number",
@@ -397,7 +415,7 @@ void yargs
 		async argv => {
 			try {
 				await (await import("../lib/script/datalog")).query(argv);
-				return 0;
+				process.exit(0);
 			} catch (e) {
 				error(e.message);
 				process.exit(1);
