@@ -96,7 +96,7 @@ export function formatMarkers(
 	...tags: string[]
 ): string {
 	const tx = isSubscriptionIncoming(ctx.trigger)
-		? ctx.trigger.subscription.tx
+		? ctx.trigger.subscription["after-basis-t"]
 		: undefined;
 	return `
 <!--

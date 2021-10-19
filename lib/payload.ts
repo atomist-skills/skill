@@ -106,9 +106,10 @@ export interface SubscriptionIncoming {
 	skill: Skill;
 	secrets: Secret[];
 	subscription: {
-		name: string;
-		result: any;
-		tx: number;
+		"name": string;
+		"result": any;
+		"tx": number;
+		"after-basis-t": number;
 	};
 }
 

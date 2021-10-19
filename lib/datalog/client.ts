@@ -71,12 +71,18 @@ class NodeFetchDatalogClient implements DatalogClient {
 			};
 		} = {},
 	): Promise<T[] | string> {
-		if ((this.ctx.trigger as SubscriptionIncoming)?.subscription?.tx) {
+		if (
+			(this.ctx.trigger as SubscriptionIncoming)?.subscription?.[
+				"after-basis-t"
+			]
+		) {
 			options = {
 				...(options || {}),
 				tx:
 					options?.tx ||
-					(this.ctx.trigger as SubscriptionIncoming).subscription.tx,
+					(this.ctx.trigger as SubscriptionIncoming).subscription[
+						"after-basis-t"
+					],
 				configurationName:
 					options?.configurationName ||
 					(

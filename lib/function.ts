@@ -96,7 +96,7 @@ export async function processEvent(
 		ContextualLifecycle;
 	if (isSubscriptionIncoming(event)) {
 		debug(
-			`Invoking event handler '${context.name}' for tx '${event.subscription.tx}'`,
+			`Invoking event handler '${context.name}' for tx '${event.subscription["after-basis-t"]}'`,
 		);
 	} else {
 		debug(`Invoking event handler '${context.name}'`);
