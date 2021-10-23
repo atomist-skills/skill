@@ -57,8 +57,8 @@
   "dependencies": {
     "@atomist/skill-logging": "^1.0.8-main.30",
     "@atomist/slack-messages": "^1.2.2",
-    "@aws-sdk/client-ecr": "^3.37.0",
-    "@aws-sdk/client-sts": "^3.37.0",
+    "@aws-sdk/client-ecr": "^3.38.0",
+    "@aws-sdk/client-sts": "^3.38.0",
     "@google-cloud/functions-framework": "^1.10.0",
     "@google-cloud/pubsub": "^2.18.1",
     "@google-cloud/secret-manager": "^3.10.1",
@@ -75,7 +75,7 @@
     "@types/flat": "^5.0.2",
     "@types/fs-extra": "^9.0.13",
     "@types/git-url-parse": "^9.0.1",
-    "@types/js-yaml": "^4.0.3",
+    "@types/js-yaml": "^4.0.4",
     "@types/lodash.chunk": "^4.2.6",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.forown": "^4.4.6",
@@ -157,7 +157,7 @@
     "power-assert": "^1.6.1",
     "rimraf": "^3.0.2",
     "supervisor": "^0.12.0",
-    "ts-node": "^10.3.1",
+    "ts-node": "^10.4.0",
     "typedoc": "^0.20.37",
     "typescript": "^4.4.4"
   },
