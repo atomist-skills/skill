@@ -61,6 +61,9 @@ export async function authenticate(
 	ctx: EventContext<any, any & DefaultDockerCredentials>,
 	registries: ExtendedDockerRegistry[],
 ): Promise<void> {
+	if (process.env.ATOMIST_SKIP_DOCKER_AUTH) {
+		return;
+	}
 	const dockerConfig = {
 		auths: {},
 	} as any;

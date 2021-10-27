@@ -46,6 +46,8 @@ export async function assertSkill(
 ): Promise<undefined | HandlerStatus> {
 	// Enable staight console logging
 	process.env.ATOMIST_CONSOLE_LOG = "1";
+	// Disable docker auth so that we can rely on local creds
+	process.env.ATOMIST_SKIP_DOCKER_AUTH = "1";
 
 	const apiKeySecret = payload.secrets.find(
 		s => s.uri === "atomist://api-key",
