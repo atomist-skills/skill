@@ -106,7 +106,7 @@
     "fs-extra": "^10.0.0",
     "git-url-parse": "^11.6.0",
     "glob-gitignore": "^1.0.14",
-    "graphql": "^15.6.1",
+    "graphql": "^15.7.0",
     "graphql-tag": "^2.12.5",
     "handlebars": "^4.7.7",
     "jose": "^3.20.3",
