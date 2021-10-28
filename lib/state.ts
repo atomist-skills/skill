@@ -18,9 +18,9 @@ import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 
-import { Contextual, EventContext } from "./handler/handler";
+import { CommandContext, Contextual, EventContext } from "./handler/handler";
 import { debug } from "./log/console";
-import { guid, handleError, isPrimitive } from "./util";
+import { guid, handleError, isPrimitive, toArray } from "./util";
 
 export async function hydrate<T>(
 	configurationName: string,
@@ -72,7 +72,10 @@ function stateKey(
 }
 
 export function cachify<
-	T extends (ctx: EventContext<any, any>, ...args: any) => Promise<any>,
+	T extends (
+		ctx: EventContext<any, any> | CommandContext<any>,
+		...args: any
+	) => Promise<any>,
 >(
 	func: T,
 	options?: {
@@ -97,7 +100,9 @@ export function cachify<
 				}
 			}, func.name || "cachify");
 		}
-		const resultKey = `${ctx.configuration.name.toLowerCase()}/${key.toLowerCase()}`;
+		const resultKey = `${toArray(
+			ctx.configuration,
+		)[0].name.toLowerCase()}/${key.toLowerCase()}`;
 		const old = await hydrate(resultKey, ctx, {
 			value: { result: undefined },
 			ttl: options?.ttl,
