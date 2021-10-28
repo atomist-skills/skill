@@ -73,7 +73,7 @@ export function createTransact(
 			},
 			type: "facts_ingestion",
 			entities: toEDNStringFromSimpleObject(toArray(entities)).replace(
-				/":(.*?)"/gm,
+				/":(\S*?)"/gm,
 				":$1",
 			),
 		};
