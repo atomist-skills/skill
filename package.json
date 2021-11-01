@@ -124,7 +124,7 @@
     "lodash.sortby": "^4.7.0",
     "lodash.uniq": "^4.5.0",
     "luxon": "^2.0.2",
-    "node-fetch": "^2.6.5",
+    "node-fetch": "^2.6.6",
     "p-retry": "^4.6.1",
     "pluralize": "^8.0.0",
     "prettier": "^2.4.1",
