@@ -21,7 +21,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
 | [ISC](#isc)                          | 44    |
 | [MIT AND Zlib](#mit-and-zlib)        | 1     |
-| [MIT](#mit)                          | 672   |
+| [MIT](#mit)                          | 673   |
 | [Public Domain](#public-domain)      | 1     |
 | [Python-2.0](#python-20)             | 1     |
 
@@ -693,6 +693,7 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `js-tokens`                                          | `4.0.0`        | Simon Lydell                   | [https://github.com/lydell/js-tokens](https://github.com/lydell/js-tokens)                                                                                                                           |
 | `js-yaml`                                            | `4.1.0`        | Vladimir Zapparov              | [https://github.com/nodeca/js-yaml](https://github.com/nodeca/js-yaml)                                                                                                                               |
 | `jsesc`                                              | `2.5.2`        | Mathias Bynens                 | [https://github.com/mathiasbynens/jsesc](https://github.com/mathiasbynens/jsesc)                                                                                                                     |
+| `json-bigint`                                        | `0.4.0`        | Andrey Sidorov                 | [https://github.com/sidorares/json-bigint](https://github.com/sidorares/json-bigint)                                                                                                                 |
 | `json-bigint`                                        | `1.0.0`        | Andrey Sidorov                 | [https://github.com/sidorares/json-bigint](https://github.com/sidorares/json-bigint)                                                                                                                 |
 | `json-buffer`                                        | `3.0.0`        | Dominic Tarr                   | [https://github.com/dominictarr/json-buffer](https://github.com/dominictarr/json-buffer)                                                                                                             |
 | `json-parse-even-better-errors`                      | `2.3.1`        | Kat Marchán                    | [https://github.com/npm/json-parse-even-better-errors](https://github.com/npm/json-parse-even-better-errors)                                                                                         |
