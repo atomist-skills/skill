@@ -36,15 +36,14 @@ export async function resolvePayload(pubSubEvent: {
 		| WebhookIncoming
 	) & { message_uri?: string }
 > {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const json_parse = require("./json/parse");
-	const parse = json_parse({
+	const json = (await import("json-bigint"))({
 		alwaysParseAsBig: false,
 		useNativeBigInt: true,
-		objectProto: true,
 	});
 
-	const payload = parse(Buffer.from(pubSubEvent.data, "base64").toString());
+	const payload = json.parse(
+		Buffer.from(pubSubEvent.data, "base64").toString(),
+	);
 
 	if (payload.message_uri) {
 		const resolver = ResolverRegistry.resolvers.find(r =>
