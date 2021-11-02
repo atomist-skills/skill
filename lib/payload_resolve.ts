@@ -36,7 +36,12 @@ export async function resolvePayload(pubSubEvent: {
 		| WebhookIncoming
 	) & { message_uri?: string }
 > {
-	const payload = JSON.parse(
+	const json = (await import("json-bigint"))({
+		alwaysParseAsBig: false,
+		useNativeBigInt: true,
+	});
+
+	const payload = json.parse(
 		Buffer.from(pubSubEvent.data, "base64").toString(),
 	);
 
