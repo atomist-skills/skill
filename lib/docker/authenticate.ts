@@ -81,6 +81,7 @@ export async function authenticate(
 					};
 					break;
 				case DockerRegistryType.Gcr:
+				case DockerRegistryType.Gar:
 					if (registry.serviceAccount) {
 						const token = await getGcrOAuthAccessToken(
 							registry.serviceAccount,
