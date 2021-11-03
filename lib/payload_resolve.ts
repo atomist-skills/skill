@@ -41,6 +41,10 @@ export async function resolvePayload(pubSubEvent: {
 		useNativeBigInt: true,
 	});
 
+	// overwrite global JSON.parse and stringify methods
+	JSON.parse = json.parse;
+	JSON.stringify = json.stringify;
+
 	const payload = json.parse(
 		Buffer.from(pubSubEvent.data, "base64").toString(),
 	);
