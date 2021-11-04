@@ -21,6 +21,7 @@ import {
 	WebhookIncoming,
 } from "./payload";
 import { googleCloudStoragePayloadResolver } from "./storage/resolver";
+import merge = require("lodash.merge");
 
 /**
  * Resolve an incoming payload to the actual incoming message by
@@ -42,10 +43,16 @@ export async function resolvePayload(pubSubEvent: {
 	});
 
 	// overwrite global JSON.parse and stringify methods
-	JSON.parse = json.parse;
+	JSON.parse = (
+		text: string,
+		reviver?: (this: any, key: string, value: any) => any,
+	) => {
+		const obj = json.parse(text, reviver);
+		return merge({}, obj);
+	};
 	JSON.stringify = json.stringify;
 
-	const payload = json.parse(
+	const payload = JSON.parse(
 		Buffer.from(pubSubEvent.data, "base64").toString(),
 	);
 
