@@ -226,6 +226,7 @@ export function checkHandler<S, C>(parameters: {
 				}`,
 				reuse: ctx.chain.details.check.reuse,
 				longRunning: ctx.chain.details.check.longRunning,
+				detailsUrl: ctx.chain.details.check.detailsUrl,
 			}))(ctx);
 		},
 		async ctx => {
