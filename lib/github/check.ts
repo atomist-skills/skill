@@ -126,9 +126,9 @@ export async function createCheck(
 			external_id: externalId,
 			details_url:
 				parameters.detailsUrl ||
-				ctx.configuration?.parameters?.atomist?.policy
+				(ctx.configuration?.parameters?.atomist?.policy
 					? dsoUrl(ctx)
-					: url(ctx),
+					: url(ctx)),
 			status: "in_progress",
 			conclusion: undefined,
 			output: {
@@ -154,9 +154,9 @@ export async function createCheck(
 			external_id: externalId,
 			details_url:
 				parameters.detailsUrl ||
-				ctx.configuration?.parameters?.atomist?.policy
+				(ctx.configuration?.parameters?.atomist?.policy
 					? dsoUrl(ctx)
-					: url(ctx),
+					: url(ctx)),
 			status: "in_progress",
 			output: {
 				title: parameters.title,
