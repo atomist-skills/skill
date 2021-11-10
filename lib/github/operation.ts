@@ -70,6 +70,11 @@ export function api(
 		},
 	});
 
+	// Add logging hook
+	octokit.hook.after("request", async response => {
+		debug("response", response);
+	});
+
 	if (ctx) {
 		// Add hook to transact GitHub entities to Datalog
 		octokit.hook.after("request", async (response, options) => {
