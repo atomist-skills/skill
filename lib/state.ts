@@ -82,6 +82,8 @@ export function cachify<
 		resolver?: (...args: any) => string;
 		ttl?: number;
 		global?: boolean;
+		// Memoize the result for a given period before going off and retrieving
+		// it from the caching backend again
 		memoize?: boolean;
 	},
 ): T {
