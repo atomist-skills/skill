@@ -58,6 +58,7 @@ export class GoogleCloudStorageProvider implements StorageProvider {
 		await file.download({
 			destination: targetFilePath,
 			validation: false,
+			decompress: true,
 		});
 		return targetFilePath;
 	}
@@ -67,6 +68,7 @@ export class GoogleCloudStorageProvider implements StorageProvider {
 		await storage.bucket(this.bucket).upload(filePath, {
 			destination: key,
 			resumable: false,
+			gzip: true,
 		});
 	}
 
