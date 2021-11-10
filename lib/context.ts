@@ -98,7 +98,7 @@ export function loggingCreateContext(
 
 			const rt = runtime();
 			debug(
-				"Starting %s/%s:%s '%s' %satomist/skill:%s (%s) nodejs:%s",
+				"Starting %s/%s:%s '%s' %satomist/skill:%s (%s) nodejs:%s '%s'",
 				payload.skill.namespace,
 				payload.skill.name,
 				payload.skill.version,
@@ -107,6 +107,7 @@ export function loggingCreateContext(
 				rt.skill.version,
 				rt.skill.sha.slice(0, 7),
 				rt.node.version,
+				rt.uptime,
 			);
 			if (options?.payload) {
 				logPayload(context);

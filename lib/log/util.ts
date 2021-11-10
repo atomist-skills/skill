@@ -15,6 +15,7 @@
  */
 
 import { createLogger } from "@atomist/skill-logging";
+import * as dt from "luxon";
 
 import { Contextual } from "../handler/handler";
 import {
@@ -81,6 +82,7 @@ export function runtime(): {
 		sha: string;
 		date: string;
 	};
+	uptime: string;
 } {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const gitInfo = require("../../git-info.json");
@@ -107,6 +109,9 @@ export function runtime(): {
 			sha: hostGitInfo.sha,
 			date: hostGitInfo.date,
 		},
+		uptime: dt.Duration.fromObject({
+			seconds: process.uptime(),
+		}).toFormat("hh:mm:ss"),
 	};
 }
 
