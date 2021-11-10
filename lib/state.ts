@@ -110,12 +110,12 @@ export function cachify<
 		const resultKey = `${toArray(
 			ctx.configuration,
 		)[0].name.toLowerCase()}/${key.toLowerCase()}`;
-		debug(`cachify starting '${resultKey}'`);
+		// debug(`cachify starting '${resultKey}'`);
 
 		if (options?.memoize) {
 			const cacheEntry = cache.get(resultKey);
 			if (cacheEntry?.ttl > Date.now()) {
-				debug(`cachify memoize hit '${resultKey}'`);
+				// debug(`cachify memoize hit '${resultKey}'`);
 				return cacheEntry.value;
 			}
 		}
@@ -125,7 +125,7 @@ export function cachify<
 			ttl: options?.ttl,
 			global: options?.global,
 		});
-		debug(`cachify hydrate result '${resultKey}'`);
+		// debug(`cachify hydrate result '${resultKey}'`);
 
 		if (old.result) {
 			const cacheResult = JSON.parse(old.result);
@@ -135,18 +135,18 @@ export function cachify<
 					value: cacheResult,
 				});
 			}
-			debug(`cachify hydrate hit '${resultKey}'`);
+			// debug(`cachify hydrate hit '${resultKey}'`);
 			return cacheResult;
 		}
 		const result = await func(ctx, ...args);
-		debug(`cachify wrapped function returned '${resultKey}'`);
+		// debug(`cachify wrapped function returned '${resultKey}'`);
 
 		await handleError(() =>
 			save({ result: JSON.stringify(result) }, resultKey, ctx, {
 				global: options?.global,
 			}),
 		);
-		debug(`cachify result stored '${resultKey}'`);
+		// debug(`cachify result stored '${resultKey}'`);
 
 		if (options?.memoize) {
 			cache.set(resultKey, {
