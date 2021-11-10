@@ -82,11 +82,16 @@ export function cachify<
 		resolver?: (...args: any) => string;
 		ttl?: number;
 		global?: boolean;
+		memoize?: boolean;
 	},
 ): T {
 	if (!func.name) {
 		throw new Error("cachify does not support anonymous functions");
 	}
+	const cache = options?.memoize
+		? new Map<string, { ttl: number; value: T }>()
+		: undefined;
+	const memoizeTtl = Math.floor(options.ttl / 4);
 	return (async (ctx: EventContext<any, any>, ...args: any) => {
 		let key;
 		if (options?.resolver) {
@@ -103,13 +108,29 @@ export function cachify<
 		const resultKey = `${toArray(
 			ctx.configuration,
 		)[0].name.toLowerCase()}/${key.toLowerCase()}`;
+
+		if (options?.memoize) {
+			const cacheEntry = cache.get(resultKey);
+			if (cacheEntry?.ttl > Date.now()) {
+				return cacheEntry.value;
+			}
+		}
+
 		const old = await hydrate(resultKey, ctx, {
 			value: { result: undefined },
 			ttl: options?.ttl,
 			global: options?.global,
 		});
+
 		if (old.result) {
-			return JSON.parse(old.result);
+			const cacheResult = JSON.parse(old.result);
+			if (options?.memoize) {
+				cache.set(resultKey, {
+					ttl: Date.now() + memoizeTtl,
+					value: cacheResult,
+				});
+			}
+			return cacheResult;
 		}
 		const result = await func(ctx, ...args);
 		await handleError(() =>
@@ -117,6 +138,12 @@ export function cachify<
 				global: options?.global,
 			}),
 		);
+		if (options?.memoize) {
+			cache.set(resultKey, {
+				ttl: Date.now() + memoizeTtl,
+				value: result,
+			});
+		}
 		return result;
 	}) as any;
 }
