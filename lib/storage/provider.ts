@@ -55,12 +55,11 @@ export class GoogleCloudStorageProvider implements StorageProvider {
 			}
 		}
 
-		if (await file.exists()) {
-			await file.download({ destination: targetFilePath });
-			return targetFilePath;
-		} else {
-			return undefined;
-		}
+		await file.download({
+			destination: targetFilePath,
+			validation: false,
+		});
+		return targetFilePath;
 	}
 
 	public async store(key: string, filePath: string): Promise<void> {
