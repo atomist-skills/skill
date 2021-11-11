@@ -11,7 +11,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | License                              | Count |
 | ------------------------------------ | ----- |
 | [0BSD](#0bsd)                        | 5     |
-| [Apache-2.0](#apache-20)             | 98    |
+| [Apache-2.0](#apache-20)             | 100   |
 | [BSD-2-Clause](#bsd-2-clause)        | 12    |
 | [BSD-3-Clause](#bsd-3-clause)        | 23    |
 | [CC-BY-3.0](#cc-by-30)               | 1     |
@@ -43,7 +43,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 | Name                                        | Version         | Publisher                   | Repository                                                                                                                             |
 | ------------------------------------------- | --------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `@atomist/skill-logging`                    | `1.0.8-main.30` | Atomist, Inc.               | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
+| `@atomist/skill-logging`                    | `1.0.8-main.31` | Atomist, Inc.               | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
 | `@atomist/slack-messages`                   | `1.2.2`         | Atomist                     | [https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)                                                 |
 | `@aws-crypto/ie11-detection`                | `2.0.0`         | AWS Crypto Tools Team       | [https://github.com/aws/aws-sdk-js-crypto-helpers](https://github.com/aws/aws-sdk-js-crypto-helpers)                                   |
 | `@aws-crypto/sha256-browser`                | `2.0.0`         | AWS Crypto Tools Team       | [https://github.com/aws/aws-sdk-js-crypto-helpers](https://github.com/aws/aws-sdk-js-crypto-helpers)                                   |
@@ -101,8 +101,8 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@aws-sdk/util-utf8-browser`                | `3.37.0`        | AWS SDK for JavaScript Team | [https://github.com/aws/aws-sdk-js-v3](https://github.com/aws/aws-sdk-js-v3)                                                           |
 | `@aws-sdk/util-utf8-node`                   | `3.37.0`        | AWS SDK for JavaScript Team | [https://github.com/aws/aws-sdk-js-v3](https://github.com/aws/aws-sdk-js-v3)                                                           |
 | `@aws-sdk/util-waiter`                      | `3.38.0`        | AWS SDK for JavaScript Team | [https://github.com/aws/aws-sdk-js-v3](https://github.com/aws/aws-sdk-js-v3)                                                           |
-| `@google-cloud/common`                      | `3.7.2`         | Google Inc.                 | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
 | `@google-cloud/common`                      | `3.8.0`         | Google Inc.                 | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
+| `@google-cloud/common`                      | `3.8.1`         | Google Inc.                 | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
 | `@google-cloud/functions-framework`         | `1.10.0`        | Google Inc.                 | [https://github.com/GoogleCloudPlatform/functions-framework-nodejs](https://github.com/GoogleCloudPlatform/functions-framework-nodejs) |
 | `@google-cloud/logging`                     | `8.2.0`         | Google Inc.                 | [https://github.com/googleapis/nodejs-logging](https://github.com/googleapis/nodejs-logging)                                           |
 | `@google-cloud/paginator`                   | `3.0.5`         | Google Inc.                 | [https://github.com/googleapis/nodejs-paginator](https://github.com/googleapis/nodejs-paginator)                                       |
@@ -126,8 +126,10 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `fb-watchman`                               | `2.0.1`         | Wez Furlong                 | [https://github.com/facebook/watchman](https://github.com/facebook/watchman)                                                           |
 | `gaxios`                                    | `4.2.0`         | Google, LLC                 | [https://github.com/googleapis/gaxios](https://github.com/googleapis/gaxios)                                                           |
 | `gcp-metadata`                              | `4.2.1`         | Stephen Sawchuk             | [https://github.com/googleapis/gcp-metadata](https://github.com/googleapis/gcp-metadata)                                               |
+| `gcp-metadata`                              | `4.3.1`         | Stephen Sawchuk             | [https://github.com/googleapis/gcp-metadata](https://github.com/googleapis/gcp-metadata)                                               |
 | `google-auth-library`                       | `6.1.6`         | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                       | `7.10.1`        | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
+| `google-auth-library`                       | `7.10.2`        | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                       | `7.6.2`         | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-gax`                                | `2.24.1`        | Google API Authors          | [https://github.com/googleapis/gax-nodejs](https://github.com/googleapis/gax-nodejs)                                                   |
 | `hex2dec`                                   | `1.1.2`         |                             | [https://github.com/donmccurdy/hex2dec](https://github.com/donmccurdy/hex2dec)                                                         |
