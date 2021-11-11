@@ -55,7 +55,7 @@
     "test:one": "mocha --require espower-typescript/guess \"test/**/${TEST:-*.test.ts}\""
   },
   "dependencies": {
-    "@atomist/skill-logging": "^1.0.8-main.30",
+    "@atomist/skill-logging": "^1.0.8-main.31",
     "@atomist/slack-messages": "^1.2.2",
     "@aws-sdk/client-ecr": "^3.39.0",
     "@aws-sdk/client-sts": "^3.39.0",
