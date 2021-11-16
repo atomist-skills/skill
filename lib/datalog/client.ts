@@ -25,7 +25,10 @@ import { isStaging, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
 
 export interface DatalogClient {
-	transact(entities: any | any[]): Promise<void>;
+	transact(
+		entities: any | any[],
+		options?: { ordering: boolean },
+	): Promise<void>;
 	query<T = any, P = any>(
 		query: string,
 		parameters?: P,
