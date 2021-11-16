@@ -21,7 +21,10 @@ import { Contextual } from "../handler/handler";
 import { debug, error } from "../log/console";
 import { replacer, toArray } from "../util";
 
-export type DatalogTransact = (entities: any | any[]) => Promise<void>;
+export type DatalogTransact = (
+	entities: any | any[],
+	options?: { ordering: boolean },
+) => Promise<void>;
 
 export function createTransact(
 	ctx: Pick<
@@ -41,7 +44,7 @@ export function createTransact(
 		});
 	}
 
-	return async entities => {
+	return async (entities, options = { ordering: true }) => {
 		const invalidEntities = toArray(entities).filter(e =>
 			Object.values(e).some(v => v === undefined),
 		);
@@ -89,7 +92,8 @@ export function createTransact(
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
 			await topic.publishMessage({
 				data: messageBuffer,
-				orderingKey: ctx.correlationId,
+				orderingKey:
+					options?.ordering === false ? undefined : ctx.correlationId,
 			});
 			debug(`Sent message in ${Date.now() - start} ms`);
 		} catch (err) {
