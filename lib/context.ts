@@ -172,6 +172,7 @@ export function createContext(
 				skill: payload.skill,
 				onComplete,
 				trigger: payload,
+				message,
 			}),
 			project: createProjectLoader({ onComplete }),
 			trigger: payload,
@@ -181,6 +182,14 @@ export function createContext(
 			onComplete,
 		};
 	} else if (isEventIncoming(payload)) {
+		const message = new PubSubEventMessageClient(
+			payload,
+			graphql,
+			payload.extensions.team_id,
+			payload.extensions.team_name,
+			payload.extensions.operationName,
+			payload.extensions.correlation_id,
+		);
 		context = {
 			data: payload.data,
 			name: payload.extensions.operationName,
@@ -191,20 +200,14 @@ export function createContext(
 			graphql,
 			http: createHttpClient(),
 			storage,
-			message: new PubSubEventMessageClient(
-				payload,
-				graphql,
-				payload.extensions.team_id,
-				payload.extensions.team_name,
-				payload.extensions.operationName,
-				payload.extensions.correlation_id,
-			),
+			message,
 			datalog: createDatalogClient(apiKey, {
 				workspaceId: wid,
 				correlationId: payload.extensions.correlation_id,
 				skill: payload.skill,
 				onComplete,
 				trigger: payload,
+				message,
 			}),
 			project: createProjectLoader({ onComplete }),
 			trigger: payload,
@@ -214,6 +217,14 @@ export function createContext(
 			onComplete,
 		};
 	} else if (isSubscriptionIncoming(payload)) {
+		const message = new PubSubEventMessageClient(
+			payload,
+			graphql,
+			payload.team_id,
+			payload.team_id,
+			payload.subscription?.name,
+			payload.correlation_id,
+		);
 		context = {
 			data: toArray(payload.subscription?.result).map(mapSubscription),
 			name: payload.subscription?.name,
@@ -224,20 +235,14 @@ export function createContext(
 			graphql,
 			http: createHttpClient(),
 			storage,
-			message: new PubSubEventMessageClient(
-				payload,
-				graphql,
-				payload.team_id,
-				payload.team_id,
-				payload.subscription?.name,
-				payload.correlation_id,
-			),
+			message,
 			datalog: createDatalogClient(apiKey, {
 				workspaceId: wid,
 				correlationId: payload.correlation_id,
 				skill: payload.skill,
 				onComplete,
 				trigger: payload,
+				message,
 			}),
 			project: createProjectLoader({ onComplete }),
 			trigger: payload,
@@ -247,6 +252,7 @@ export function createContext(
 			onComplete,
 		};
 	} else if (isWebhookIncoming(payload)) {
+		const message = new PubSubWebhookMessageClient(payload, graphql);
 		context = {
 			name: payload.webhook.parameter_name,
 			body: payload.webhook.body,
@@ -262,13 +268,14 @@ export function createContext(
 			graphql,
 			http: createHttpClient(),
 			storage,
-			message: new PubSubWebhookMessageClient(payload, graphql),
+			message,
 			datalog: createDatalogClient(apiKey, {
 				workspaceId: wid,
 				correlationId: payload.correlation_id,
 				skill: payload.skill,
 				onComplete,
 				trigger: payload,
+				message,
 			}),
 			project: createProjectLoader(),
 			trigger: payload,

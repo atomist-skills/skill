@@ -57,6 +57,7 @@ export async function query(args: {
 		skill,
 		onComplete: undefined,
 		trigger: undefined,
+		message: undefined,
 	});
 
 	const query = (

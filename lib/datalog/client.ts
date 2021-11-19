@@ -47,7 +47,12 @@ class NodeFetchDatalogClient implements DatalogClient {
 		private readonly url: string,
 		private readonly ctx: Pick<
 			Contextual<any, any>,
-			"onComplete" | "workspaceId" | "correlationId" | "skill" | "trigger"
+			| "onComplete"
+			| "workspaceId"
+			| "correlationId"
+			| "skill"
+			| "trigger"
+			| "message"
 		>,
 	) {}
 
@@ -176,7 +181,12 @@ export function createDatalogClient(
 	apiKey: string,
 	ctx: Pick<
 		Contextual<any, any>,
-		"onComplete" | "workspaceId" | "correlationId" | "skill" | "trigger"
+		| "onComplete"
+		| "workspaceId"
+		| "correlationId"
+		| "skill"
+		| "trigger"
+		| "message"
 	>,
 	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
 		(isStaging()

@@ -22,7 +22,7 @@ import {
 	SectionBlock,
 	SlackMessage,
 } from "@atomist/slack-messages";
-import { PubSub } from "@google-cloud/pubsub";
+import { PubSub, Topic } from "@google-cloud/pubsub";
 
 import { GraphQLClient } from "./graphql";
 import {
@@ -76,6 +76,8 @@ export interface MessageClient {
 		name: string,
 		ts: number,
 	): Promise<void>;
+
+	topic: Topic;
 }
 
 export interface CommandMessageClient extends MessageClient {
@@ -174,6 +176,8 @@ export abstract class MessageClientSupport
 		destinations: Destinations,
 		options?: MessageOptions,
 	): Promise<any>;
+
+	abstract topic: Topic;
 }
 
 const CreateLifecycleAttachmentMutation = `mutation createLifecycleAttachment($value: CustomLifecycleAttachmentInput!) {
@@ -181,7 +185,7 @@ const CreateLifecycleAttachmentMutation = `mutation createLifecycleAttachment($v
 }`;
 
 export abstract class AbstractMessageClient extends MessageClientSupport {
-	constructor(
+	protected constructor(
 		protected readonly request:
 			| CommandIncoming
 			| EventIncoming
@@ -606,10 +610,11 @@ export interface StatusPublisher {
 	publish(status: HandlerResponse["status"]): Promise<void>;
 }
 
-abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
-	private topic;
+// Global topic for faster message send
+let _topic: Topic;
 
-	constructor(
+abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
+	protected constructor(
 		protected readonly request:
 			| CommandIncoming
 			| EventIncoming
@@ -628,14 +633,6 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 		try {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			if (!this.topic) {
-				const topicName =
-					process.env.ATOMIST_TOPIC ||
-					`${this.workspaceId}-${this.request.skill.id}-response`;
-				this.topic = new PubSub().topic(topicName, {
-					messageOrdering: true,
-				});
-			}
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
 			await this.topic.publishMessage({
 				data: messageBuffer,
@@ -645,6 +642,18 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 		} catch (err) {
 			error(`Error occurred sending message: ${err.message}`);
 		}
+	}
+
+	get topic() {
+		if (!_topic) {
+			const topicName =
+				process.env.ATOMIST_TOPIC ||
+				`${this.workspaceId}-${this.request.skill.id}-response`;
+			_topic = new PubSub().topic(topicName, {
+				messageOrdering: true,
+			});
+		}
+		return _topic;
 	}
 }
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { PubSub } from "@google-cloud/pubsub";
 import { toEDNStringFromSimpleObject } from "edn-data";
 
 import { Contextual } from "../handler/handler";
@@ -29,14 +28,9 @@ export type DatalogTransact = (
 export function createTransact(
 	ctx: Pick<
 		Contextual<any, any>,
-		"onComplete" | "workspaceId" | "correlationId" | "skill"
+		"onComplete" | "workspaceId" | "correlationId" | "skill" | "message"
 	>,
 ): DatalogTransact {
-	const topicName =
-		process.env.ATOMIST_TOPIC ||
-		`${ctx.workspaceId}-${ctx.skill.id}-response`;
-	let topic;
-
 	const stats = { facts: 0, entities: 0 };
 	if (ctx.onComplete) {
 		ctx.onComplete(async () => {
@@ -84,13 +78,8 @@ export function createTransact(
 		try {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			if (!topic) {
-				topic = new PubSub().topic(topicName, {
-					messageOrdering: true,
-				});
-			}
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			await topic.publishMessage({
+			await ctx.message.topic.publishMessage({
 				data: messageBuffer,
 				orderingKey:
 					options?.ordering === false ? undefined : ctx.correlationId,
