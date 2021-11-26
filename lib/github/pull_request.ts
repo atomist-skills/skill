@@ -251,7 +251,8 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 			head: `${project.id.owner}:${pullRequest.branch}`,
 		}),
 	);
-	const newPr = openPrs.length !== 1;
+
+	const newPr = openPrs?.[0]?.number === undefined;
 	let pushRequired = true;
 	if (!newPr) {
 		const body = openPrs[0].body;
