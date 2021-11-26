@@ -33,6 +33,7 @@ import {
 } from "./operation";
 
 import uniq = require("lodash.uniq");
+import values = require("lodash.values");
 
 /**
  * Persist changes to a git repository back to the remote using the
@@ -241,13 +242,15 @@ ${formatFooter(ctx)}
 ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 `);
 
-	const openPrs = await gh.paginate(gh.pulls.list, {
-		owner: project.id.owner,
-		repo: project.id.repo,
-		state: "open",
-		base: push.branch,
-		head: `${project.id.owner}:${pullRequest.branch}`,
-	});
+	const openPrs = values(
+		await gh.paginate(gh.pulls.list, {
+			owner: project.id.owner,
+			repo: project.id.repo,
+			state: "open",
+			base: push.branch,
+			head: `${project.id.owner}:${pullRequest.branch}`,
+		}),
+	);
 	const newPr = openPrs.length !== 1;
 	let pushRequired = true;
 	if (!newPr) {
