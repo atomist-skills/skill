@@ -73,7 +73,8 @@ export * as slack from "./lib/slack";
 // lib/storage
 export * as cache from "./lib/storage/cache";
 export { StorageProvider } from "./lib/storage/provider";
-// lib/transact
+// lib/test
+export * as test from "./lib/test/assert";
 // lib
 export {} from "./lib/bundle";
 export * as childProcess from "./lib/child_process";

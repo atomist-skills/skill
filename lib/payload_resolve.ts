@@ -47,8 +47,16 @@ export async function resolvePayload(pubSubEvent: {
 		text: string,
 		reviver?: (this: any, key: string, value: any) => any,
 	) => {
+		const p = (obj: any) => {
+			if (Array.isArray(obj)) {
+				return obj.map(o => p(o));
+			} else {
+				return merge({}, obj);
+			}
+		};
+
 		const obj = json.parse(text, reviver);
-		return merge({}, obj);
+		return p(obj);
 	};
 	JSON.stringify = json.stringify;
 
