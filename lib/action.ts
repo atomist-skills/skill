@@ -42,38 +42,40 @@ const UpdateTaskStateMutation = `mutation updateTaskState($id: ID!, $state: AtmJ
   }
 }`;
 
-const onAttachmentAction: EventHandler<OnAttachmentActionSubscription, any> =
-	async ctx => {
-		const trigger = ctx.trigger;
-		const task = ctx.data.AtmJobTask?.[0];
+const onAttachmentAction: EventHandler<
+	OnAttachmentActionSubscription,
+	any
+> = async ctx => {
+	const trigger = ctx.trigger;
+	const task = ctx.data.AtmJobTask?.[0];
 
-		const data: {
-			configuration: string;
-			payload: CommandIncoming;
-		} = JSON.parse(task.data);
+	const data: {
+		configuration: string;
+		payload: CommandIncoming;
+	} = JSON.parse(task.data);
 
-		if (data.configuration !== ctx.configuration.name) {
-			return success(`Not running command for configuration`).hidden();
-		}
+	if (data.configuration !== ctx.configuration.name) {
+		return success(`Not running command for configuration`).hidden();
+	}
 
-		const payload = data.payload;
-		payload.skill = trigger.skill;
-		payload.secrets = trigger.secrets;
+	const payload = data.payload;
+	payload.skill = trigger.skill;
+	payload.secrets = trigger.secrets;
 
-		try {
-			const result = await processCommand(payload, {
-				eventId: ctx.executionId,
-			});
-			await ctx.graphql.mutate(UpdateTaskStateMutation, {
-				id: task.id,
-				state: "success",
-			});
-			return result;
-		} catch (e) {
-			await ctx.graphql.mutate(UpdateTaskStateMutation, {
-				id: task.id,
-				state: "failed",
-			});
-			throw e;
-		}
-	};
+	try {
+		const result = await processCommand(payload, {
+			eventId: ctx.executionId,
+		});
+		await ctx.graphql.mutate(UpdateTaskStateMutation, {
+			id: task.id,
+			state: "success",
+		});
+		return result;
+	} catch (e) {
+		await ctx.graphql.mutate(UpdateTaskStateMutation, {
+			id: task.id,
+			state: "failed",
+		});
+		throw e;
+	}
+};
