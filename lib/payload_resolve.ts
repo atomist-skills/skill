@@ -50,8 +50,10 @@ export async function resolvePayload(pubSubEvent: {
 		const p = (obj: any) => {
 			if (Array.isArray(obj)) {
 				return obj.map(o => p(o));
-			} else {
+			} else if (obj === Object(obj)) {
 				return merge({}, obj);
+			} else {
+				return obj;
 			}
 		};
 
