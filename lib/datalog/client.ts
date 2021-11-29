@@ -58,11 +58,14 @@ class NodeFetchDatalogClient implements DatalogClient {
 
 	private transactInstance: DatalogTransact;
 
-	public async transact(entities: any): Promise<void> {
+	public async transact(
+		entities: any,
+		options: { ordering: boolean } = { ordering: true },
+	): Promise<void> {
 		if (!this.transactInstance) {
 			this.transactInstance = createTransact(this.ctx);
 		}
-		return this.transactInstance(entities);
+		return this.transactInstance(entities, options);
 	}
 
 	public async query<T = any, P = any>(
