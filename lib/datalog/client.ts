@@ -24,11 +24,13 @@ import { retry } from "../retry";
 import { isStaging, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
 import map = require("lodash.map");
+
 export interface DatalogClient {
 	transact(
 		entities: any | any[],
 		options?: { ordering: boolean },
 	): Promise<void>;
+
 	query<T = any, P = any>(
 		query: string | Record<string, string>,
 		parameters?: P,
