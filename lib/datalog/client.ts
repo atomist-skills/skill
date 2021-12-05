@@ -220,7 +220,7 @@ export function prepareQueryBody<P>(
 	if (name) {
 		bodyParts.push(`:name :${name}`);
 	}
-	`:query ${argsAndQuery.query}`;
+	bodyParts.push(`:query ${argsAndQuery.query}`);
 	if (argsAndQuery.args?.length > 0) {
 		bodyParts.push(`:args [${argsAndQuery.args}]`);
 	}
