@@ -23,14 +23,14 @@ import { SkillConfiguration, SubscriptionIncoming } from "../payload";
 import { retry } from "../retry";
 import { isStaging, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
-
+import map = require("lodash.map");
 export interface DatalogClient {
 	transact(
 		entities: any | any[],
 		options?: { ordering: boolean },
 	): Promise<void>;
 	query<T = any, P = any>(
-		query: string,
+		query: string | Record<string, string>,
 		parameters?: P,
 		options?: {
 			configurationName?: string;
@@ -69,7 +69,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 	}
 
 	public async query<T = any, P = any>(
-		query: string,
+		query: string | Record<string, string>,
 		parameters: P,
 		options: {
 			configurationName?: string;
@@ -102,31 +102,19 @@ class NodeFetchDatalogClient implements DatalogClient {
 					).name,
 			};
 		}
-		const argsAndQuery = prepareArgs(query, parameters);
 
-		const bodyParts = [`:query ${argsAndQuery.query}`];
-		if (argsAndQuery.args?.length > 0) {
-			bodyParts.push(`:args [${argsAndQuery.args}]`);
-		}
-		if (options?.tx) {
-			bodyParts.push(`:tx-range {:start ${options.tx} }`);
-		}
-		if (options?.configurationName) {
-			bodyParts.push(
-				`:skill-ref {:name "${this.ctx.skill.name}" :namespace "${this.ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`,
+		let body;
+		if (typeof query === "string") {
+			body = prepareQueryBody(query, parameters, options);
+		} else {
+			const queries = map(query, (v, k) =>
+				prepareQueryBody(v, parameters, options, k),
 			);
+			body = `{
+:queries [
+${queries.join("\n\n")}
+]}`;
 		}
-		if (options?.rules) {
-			bodyParts.push(`:rules ${options.rules}`);
-		}
-		if (options?.paging) {
-			bodyParts.push(
-				`:limit ${options.paging.limit} :offset ${options.paging.offset}`,
-			);
-		}
-		const body = `{
-${bodyParts.join("\n\n")}
-}`;
 
 		debug(`Datalog query: ${body}`);
 
@@ -168,6 +156,9 @@ ${bodyParts.join("\n\n")}
 				mapAs: "object",
 				keywordAs: "string",
 			});
+			if (typeof query !== "string") {
+				return toArray(parsed) as any;
+			}
 			if (options.mode === "obj") {
 				return toArray(parsed[0]) as any;
 			}
@@ -196,8 +187,61 @@ export function createDatalogClient(
 			? "https://api-staging.atomist.services/datalog"
 			: "https://api.atomist.com/datalog"),
 ): DatalogClient {
-	const url = `${endpoint}/team/${ctx.workspaceId}`;
+	let url = endpoint;
+	// In case the datalog endpoint is passed we also need to set the workspace id
+	if (
+		[
+			"https://api-staging.atomist.services/datalog",
+			"https://api.atomist.com/datalog",
+		].includes(endpoint)
+	) {
+		url = `${endpoint}/team/${ctx.workspaceId}`;
+	}
 	return new NodeFetchDatalogClient(apiKey, url, ctx);
+}
+
+export function prepareQueryBody<P>(
+	query: string,
+	parameters: P,
+	options: {
+		configurationName?: string;
+		tx?: number;
+		mode?: "raw" | "map" | "obj";
+		rules?: string;
+		paging?: { limit: number; offset: number };
+	},
+	name?: string,
+): string {
+	const argsAndQuery = prepareArgs(query, parameters);
+
+	const bodyParts = [];
+	if (name) {
+		bodyParts.push(`:name :${name}`);
+	}
+	`:query ${argsAndQuery.query}`;
+	if (argsAndQuery.args?.length > 0) {
+		bodyParts.push(`:args [${argsAndQuery.args}]`);
+	}
+	if (options?.tx) {
+		bodyParts.push(`:tx-range {:start ${options.tx} }`);
+	}
+	if (options?.configurationName) {
+		bodyParts.push(
+			`:skill-ref {:name "${this.ctx.skill.name}" :namespace "${this.ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`,
+		);
+	}
+	if (options?.rules) {
+		bodyParts.push(`:rules ${options.rules}`);
+	}
+	if (options?.paging) {
+		bodyParts.push(
+			`:limit ${options.paging.limit} :offset ${options.paging.offset}`,
+		);
+	}
+	const body = `{
+${bodyParts.join("\n\n")}
+}`;
+	return body;
 }
 
 export function prepareArgs(
@@ -230,11 +274,13 @@ export function prepareArgs(
 	const match = inRegExp.exec(query);
 	const newQuery = query
 		.split(match[1])
-		.join(`${match[1]}${!match[1].includes("?ctx") ? "?ctx " : ""}?args\n`)
-		.split(":where")
-		.join(`:where\n ${untuple}`);
+		.join(`${match[1]}${!match[1].includes("?ctx") ? "?ctx " : ""}?args\n`);
+	const splitByWhere = newQuery.split(":where");
+	const finalQuery = `${splitByWhere[0]}:where\n ${untuple}${splitByWhere
+		.slice(1)
+		.join(":where")}`;
 	return {
-		query: newQuery,
+		query: finalQuery,
 		args: args.join(" "),
 	};
 }
