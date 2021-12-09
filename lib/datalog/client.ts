@@ -107,10 +107,10 @@ class NodeFetchDatalogClient implements DatalogClient {
 
 		let body;
 		if (typeof query === "string") {
-			body = prepareQueryBody(query, parameters, options);
+			body = prepareQueryBody(query, parameters, options, this.ctx);
 		} else {
 			const queries = map(query, (v, k) =>
-				prepareQueryBody(v, parameters, options, k),
+				prepareQueryBody(v, parameters, options, this.ctx, k),
 			);
 			body = `{
 :queries [
@@ -220,6 +220,7 @@ export function prepareQueryBody<P>(
 		rules?: string;
 		paging?: { limit: number; offset: number };
 	},
+	ctx: Pick<Contextual<any, any>, "skill">,
 	name?: string,
 ): string {
 	const argsAndQuery = prepareArgs(query, parameters);
@@ -237,7 +238,7 @@ export function prepareQueryBody<P>(
 	}
 	if (options?.configurationName) {
 		bodyParts.push(
-			`:skill-ref {:name "${this.ctx.skill.name}" :namespace "${this.ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`,
+			`:skill-ref {:name "${ctx.skill.name}" :namespace "${ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`,
 		);
 	}
 	if (options?.rules) {
