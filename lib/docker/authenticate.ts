@@ -22,6 +22,7 @@ import {
 	DockerRegistryType,
 } from "../definition/subscription/common_types";
 import { Contextual, EventContext } from "../handler/handler";
+import { warn } from "../log/index";
 import { createFile } from "../tmp_fs";
 
 export type ExtendedDockerRegistry = DockerRegistry & {
@@ -43,6 +44,7 @@ export async function doAuthed<T>(
 			const result = await cb();
 			return result;
 		} catch (e) {
+			warn(`Error running authenticated Docker operation: ${e.stack}`);
 			error = e;
 		}
 	}
@@ -246,6 +248,7 @@ export async function retrieveAwsCreds(): Promise<{
 		});
 		return JSON.parse(Buffer.from(secret.payload.data).toString());
 	} catch (e) {
+		warn(`Failed to retrieve AWS creds: ${e.stack}`);
 		return undefined;
 	}
 }
