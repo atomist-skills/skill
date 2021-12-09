@@ -43,6 +43,7 @@ export async function resolvePayload(pubSubEvent: {
 	});
 
 	// overwrite global JSON.parse and stringify methods
+	const originalParse = JSON.parse;
 	JSON.parse = (
 		text: string,
 		reviver?: (this: any, key: string, value: any) => any,
@@ -56,9 +57,12 @@ export async function resolvePayload(pubSubEvent: {
 				return obj;
 			}
 		};
-
-		const obj = json.parse(text, reviver);
-		return p(obj);
+		try {
+			const obj = json.parse(text, reviver);
+			return p(obj);
+		} catch (e) {
+			return originalParse(text, reviver);
+		}
 	};
 	JSON.stringify = json.stringify;
 
