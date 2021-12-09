@@ -273,7 +273,7 @@ export function pluralize(
 ): string {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const plu = require("pluralize");
-	const countNumber = typeof count === "number" ? count : count.length;
+	const countNumber = typeof count === "number" ? count : count?.length || 0;
 	return plu(
 		text,
 		countNumber,
