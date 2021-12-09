@@ -124,7 +124,7 @@ ${queries.join("\n\n")}
 		const result = await (
 			await retry<Response>(async () => {
 				try {
-					return await f(this.url, {
+					const response = await f(this.url, {
 						method: "post",
 						body,
 						headers: {
@@ -132,6 +132,12 @@ ${queries.join("\n\n")}
 							"content-type": "application/edn",
 						},
 					});
+					if (response.status === 500) {
+						throw new Error(
+							`${response.status} ${response.statusText}`,
+						);
+					}
+					return response;
 				} catch (e) {
 					// Retry DNS issues
 					if (
@@ -141,6 +147,8 @@ ${queries.join("\n\n")}
 						warn(
 							"Retrying Datalog operation due to DNS lookup failure",
 						);
+						throw e;
+					} else if (e.message === "500 Internal Server Error") {
 						throw e;
 					} else {
 						throw new (await import("p-retry")).AbortError(e);
