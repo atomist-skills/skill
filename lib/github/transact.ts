@@ -85,6 +85,7 @@ export const PullRequestTransactor: ResponseTransactor<
 			"git.provider/url": "https://github.com",
 		});
 		const prEntity = entity("github/pullrequest", {
+			...((ctx.datalog as any)?.facts?.["github/pullrequest"] || {}),
 			"sourceId": pr.id.toString(),
 			"git.provider/url": "https://github.com",
 			"title": pr.title,
@@ -143,6 +144,7 @@ export const CheckRunTransactor: ResponseTransactor<
 			"git.provider/url": "https://github.com",
 		});
 		const checksuiteEntity = entity("github/checksuite", {
+			...((ctx.datalog as any)?.facts?.["github/checksuite"] || {}),
 			"sourceId": check.check_suite.id.toString(),
 			"commit": entityRef(commitEntity),
 			"repo": entityRef(repoEntity),
@@ -151,6 +153,7 @@ export const CheckRunTransactor: ResponseTransactor<
 			"git.provider/url": "https://github.com",
 		});
 		const checkrunEntity = entity("github/checkrun", {
+			...((ctx.datalog as any)?.facts?.["github/checkrun"] || {}),
 			"sourceId": check.id.toString(),
 			"checksuite": entityRef(checksuiteEntity),
 			"git.provider/url": "https://github.com",
