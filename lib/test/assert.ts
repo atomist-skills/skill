@@ -86,6 +86,7 @@ export async function assertSkill(
 		} as any;
 
 		context.datalog = {
+			facts: {},
 			transact: async (entities: any) => {
 				debug(
 					`Transacting entities: ${JSON.stringify(

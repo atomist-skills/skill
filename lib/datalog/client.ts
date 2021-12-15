@@ -27,7 +27,7 @@ import map = require("lodash.map");
 
 export interface DatalogClient {
 	/** Additional facts to be transacted on matching entities */
-	facts?: Record<string, Record<string, string>>;
+	facts: Record<string, Record<string, string>>;
 
 	/** Transact provided entities */
 	transact(
