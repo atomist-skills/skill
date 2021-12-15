@@ -26,11 +26,16 @@ import { createTransact, DatalogTransact } from "./transact";
 import map = require("lodash.map");
 
 export interface DatalogClient {
+	/** Additional facts to be transacted on matching entities */
+	facts?: Record<string, Record<string, string>>;
+
+	/** Transact provided entities */
 	transact(
 		entities: any | any[],
 		options?: { ordering: boolean },
 	): Promise<void>;
 
+	/** Query datalog */
 	query<T = any, P = any>(
 		query: string | Record<string, string>,
 		parameters?: P,
@@ -59,6 +64,8 @@ class NodeFetchDatalogClient implements DatalogClient {
 	) {}
 
 	private transactInstance: DatalogTransact;
+
+	public facts = {};
 
 	public async transact(
 		entities: any,
