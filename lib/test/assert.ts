@@ -48,6 +48,8 @@ export async function assertSkill(
 	process.env.ATOMIST_CONSOLE_LOG = "1";
 	// Disable docker auth so that we can rely on local creds
 	process.env.ATOMIST_SKIP_DOCKER_AUTH = "1";
+	// Disable de-dupe checking
+	process.env.ATOMIST_SKIP_DEDUPE = "1";
 
 	const apiKeySecret = payload.secrets.find(
 		s => s.uri === "atomist://api-key",

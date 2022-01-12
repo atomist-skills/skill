@@ -31,8 +31,11 @@ export interface StorageProvider {
 	delete(key: string): Promise<void>;
 }
 
-export function createStorageProvider(workspaceId: string): StorageProvider {
-	return new GoogleCloudStorageProvider(bucketName(workspaceId));
+export function createStorageProvider(
+	workspaceId: string,
+	name?: string,
+): StorageProvider {
+	return new GoogleCloudStorageProvider(bucketName(workspaceId, name));
 }
 
 export class GoogleCloudStorageProvider implements StorageProvider {
@@ -81,8 +84,9 @@ export class GoogleCloudStorageProvider implements StorageProvider {
 	}
 }
 
-export function bucketName(workspaceId: string): string {
+export function bucketName(workspaceId: string, name?: string): string {
 	const bucket =
+		name ||
 		process.env.ATOMIST_STORAGE ||
 		(workspaceId
 			? `gs://${workspaceId.toLowerCase()}-workspace-storage`

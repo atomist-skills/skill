@@ -30,8 +30,10 @@ import {
 	RepositoryId,
 } from "../repository/id";
 import { gitHubAppToken } from "../secret/resolver";
-import { failure } from "../status";
-import { guid } from "../util";
+import { failure, success } from "../status";
+import { createStorageProvider } from "../storage/provider";
+import { createFile } from "../tmp_fs";
+import { guid, isStaging, replacer } from "../util";
 import {
 	EventContext,
 	EventHandler,
@@ -105,7 +107,7 @@ export function chain<D, C, S = any>(
 	return async (ctx: EventContext<D, C> & { chain: S }) => {
 		ctx.chain = {} as any;
 		for (const handler of handlers) {
-			const result = await handler(ctx);
+			const result = await wrapEventHandler(handler)(ctx);
 			if (result) {
 				return result;
 			}
@@ -121,7 +123,7 @@ export function all<D, C, S = any>(
 		ctx.chain = {} as any;
 		const results = [];
 		for (const handler of handlers) {
-			const result = await handler(ctx);
+			const result = await wrapEventHandler(handler)(ctx);
 			if (result) {
 				results.push(result);
 			}
@@ -265,5 +267,34 @@ export function createCheck<D, C>(
 			...optsToUse,
 		});
 		return undefined;
+	};
+}
+
+export function dedupe<E, C>(): EventHandler<E, C> {
+	return async ctx => {
+		if (process.env.ATOMIST_SKIP_DEDUPE) {
+			return undefined;
+		}
+
+		const correlationId = ctx.correlationId;
+		const workspaceId = ctx.workspaceId;
+		const name = isStaging()
+			? "atm-staging-cloud-run-dedupe"
+			: "atm-prod-cloud-run-dedupe";
+		const key = `correlation_ids/${correlationId}`;
+		const storage = createStorageProvider(workspaceId, name);
+
+		try {
+			await storage.retrieve(key);
+			return success(
+				"Duplicate correlation-id discovered. Aborting...",
+			).hidden();
+		} catch (e) {
+			const p = await createFile(ctx, {
+				content: JSON.stringify(ctx.trigger, replacer),
+			});
+			await storage.store(key, p);
+			return undefined;
+		}
 	};
 }

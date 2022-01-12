@@ -139,7 +139,7 @@ ${queries.join("\n\n")}
 							"content-type": "application/edn",
 						},
 					});
-					if (response.status === 500) {
+					if (response.status === 500 || response.status === 429) {
 						throw new Error(
 							`${response.status} ${response.statusText}`,
 						);
@@ -155,7 +155,10 @@ ${queries.join("\n\n")}
 							"Retrying Datalog operation due to DNS lookup failure",
 						);
 						throw e;
-					} else if (e.message === "500 Internal Server Error") {
+					} else if (
+						e.message === "500 Internal Server Error" ||
+						e.message === "429 Throttled"
+					) {
 						throw e;
 					} else {
 						throw new (await import("p-retry")).AbortError(e);
