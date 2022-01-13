@@ -107,7 +107,7 @@ export function chain<D, C, S = any>(
 	return async (ctx: EventContext<D, C> & { chain: S }) => {
 		ctx.chain = {} as any;
 		for (const handler of handlers) {
-			const result = await wrapEventHandler(handler)(ctx);
+			const result = await handler(ctx);
 			if (result) {
 				return result;
 			}
@@ -123,7 +123,7 @@ export function all<D, C, S = any>(
 		ctx.chain = {} as any;
 		const results = [];
 		for (const handler of handlers) {
-			const result = await wrapEventHandler(handler)(ctx);
+			const result = await handler(ctx);
 			if (result) {
 				results.push(result);
 			}
@@ -287,7 +287,7 @@ export function dedupe<E, C>(): EventHandler<E, C> {
 		try {
 			await storage.retrieve(key);
 			return success(
-				"Duplicate correlation-id discovered. Aborting...",
+				"Duplicate correlation-id detected. Aborting...",
 			).hidden();
 		} catch (e) {
 			const p = await createFile(ctx, {
