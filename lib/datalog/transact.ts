@@ -91,9 +91,7 @@ export function createTransact(
 					if (err) {
 						warn(`Transact entities failed: ${err.stack}`);
 					}
-					debug(
-						`Transact entities successful: ${JSON.stringify(res)}`,
-					);
+					debug(`Transact entities successful: ${res}`);
 				},
 			);
 			debug(`Transacted entities in ${Date.now() - start} ms`);
