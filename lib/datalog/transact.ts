@@ -76,7 +76,7 @@ export function createTransact(
 		};
 
 		try {
-			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
+			debug(`Transacting entities: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
 			await ctx.message.topic.publishMessage(
@@ -96,9 +96,9 @@ export function createTransact(
 					);
 				},
 			);
-			debug(`Sent message in ${Date.now() - start} ms`);
+			debug(`Transacted entities in ${Date.now() - start} ms`);
 		} catch (err) {
-			error(`Error occurred sending message: ${err.message}`);
+			error(`Error transacting entities: ${err.stack}`);
 		}
 	};
 }

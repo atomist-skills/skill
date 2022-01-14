@@ -653,7 +653,7 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 			);
 			debug(`Sent message in ${Date.now() - start} ms`);
 		} catch (err) {
-			error(`Error occurred sending message: ${err.message}`);
+			error(`Error occurred sending message: ${err.stack}`);
 		}
 	}
 
@@ -669,12 +669,14 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 					maxMessages: 1,
 				},
 			});
-			this.ctx?.onComplete(async () => {
-				await _topic.flush();
-				_topic = undefined;
-				await _pubsub.close();
-				_pubsub = undefined;
-			});
+			if (this.ctx?.onComplete) {
+				this.ctx.onComplete(async () => {
+					await _topic.flush();
+					_topic = undefined;
+					await _pubsub.close();
+					_pubsub = undefined;
+				});
+			}
 		}
 		return _topic;
 	}
