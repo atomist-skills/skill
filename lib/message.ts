@@ -648,7 +648,9 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 					if (err) {
 						warn(`Publish message failed: ${err.stack}`);
 					}
-					debug(`Publish message successful: ${res}`);
+					if (res) {
+						debug(`Publish message successful: ${res}`);
+					}
 				},
 			);
 			debug(`Sent message in ${Date.now() - start} ms`);
