@@ -152,7 +152,12 @@ export function createContext(
 			const parameters = extractParameters(payload.raw_message);
 			payload.parameters.push(...parameters);
 		}
-		const message = new PubSubCommandMessageClient(payload, graphql);
+		const message = new PubSubCommandMessageClient(payload, {
+			graphql,
+			onComplete,
+			correlationId: payload.correlation_id,
+			workspaceId: wid,
+		});
 		context = {
 			parameters: {
 				prompt: commandRequestParameterPromptFactory(message, payload),
@@ -184,11 +189,14 @@ export function createContext(
 	} else if (isEventIncoming(payload)) {
 		const message = new PubSubEventMessageClient(
 			payload,
-			graphql,
-			payload.extensions.team_id,
 			payload.extensions.team_name,
 			payload.extensions.operationName,
-			payload.extensions.correlation_id,
+			{
+				onComplete,
+				graphql,
+				correlationId: payload.extensions.correlation_id,
+				workspaceId: payload.extensions.team_id,
+			},
 		);
 		context = {
 			data: payload.data,
@@ -219,11 +227,14 @@ export function createContext(
 	} else if (isSubscriptionIncoming(payload)) {
 		const message = new PubSubEventMessageClient(
 			payload,
-			graphql,
-			payload.team_id,
 			payload.team_id,
 			payload.subscription?.name,
-			payload.correlation_id,
+			{
+				onComplete,
+				graphql,
+				correlationId: payload.correlation_id,
+				workspaceId: payload.team_id,
+			},
 		);
 		context = {
 			data: toArray(payload.subscription?.result).map(mapSubscription),
@@ -252,7 +263,12 @@ export function createContext(
 			onComplete,
 		};
 	} else if (isWebhookIncoming(payload)) {
-		const message = new PubSubWebhookMessageClient(payload, graphql);
+		const message = new PubSubWebhookMessageClient(payload, {
+			onComplete,
+			graphql,
+			correlationId: payload.correlation_id,
+			workspaceId: payload.team_id,
+		});
 		context = {
 			name: payload.webhook.parameter_name,
 			body: payload.webhook.body,

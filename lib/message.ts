@@ -27,11 +27,12 @@ import { PubSub, Topic } from "@google-cloud/pubsub";
 import { GraphQLClient } from "./graphql";
 import {
 	CommandContext,
+	Contextual,
 	EventContext,
 	HandlerStatus,
 	WebhookContext,
 } from "./handler/handler";
-import { debug, error } from "./log";
+import { debug, error, warn } from "./log";
 import {
 	CommandIncoming,
 	EventIncoming,
@@ -191,10 +192,12 @@ export abstract class AbstractMessageClient extends MessageClientSupport {
 			| EventIncoming
 			| WebhookIncoming
 			| SubscriptionIncoming,
-		protected readonly correlationId: string,
 		protected readonly team: { id: string; name?: string },
 		protected readonly source: Source,
-		protected readonly graphClient: GraphQLClient,
+		protected readonly ctx: Pick<
+			Contextual<any, any>,
+			"correlationId" | "graphql"
+		>,
 	) {
 		super();
 	}
@@ -216,7 +219,7 @@ export abstract class AbstractMessageClient extends MessageClientSupport {
 		name: string,
 		ts: number,
 	): Promise<void> {
-		await this.graphClient.mutate(CreateLifecycleAttachmentMutation, {
+		await this.ctx.graphql.mutate(CreateLifecycleAttachmentMutation, {
 			value: {
 				type: target,
 				identifier,
@@ -261,7 +264,7 @@ export abstract class AbstractMessageClient extends MessageClientSupport {
 		}
 		const teamId = await this.getTeamId(
 			this.source?.slack?.team?.id,
-			this.graphClient,
+			this.ctx.graphql,
 		);
 
 		toArray(destinations.users || []).forEach(d => {
@@ -307,7 +310,7 @@ export abstract class AbstractMessageClient extends MessageClientSupport {
 
 		const response: HandlerResponse = {
 			api_version: "1",
-			correlation_id: this.correlationId,
+			correlation_id: this.ctx.correlationId,
 			team: this.team,
 			source: this.source ? this.source : undefined,
 			command: isCommandIncoming(this.request)
@@ -612,6 +615,7 @@ export interface StatusPublisher {
 
 // Global topic for faster message send
 let _topic: Topic;
+let _pubsub: PubSub;
 
 abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 	protected constructor(
@@ -620,13 +624,14 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 			| EventIncoming
 			| WebhookIncoming
 			| SubscriptionIncoming,
-		protected readonly correlationId: string,
 		protected readonly team: { id: string; name?: string },
 		protected readonly source: Source,
-		protected readonly workspaceId: string,
-		protected readonly graphClient: GraphQLClient,
+		protected readonly ctx: Pick<
+			Contextual<any, any>,
+			"onComplete" | "correlationId" | "workspaceId" | "graphql"
+		>,
 	) {
-		super(request, correlationId, team, source, graphClient);
+		super(request, team, source, ctx);
 	}
 
 	public async sendResponse(message: any): Promise<void> {
@@ -634,10 +639,18 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			await this.topic.publishMessage({
-				data: messageBuffer,
-				orderingKey: this.correlationId,
-			});
+			await this.topic.publishMessage(
+				{
+					data: messageBuffer,
+					orderingKey: this.ctx.correlationId,
+				},
+				(err, res) => {
+					if (err) {
+						warn(`Publish message failed: ${err.stack}`);
+					}
+					debug(`Publish message successful: ${JSON.stringify(res)}`);
+				},
+			);
 			debug(`Sent message in ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error occurred sending message: ${err.message}`);
@@ -646,11 +659,21 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 
 	get topic() {
 		if (!_topic) {
+			_pubsub = new PubSub({});
 			const topicName =
 				process.env.ATOMIST_TOPIC ||
-				`${this.workspaceId}-${this.request.skill.id}-response`;
-			_topic = new PubSub().topic(topicName, {
+				`${this.ctx.workspaceId}-${this.request.skill.id}-response`;
+			_topic = _pubsub.topic(topicName, {
 				messageOrdering: true,
+				batching: {
+					maxMessages: 1,
+				},
+			});
+			this.ctx?.onComplete(async () => {
+				await _topic.flush();
+				_topic = undefined;
+				await _pubsub.close();
+				_pubsub = undefined;
 			});
 		}
 		return _topic;
@@ -663,16 +686,12 @@ export class PubSubCommandMessageClient
 {
 	constructor(
 		protected readonly request: CommandIncoming,
-		protected readonly graphClient: GraphQLClient,
+		protected readonly ctx: Pick<
+			Contextual<any, any>,
+			"onComplete" | "correlationId" | "workspaceId" | "graphql"
+		>,
 	) {
-		super(
-			request,
-			request.correlation_id,
-			request.team,
-			request.source,
-			request.team.id,
-			graphClient,
-		);
+		super(request, request.team, request.source, ctx);
 	}
 
 	protected async doSend(
@@ -708,22 +727,21 @@ export class PubSubEventMessageClient
 {
 	constructor(
 		protected readonly request: EventIncoming | SubscriptionIncoming,
-		protected readonly graphClient: GraphQLClient,
-		protected readonly teamId: string,
 		protected readonly teamName: string,
 		protected readonly operationName: string,
-		protected readonly correlationId: string,
+		protected readonly ctx: Pick<
+			Contextual<any, any>,
+			"onComplete" | "correlationId" | "workspaceId" | "graphql"
+		>,
 	) {
 		super(
 			request,
-			correlationId,
 			{
-				id: teamId,
+				id: ctx.workspaceId,
 				name: teamName,
 			},
 			undefined,
-			teamId,
-			graphClient,
+			ctx,
 		);
 	}
 
@@ -738,9 +756,9 @@ export class PubSubEventMessageClient
 	public async publish(status: HandlerResponse["status"]): Promise<void> {
 		const response: HandlerResponse = {
 			api_version: "1",
-			correlation_id: this.correlationId,
+			correlation_id: this.ctx.correlationId,
 			team: {
-				id: this.teamId,
+				id: this.ctx.workspaceId,
 				name: this.teamName,
 			},
 			event: this.operationName,
@@ -757,18 +775,19 @@ export class PubSubWebhookMessageClient
 {
 	constructor(
 		protected readonly request: WebhookIncoming,
-		protected readonly graphClient: GraphQLClient,
+		protected readonly ctx: Pick<
+			Contextual<any, any>,
+			"onComplete" | "correlationId" | "workspaceId" | "graphql"
+		>,
 	) {
 		super(
 			request,
-			request.correlation_id,
 			{
 				id: request.team_id,
 				name: undefined,
 			},
 			undefined,
-			request.team_id,
-			graphClient,
+			ctx,
 		);
 	}
 
