@@ -646,7 +646,7 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 				},
 				(err, res) => {
 					if (err) {
-						warn(`Publish message failed: ${err.stack}`);
+						warn(`Publish message failed: ${JSON.stringify(err)}`);
 					}
 					if (res) {
 						debug(`Publish message successful: ${res}`);

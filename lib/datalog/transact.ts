@@ -89,7 +89,9 @@ export function createTransact(
 				},
 				(err, res) => {
 					if (err) {
-						warn(`Transact entities failed: ${err.stack}`);
+						warn(
+							`Transact entities failed: ${JSON.stringify(err)}`,
+						);
 					}
 					if (res) {
 						debug(`Transact entities successful: ${res}`);
