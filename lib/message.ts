@@ -45,7 +45,7 @@ import {
 	SubscriptionIncoming,
 	WebhookIncoming,
 } from "./payload";
-import { replacer, toArray } from "./util";
+import { handleError, replacer, toArray } from "./util";
 import cloneDeep = require("lodash.clonedeep");
 
 export interface Destinations {
@@ -671,9 +671,19 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 			});
 			if (this.ctx?.onComplete) {
 				this.ctx.onComplete(async () => {
-					await _topic.flush();
+					await handleError(
+						async () => _topic.flush(),
+						async () => {
+							/** Intentionally left empty */
+						},
+					);
 					_topic = undefined;
-					await _pubsub.close();
+					await handleError(
+						async () => await _pubsub.close(),
+						async () => {
+							/** Intentionally left empty */
+						},
+					);
 					_pubsub = undefined;
 				});
 			}
