@@ -44,7 +44,7 @@ export async function assertSkill(
 	payload: CommandIncoming | EventIncoming | WebhookIncoming,
 	ctx: Partial<Contextual<any, any>> = {},
 ): Promise<undefined | HandlerStatus> {
-	// Enable staight console logging
+	// Enable straight console logging
 	process.env.ATOMIST_CONSOLE_LOG = "1";
 	// Disable docker auth so that we can rely on local creds
 	process.env.ATOMIST_SKIP_DOCKER_AUTH = "1";
