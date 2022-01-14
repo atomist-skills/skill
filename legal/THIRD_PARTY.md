@@ -11,17 +11,17 @@ This page details all runtime dependencies of `@atomist/skill`.
 | License                              | Count |
 | ------------------------------------ | ----- |
 | [0BSD](#0bsd)                        | 5     |
-| [Apache-2.0](#apache-20)             | 101   |
-| [BSD-2-Clause](#bsd-2-clause)        | 12    |
+| [Apache-2.0](#apache-20)             | 96    |
+| [BSD-2-Clause](#bsd-2-clause)        | 8     |
 | [BSD-3-Clause](#bsd-3-clause)        | 23    |
 | [CC-BY-3.0](#cc-by-30)               | 1     |
 | [CC-BY-4.0](#cc-by-40)               | 1     |
-| [CC0-1.0](#cc0-10)                   | 5     |
+| [CC0-1.0](#cc0-10)                   | 4     |
 | [GPL-2.0](#gpl-20)                   | 1     |
 | [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
-| [ISC](#isc)                          | 44    |
+| [ISC](#isc)                          | 43    |
 | [MIT AND Zlib](#mit-and-zlib)        | 1     |
-| [MIT](#mit)                          | 672   |
+| [MIT](#mit)                          | 663   |
 | [Public Domain](#public-domain)      | 1     |
 | [Python-2.0](#python-20)             | 1     |
 
@@ -43,7 +43,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 | Name                                        | Version         | Publisher                   | Repository                                                                                                                             |
 | ------------------------------------------- | --------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `@atomist/skill-logging`                    | `1.0.8-main.31` | Atomist, Inc.               | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
+| `@atomist/skill-logging`                    | `1.0.8-main.34` | Atomist, Inc.               | [https://github.com/atomist-skills/skill-logging](https://github.com/atomist-skills/skill-logging)                                     |
 | `@atomist/slack-messages`                   | `1.2.2`         | Atomist                     | [https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)                                                 |
 | `@aws-crypto/ie11-detection`                | `2.0.0`         | AWS Crypto Tools Team       | [https://github.com/aws/aws-sdk-js-crypto-helpers](https://github.com/aws/aws-sdk-js-crypto-helpers)                                   |
 | `@aws-crypto/sha256-browser`                | `2.0.0`         | AWS Crypto Tools Team       | [https://github.com/aws/aws-sdk-js-crypto-helpers](https://github.com/aws/aws-sdk-js-crypto-helpers)                                   |
@@ -104,7 +104,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@google-cloud/common`                      | `3.8.0`         | Google Inc.                 | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
 | `@google-cloud/common`                      | `3.8.1`         | Google Inc.                 | [https://github.com/googleapis/nodejs-common](https://github.com/googleapis/nodejs-common)                                             |
 | `@google-cloud/functions-framework`         | `1.10.0`        | Google Inc.                 | [https://github.com/GoogleCloudPlatform/functions-framework-nodejs](https://github.com/GoogleCloudPlatform/functions-framework-nodejs) |
-| `@google-cloud/logging`                     | `8.2.0`         | Google Inc.                 | [https://github.com/googleapis/nodejs-logging](https://github.com/googleapis/nodejs-logging)                                           |
+| `@google-cloud/logging`                     | `9.6.7`         | Google Inc.                 | [https://github.com/googleapis/nodejs-logging](https://github.com/googleapis/nodejs-logging)                                           |
 | `@google-cloud/paginator`                   | `3.0.5`         | Google Inc.                 | [https://github.com/googleapis/nodejs-paginator](https://github.com/googleapis/nodejs-paginator)                                       |
 | `@google-cloud/precise-date`                | `2.0.3`         | Google Inc.                 | [https://github.com/googleapis/nodejs-precise-date](https://github.com/googleapis/nodejs-precise-date)                                 |
 | `@google-cloud/projectify`                  | `2.0.1`         | Google Inc.                 | [https://github.com/googleapis/nodejs-projectify](https://github.com/googleapis/nodejs-projectify)                                     |
@@ -114,25 +114,21 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@google-cloud/storage`                     | `5.15.4`        | Google Inc.                 | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
 | `@grpc/grpc-js`                             | `1.3.2`         | Google Inc.                 | [https://github.com/grpc/grpc-node/tree/master/packages/grpc-js](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js)       |
 | `@grpc/proto-loader`                        | `0.6.2`         | Google Inc.                 | [https://github.com/grpc/grpc-node](https://github.com/grpc/grpc-node)                                                                 |
-| `@opencensus/core`                          | `0.0.22`        | Google Inc.                 | [https://github.com/census-instrumentation/opencensus-node](https://github.com/census-instrumentation/opencensus-node)                 |
-| `@opencensus/propagation-stackdriver`       | `0.0.22`        | OpenCensus Authors          | [https://github.com/census-instrumentation/opencensus-node](https://github.com/census-instrumentation/opencensus-node)                 |
 | `@opentelemetry/api`                        | `1.0.2`         | OpenTelemetry Authors       | [https://github.com/open-telemetry/opentelemetry-js-api](https://github.com/open-telemetry/opentelemetry-js-api)                       |
 | `@opentelemetry/semantic-conventions`       | `0.24.0`        | OpenTelemetry Authors       | [https://github.com/open-telemetry/opentelemetry-js](https://github.com/open-telemetry/opentelemetry-js)                               |
 | `before-after-hook`                         | `2.2.2`         | Gregor Martynus             | [https://github.com/gr2m/before-after-hook](https://github.com/gr2m/before-after-hook)                                                 |
 | `bser`                                      | `2.1.1`         | Wez Furlong                 | [https://github.com/facebook/watchman](https://github.com/facebook/watchman)                                                           |
 | `ecdsa-sig-formatter`                       | `1.0.11`        | D2L Corporation             | [https://github.com/Brightspace/node-ecdsa-sig-formatter](https://github.com/Brightspace/node-ecdsa-sig-formatter)                     |
-| `eventid`                                   | `1.0.0`         | Google Inc.                 | [https://github.com/google/eventid-js](https://github.com/google/eventid-js)                                                           |
+| `eventid`                                   | `2.0.1`         | Google Inc.                 | [https://github.com/google/eventid-js](https://github.com/google/eventid-js)                                                           |
 | `fast-text-encoding`                        | `1.0.3`         | Sam Thorogood               | [https://github.com/samthor/fast-text-encoding](https://github.com/samthor/fast-text-encoding)                                         |
 | `fb-watchman`                               | `2.0.1`         | Wez Furlong                 | [https://github.com/facebook/watchman](https://github.com/facebook/watchman)                                                           |
 | `gaxios`                                    | `4.2.0`         | Google, LLC                 | [https://github.com/googleapis/gaxios](https://github.com/googleapis/gaxios)                                                           |
 | `gcp-metadata`                              | `4.2.1`         | Stephen Sawchuk             | [https://github.com/googleapis/gcp-metadata](https://github.com/googleapis/gcp-metadata)                                               |
 | `gcp-metadata`                              | `4.3.1`         | Stephen Sawchuk             | [https://github.com/googleapis/gcp-metadata](https://github.com/googleapis/gcp-metadata)                                               |
-| `google-auth-library`                       | `6.1.6`         | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                       | `7.10.1`        | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
-| `google-auth-library`                       | `7.10.2`        | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
+| `google-auth-library`                       | `7.11.0`        | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-auth-library`                       | `7.6.2`         | Google Inc.                 | [https://github.com/googleapis/google-auth-library-nodejs](https://github.com/googleapis/google-auth-library-nodejs)                   |
 | `google-gax`                                | `2.24.1`        | Google API Authors          | [https://github.com/googleapis/gax-nodejs](https://github.com/googleapis/gax-nodejs)                                                   |
-| `hex2dec`                                   | `1.1.2`         |                             | [https://github.com/donmccurdy/hex2dec](https://github.com/donmccurdy/hex2dec)                                                         |
 | `json-to-pretty-yaml`                       | `1.2.2`         |                             | [https://github.com/alexcrist/json-to-pretty-yaml](https://github.com/alexcrist/json-to-pretty-yaml)                                   |
 | `long`                                      | `4.0.0`         | Daniel Wirtz                | [https://github.com/dcodeIO/long.js](https://github.com/dcodeIO/long.js)                                                               |
 | `proto3-json-serializer`                    | `0.1.1`         |                             | [https://github.com/googleapis/proto3-json-serializer-nodejs](https://github.com/googleapis/proto3-json-serializer-nodejs)             |
@@ -141,7 +137,6 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `rxjs`                                      | `6.6.7`         | Ben Lesh                    | [https://github.com/reactivex/rxjs](https://github.com/reactivex/rxjs)                                                                 |
 | `spdx-correct`                              | `3.1.1`         | Kyle E. Mitchell            | [https://github.com/jslicense/spdx-correct.js](https://github.com/jslicense/spdx-correct.js)                                           |
 | `teeny-request`                             | `7.1.3`         | fhinkel                     | [https://github.com/googleapis/teeny-request](https://github.com/googleapis/teeny-request)                                             |
-| `typescript`                                | `4.4.4`         | Microsoft Corp.             | [https://github.com/Microsoft/TypeScript](https://github.com/Microsoft/TypeScript)                                                     |
 | `validate-npm-package-license`              | `3.0.4`         | Kyle E. Mitchell            | [https://github.com/kemitchell/validate-npm-package-license.js](https://github.com/kemitchell/validate-npm-package-license.js)         |
 | `yaml-ast-parser`                           | `0.0.43`        |                             | [https://github.com/mulesoft-labs/yaml-ast-parser](https://github.com/mulesoft-labs/yaml-ast-parser)                                   |
 
@@ -149,20 +144,16 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 BSD 2-Clause "Simplified" License - [https://opensource.org/licenses/BSD-2-Clause](https://opensource.org/licenses/BSD-2-Clause)
 
-| Name                         | Version  | Publisher         | Repository                                                                                                                 |
-| ---------------------------- | -------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `async-listener`             | `0.6.10` | Forrest L Norvell | [https://github.com/othiym23/async-listener](https://github.com/othiym23/async-listener)                                   |
-| `configstore`                | `5.0.1`  | Sindre Sorhus     | [https://github.com/yeoman/configstore](https://github.com/yeoman/configstore)                                             |
-| `continuation-local-storage` | `3.2.1`  | Forrest L Norvell | [https://github.com/othiym23/node-continuation-local-storage](https://github.com/othiym23/node-continuation-local-storage) |
-| `dotenv`                     | `10.0.0` |                   | [https://github.com/motdotla/dotenv](https://github.com/motdotla/dotenv)                                                   |
-| `emitter-listener`           | `1.1.2`  | Forrest L Norvell | [https://github.com/othiym23/emitter-listener](https://github.com/othiym23/emitter-listener)                               |
-| `entities`                   | `2.2.0`  | Felix Boehm       | [https://github.com/fb55/entities](https://github.com/fb55/entities)                                                       |
-| `http-cache-semantics`       | `4.1.0`  | Kornel Lesiński   | [https://github.com/kornelski/http-cache-semantics](https://github.com/kornelski/http-cache-semantics)                     |
-| `normalize-package-data`     | `2.5.0`  | Meryn Stol        | [https://github.com/npm/normalize-package-data](https://github.com/npm/normalize-package-data)                             |
-| `rc`                         | `1.2.8`  | Dominic Tarr      | [https://github.com/dominictarr/rc](https://github.com/dominictarr/rc)                                                     |
-| `shimmer`                    | `1.2.1`  | Forrest L Norvell | [https://github.com/othiym23/shimmer](https://github.com/othiym23/shimmer)                                                 |
-| `uglify-js`                  | `3.13.4` | Mihai Bazon       | [https://github.com/mishoo/UglifyJS](https://github.com/mishoo/UglifyJS)                                                   |
-| `webidl-conversions`         | `3.0.1`  | Domenic Denicola  | [https://github.com/jsdom/webidl-conversions](https://github.com/jsdom/webidl-conversions)                                 |
+| Name                     | Version  | Publisher        | Repository                                                                                             |
+| ------------------------ | -------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
+| `configstore`            | `5.0.1`  | Sindre Sorhus    | [https://github.com/yeoman/configstore](https://github.com/yeoman/configstore)                         |
+| `dotenv`                 | `10.0.0` |                  | [https://github.com/motdotla/dotenv](https://github.com/motdotla/dotenv)                               |
+| `entities`               | `2.2.0`  | Felix Boehm      | [https://github.com/fb55/entities](https://github.com/fb55/entities)                                   |
+| `http-cache-semantics`   | `4.1.0`  | Kornel Lesiński  | [https://github.com/kornelski/http-cache-semantics](https://github.com/kornelski/http-cache-semantics) |
+| `normalize-package-data` | `2.5.0`  | Meryn Stol       | [https://github.com/npm/normalize-package-data](https://github.com/npm/normalize-package-data)         |
+| `rc`                     | `1.2.8`  | Dominic Tarr     | [https://github.com/dominictarr/rc](https://github.com/dominictarr/rc)                                 |
+| `uglify-js`              | `3.13.4` | Mihai Bazon      | [https://github.com/mishoo/UglifyJS](https://github.com/mishoo/UglifyJS)                               |
+| `webidl-conversions`     | `3.0.1`  | Domenic Denicola | [https://github.com/jsdom/webidl-conversions](https://github.com/jsdom/webidl-conversions)             |
 
 #### BSD-3-Clause
 
@@ -217,7 +208,6 @@ Creative Commons Zero v1.0 Universal - [https://creativecommons.org/publicdomain
 | Name               | Version  | Publisher           | Repository                                                                                     |
 | ------------------ | -------- | ------------------- | ---------------------------------------------------------------------------------------------- |
 | `spdx-license-ids` | `3.0.7`  | Shinnosuke Watanabe | [https://github.com/jslicense/spdx-license-ids](https://github.com/jslicense/spdx-license-ids) |
-| `type-fest`        | `0.20.2` | Sindre Sorhus       | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)         |
 | `type-fest`        | `0.21.3` | Sindre Sorhus       | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)         |
 | `type-fest`        | `0.6.0`  | Sindre Sorhus       | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)         |
 | `type-fest`        | `0.8.1`  | Sindre Sorhus       | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)         |
@@ -263,7 +253,6 @@ ISC License - [https://www.isc.org/downloads/software-support-policy/isc-license
 | `inherits`                  | `2.0.4`   |                    | [https://github.com/isaacs/inherits](https://github.com/isaacs/inherits)                                     |
 | `ini`                       | `1.3.8`   | Isaac Z. Schlueter | [https://github.com/isaacs/ini](https://github.com/isaacs/ini)                                               |
 | `isexe`                     | `2.0.0`   | Isaac Z. Schlueter | [https://github.com/isaacs/isexe](https://github.com/isaacs/isexe)                                           |
-| `log-driver`                | `1.2.7`   | Gregg Caines       | [https://github.com/cainus/logdriver](https://github.com/cainus/logdriver)                                   |
 | `lru-cache`                 | `6.0.0`   | Isaac Z. Schlueter | [https://github.com/isaacs/node-lru-cache](https://github.com/isaacs/node-lru-cache)                         |
 | `make-error`                | `1.3.6`   | Julien Fontanet    | [https://github.com/JsCommunity/make-error](https://github.com/JsCommunity/make-error)                       |
 | `minimatch`                 | `3.0.4`   | Isaac Z. Schlueter | [https://github.com/isaacs/minimatch](https://github.com/isaacs/minimatch)                                   |
@@ -545,7 +534,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `cross-fetch`                                        | `3.1.4`        | Leonardo Quixada               | [https://github.com/lquixada/cross-fetch](https://github.com/lquixada/cross-fetch)                                                                                                                   |
 | `cross-spawn`                                        | `7.0.3`        | André Cruz                     | [https://github.com/moxystudio/node-cross-spawn](https://github.com/moxystudio/node-cross-spawn)                                                                                                     |
 | `crypto-random-string`                               | `2.0.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/crypto-random-string](https://github.com/sindresorhus/crypto-random-string)                                                                                         |
-| `d64`                                                | `1.0.0`        | Dominic Tarr                   | [https://github.com/dominictarr/d64](https://github.com/dominictarr/d64)                                                                                                                             |
 | `dataloader`                                         | `2.0.0`        |                                | [https://github.com/graphql/dataloader](https://github.com/graphql/dataloader)                                                                                                                       |
 | `date-and-time`                                      | `2.0.1`        | KNOWLEDGECODE                  | [https://github.com/knowledgecode/date-and-time](https://github.com/knowledgecode/date-and-time)                                                                                                     |
 | `date-fns`                                           | `1.30.1`       | Sasha Koss                     | [https://github.com/date-fns/date-fns](https://github.com/date-fns/date-fns)                                                                                                                         |
@@ -687,7 +675,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `is-unicode-supported`                               | `0.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/is-unicode-supported](https://github.com/sindresorhus/is-unicode-supported)                                                                                         |
 | `is-upper-case`                                      | `2.0.2`        | Blake Embrey                   | [https://github.com/blakeembrey/change-case](https://github.com/blakeembrey/change-case)                                                                                                             |
 | `is-windows`                                         | `1.0.2`        | Jon Schlinkert                 | [https://github.com/jonschlinkert/is-windows](https://github.com/jonschlinkert/is-windows)                                                                                                           |
-| `is`                                                 | `3.3.0`        | Enrico Marino                  | [https://github.com/enricomarino/is](https://github.com/enricomarino/is)                                                                                                                             |
 | `isarray`                                            | `1.0.0`        | Julian Gruber                  | [https://github.com/juliangruber/isarray](https://github.com/juliangruber/isarray)                                                                                                                   |
 | `isomorphic-fetch`                                   | `3.0.0`        | Matt Andrews                   | [https://github.com/matthew-andrews/isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch)                                                                                           |
 | `isomorphic-ws`                                      | `4.0.1`        | @heineiuo                      | [https://github.com/heineiuo/isomorphic-ws](https://github.com/heineiuo/isomorphic-ws)                                                                                                               |
@@ -753,7 +740,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `make-array`                                         | `1.0.5`        | kael                           | [https://github.com/kaelzhang/make-array](https://github.com/kaelzhang/make-array)                                                                                                                   |
 | `make-dir`                                           | `3.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/make-dir](https://github.com/sindresorhus/make-dir)                                                                                                                 |
 | `map-cache`                                          | `0.2.2`        | Jon Schlinkert                 | [https://github.com/jonschlinkert/map-cache](https://github.com/jonschlinkert/map-cache)                                                                                                             |
-| `map-obj`                                            | `4.3.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/map-obj](https://github.com/sindresorhus/map-obj)                                                                                                                   |
 | `media-typer`                                        | `0.3.0`        | Douglas Christopher Wilson     | [https://github.com/jshttp/media-typer](https://github.com/jshttp/media-typer)                                                                                                                       |
 | `merge-descriptors`                                  | `1.0.1`        | Jonathan Ong                   | [https://github.com/component/merge-descriptors](https://github.com/component/merge-descriptors)                                                                                                     |
 | `merge2`                                             | `1.4.1`        |                                | [https://github.com/teambition/merge2](https://github.com/teambition/merge2)                                                                                                                         |
@@ -879,7 +865,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `slash`                                              | `3.0.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/slash](https://github.com/sindresorhus/slash)                                                                                                                       |
 | `slice-ansi`                                         | `0.0.4`        | David Caccavella               | [https://github.com/chalk/slice-ansi](https://github.com/chalk/slice-ansi)                                                                                                                           |
 | `snake-case`                                         | `3.0.4`        | Blake Embrey                   | [https://github.com/blakeembrey/change-case](https://github.com/blakeembrey/change-case)                                                                                                             |
-| `snakecase-keys`                                     | `3.2.1`        | Ben Drucker                    | [https://github.com/bendrucker/snakecase-keys](https://github.com/bendrucker/snakecase-keys)                                                                                                         |
 | `snakeize`                                           | `0.1.0`        | James Halliday                 | [https://github.com/nathan7/snakeize](https://github.com/nathan7/snakeize)                                                                                                                           |
 | `source-map-support`                                 | `0.5.20`       |                                | [https://github.com/evanw/node-source-map-support](https://github.com/evanw/node-source-map-support)                                                                                                 |
 | `spdx-expression-parse`                              | `3.0.1`        | Kyle E. Mitchell               | [https://github.com/jslicense/spdx-expression-parse.js](https://github.com/jslicense/spdx-expression-parse.js)                                                                                       |
@@ -912,22 +897,17 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `swap-case`                                          | `2.0.2`        | Blake Embrey                   | [https://github.com/blakeembrey/change-case](https://github.com/blakeembrey/change-case)                                                                                                             |
 | `symbol-observable`                                  | `1.2.0`        | Ben Lesh                       | [https://github.com/blesh/symbol-observable](https://github.com/blesh/symbol-observable)                                                                                                             |
 | `sync-fetch`                                         | `0.3.1`        | Lars Willighagen               | [https://github.com/larsgw/sync-fetch](https://github.com/larsgw/sync-fetch)                                                                                                                         |
-| `through2`                                           | `4.0.2`        | Rod Vagg                       | [https://github.com/rvagg/through2](https://github.com/rvagg/through2)                                                                                                                               |
 | `through`                                            | `2.3.8`        | Dominic Tarr                   | [https://github.com/dominictarr/through](https://github.com/dominictarr/through)                                                                                                                     |
 | `title-case`                                         | `3.0.3`        | Blake Embrey                   | [https://github.com/blakeembrey/change-case](https://github.com/blakeembrey/change-case)                                                                                                             |
 | `tmp`                                                | `0.0.33`       | KARASZI István                 | [https://github.com/raszi/node-tmp](https://github.com/raszi/node-tmp)                                                                                                                               |
 | `to-fast-properties`                                 | `2.0.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/to-fast-properties](https://github.com/sindresorhus/to-fast-properties)                                                                                             |
-| `to-no-case`                                         | `1.0.2`        |                                | [https://github.com/ianstormtaylor/to-no-case](https://github.com/ianstormtaylor/to-no-case)                                                                                                         |
 | `to-readable-stream`                                 | `1.0.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/to-readable-stream](https://github.com/sindresorhus/to-readable-stream)                                                                                             |
 | `to-regex-range`                                     | `5.0.1`        | Jon Schlinkert                 | [https://github.com/micromatch/to-regex-range](https://github.com/micromatch/to-regex-range)                                                                                                         |
-| `to-snake-case`                                      | `1.0.0`        |                                | [https://github.com/ianstormtaylor/to-snake-case](https://github.com/ianstormtaylor/to-snake-case)                                                                                                   |
-| `to-space-case`                                      | `1.0.0`        |                                | [https://github.com/ianstormtaylor/to-space-case](https://github.com/ianstormtaylor/to-space-case)                                                                                                   |
 | `toidentifier`                                       | `1.0.0`        | Douglas Christopher Wilson     | [https://github.com/component/toidentifier](https://github.com/component/toidentifier)                                                                                                               |
 | `tr46`                                               | `0.0.3`        | Sebastian Mayr                 | [https://github.com/Sebmaster/tr46.js](https://github.com/Sebmaster/tr46.js)                                                                                                                         |
 | `tree-kill`                                          | `1.2.2`        | Peteris Krumins                | [https://github.com/pkrumins/node-tree-kill](https://github.com/pkrumins/node-tree-kill)                                                                                                             |
 | `ts-log`                                             | `2.2.4`        | Stagnation Lab                 | [https://github.com/kallaspriit/ts-log](https://github.com/kallaspriit/ts-log)                                                                                                                       |
 | `ts-node`                                            | `9.1.1`        | Blake Embrey                   | [https://github.com/TypeStrong/ts-node](https://github.com/TypeStrong/ts-node)                                                                                                                       |
-| `type-fest`                                          | `0.20.2`       | Sindre Sorhus                  | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)                                                                                                               |
 | `type-fest`                                          | `0.21.3`       | Sindre Sorhus                  | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)                                                                                                               |
 | `type-fest`                                          | `0.6.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)                                                                                                               |
 | `type-fest`                                          | `0.8.1`        | Sindre Sorhus                  | [https://github.com/sindresorhus/type-fest](https://github.com/sindresorhus/type-fest)                                                                                                               |
