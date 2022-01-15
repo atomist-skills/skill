@@ -144,13 +144,16 @@ export function createContext(
 		completeCallbacks.push(closable);
 	};
 	const close = async () => {
-		let closable = sortBy(completeCallbacks, "priority").pop();
+		const prioritizedClosables = sortBy(completeCallbacks, [
+			"priority",
+		]).reverse();
+		let closable = prioritizedClosables.pop();
 		while (closable) {
 			if (closable.name) {
 				debug(`Closing '${closable.name}'`);
 			}
 			await handleError(closable.callback);
-			closable = completeCallbacks.pop();
+			closable = prioritizedClosables.pop();
 		}
 	};
 
