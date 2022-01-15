@@ -32,12 +32,18 @@ describe("context", () => {
 			{} as any,
 		);
 		let closed1 = false;
-		ctx.onComplete(async () => {
-			closed1 = true;
+		ctx.onComplete({
+			name: "1",
+			callback: async () => {
+				closed1 = true;
+			},
 		});
 		let closed2 = false;
-		ctx.onComplete(async () => {
-			closed2 = true;
+		ctx.onComplete({
+			name: "2",
+			callback: async () => {
+				closed2 = true;
+			},
 		});
 		await (ctx as any).close();
 		assert.deepStrictEqual(closed1, true);

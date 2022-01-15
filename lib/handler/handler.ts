@@ -49,6 +49,14 @@ export interface Configuration<C extends Record<string, any>> {
 	url: string;
 }
 
+export const DefaultPriority = 100;
+
+export type ContextClosable = {
+	name: string;
+	priority?: number;
+	callback: () => Promise<void>;
+};
+
 export interface Contextual<T, C> {
 	name: string;
 	workspaceId: string;
@@ -74,7 +82,7 @@ export interface Contextual<T, C> {
 	};
 
 	/** Register a callback that gets executed when the skill execution is complete */
-	onComplete: (callback: () => Promise<void>) => void;
+	onComplete: (closable: ContextClosable) => void;
 }
 
 /**

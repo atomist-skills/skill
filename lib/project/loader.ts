@@ -60,14 +60,16 @@ export class DefaultProjectLoader implements ProjectLoader {
 	): Promise<Project> {
 		const p = await clone(id, options);
 		if (this.ctx) {
-			this.ctx.onComplete(() =>
-				handleError(
-					async () => fs.remove(p.path()),
-					async () => {
-						// Intentionally left empty
-					},
-				),
-			);
+			this.ctx.onComplete({
+				name: "project loader",
+				callback: () =>
+					handleError(
+						async () => fs.remove(p.path()),
+						async () => {
+							// Intentionally left empty
+						},
+					),
+			});
 		}
 		return p;
 	}

@@ -66,12 +66,16 @@ export async function runSkill(skill?: string): Promise<void> {
 						payload: true,
 						traceId: traceId ? traceId.split("/")[0] : undefined,
 						before: () => debug("Cloud Run execution started"),
-						after: async () =>
-							debug(
-								`Cloud Run execution took ${
-									Date.now() - start
-								} ms, finished with status: 'ok'`,
-							),
+						after: {
+							name: "cloud run",
+							priority: Number.MAX_SAFE_INTEGER - 100,
+							callback: async () =>
+								debug(
+									`Cloud Run execution took ${
+										Date.now() - start
+									} ms, finished with status: 'ok'`,
+								),
+						},
 					}),
 				);
 			} catch (e) {

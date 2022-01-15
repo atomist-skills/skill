@@ -96,18 +96,21 @@ export async function createCheck(
 		})
 	).data;
 
-	ctx.onComplete(async () => {
-		if (!terminated && check && !parameters.longRunning) {
-			await api(id, ctx).checks.update({
-				owner: id.owner,
-				repo: id.repo,
-				check_run_id: check.data.id,
-				conclusion: "failure",
-				completed_at: new Date().toISOString(),
-				status: "completed",
-			});
-			terminated = true;
-		}
+	ctx.onComplete({
+		name: "github check",
+		callback: async () => {
+			if (!terminated && check && !parameters.longRunning) {
+				await api(id, ctx).checks.update({
+					owner: id.owner,
+					repo: id.repo,
+					check_run_id: check.data.id,
+					conclusion: "failure",
+					completed_at: new Date().toISOString(),
+					status: "completed",
+				});
+				terminated = true;
+			}
+		},
 	});
 
 	let check:

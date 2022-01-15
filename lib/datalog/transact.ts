@@ -33,8 +33,11 @@ export function createTransact(
 ): DatalogTransact {
 	const stats = { facts: 0, entities: 0 };
 	if (ctx.onComplete) {
-		ctx.onComplete(async () => {
-			debug(`Transaction stats: ${JSON.stringify(stats)}`);
+		ctx.onComplete({
+			name: "transact",
+			callback: async () => {
+				debug(`Transaction stats: ${JSON.stringify(stats)}`);
+			},
 		});
 	}
 

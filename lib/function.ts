@@ -94,6 +94,12 @@ export async function processEvent(
 ): Promise<void> {
 	const context = factory(event, ctx) as EventContext<any> &
 		ContextualLifecycle;
+	context.onComplete({
+		name: undefined,
+		priority: Number.MAX_SAFE_INTEGER - 1,
+		callback: async () =>
+			debug(`Completed event handler '${context.name}'`),
+	});
 	if (isSubscriptionIncoming(event)) {
 		debug(
 			`Invoking event handler '${context.name}' for tx '${event.subscription["after-basis-t"]}'`,
@@ -109,7 +115,6 @@ export async function processEvent(
 	} catch (e) {
 		await publishError(e, context);
 	} finally {
-		debug(`Completed event handler '${context.name}'`);
 		await context.close();
 	}
 }
@@ -123,6 +128,12 @@ export async function processCommand(
 	factory: ContextFactory = loggingCreateContext(createContext),
 ): Promise<void> {
 	const context = factory(event, ctx) as CommandContext & ContextualLifecycle;
+	context.onComplete({
+		name: undefined,
+		priority: Number.MAX_SAFE_INTEGER - 1,
+		callback: async () =>
+			debug(`Completed command handler '${context.name}'`),
+	});
 	debug(`Invoking command handler '${context.name}'`);
 	try {
 		const result = await invokeHandler(loader, context);
@@ -138,7 +149,6 @@ export async function processCommand(
 			await publishError(e, context);
 		}
 	} finally {
-		debug(`Completed command handler '${context.name}'`);
 		await context.close();
 	}
 }
@@ -152,6 +162,12 @@ export async function processWebhook(
 	factory: ContextFactory = loggingCreateContext(createContext),
 ): Promise<void> {
 	const context = factory(event, ctx) as WebhookContext & ContextualLifecycle;
+	context.onComplete({
+		name: undefined,
+		priority: Number.MAX_SAFE_INTEGER - 1,
+		callback: async () =>
+			debug(`Completed webhook handler '${context.name}'`),
+	});
 	debug(`Invoking webhook handler '${context.name}'`);
 	try {
 		const result = await invokeHandler(loader, context);
@@ -161,7 +177,6 @@ export async function processWebhook(
 	} catch (e) {
 		await publishError(e, context);
 	} finally {
-		debug(`Completed webhook handler '${context.name}'`);
 		await context.close();
 	}
 }

@@ -31,8 +31,11 @@ export async function createDir(
 	const tmpDir =
 		options?.path || path.join(os.tmpdir(), options?.name || guid());
 	await fs.ensureDir(tmpDir);
-	ctx.onComplete(async () => {
-		await fs.remove(tmpDir);
+	ctx.onComplete({
+		name: "tmp dir",
+		callback: async () => {
+			await fs.remove(tmpDir);
+		},
 	});
 	return tmpDir;
 }
@@ -51,8 +54,11 @@ export async function createFile(
 	const tmpPath = options?.path
 		? options.path
 		: path.join(os.tmpdir(), options?.name || guid());
-	ctx.onComplete(async () => {
-		await fs.remove(tmpPath);
+	ctx.onComplete({
+		name: "tmp file",
+		callback: async () => {
+			await fs.remove(tmpPath);
+		},
 	});
 	await fs.ensureDir(path.dirname(tmpPath));
 	if (options?.content) {

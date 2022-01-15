@@ -17,7 +17,7 @@
 import { createLogger } from "@atomist/skill-logging";
 import * as dt from "luxon";
 
-import { Contextual } from "../handler/handler";
+import { ContextClosable, Contextual } from "../handler/handler";
 import {
 	isCommandIncoming,
 	isEventIncoming,
@@ -35,13 +35,17 @@ export function initLogging(
 		skillId: string;
 		traceId?: string;
 	},
-	onComplete: (callback: () => Promise<void>) => void,
+	onComplete: (callback: ContextClosable) => void,
 	labels: Record<string, any> = {},
 ): void {
 	const logger = createLogger(context, labels);
 	setLogger(logger);
-	onComplete(async () => {
-		await logger.close();
+	onComplete({
+		name: "logger",
+		priority: Number.MAX_SAFE_INTEGER,
+		callback: async () => {
+			await logger.close();
+		},
 	});
 }
 

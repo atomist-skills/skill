@@ -19,8 +19,10 @@ import { createGraphQLClient } from "./graphql";
 import {
 	CommandContext,
 	Configuration,
+	ContextClosable,
 	Contextual,
 	ContextualLifecycle,
+	DefaultPriority,
 	EventContext,
 	WebhookContext,
 } from "./handler/handler";
@@ -51,7 +53,7 @@ import { DefaultCredentialProvider } from "./secret/provider";
 import { createStorageProvider } from "./storage/provider";
 import { extractParameters, handleError, toArray } from "./util";
 import camelCase = require("lodash.camelcase");
-
+import sortBy = require("lodash.sortby");
 export type ContextFactory = (
 	payload:
 		| CommandIncoming
@@ -68,7 +70,7 @@ export function loggingCreateContext(
 	options: {
 		payload: boolean;
 		before?: (ctx: Contextual<any, any>) => void;
-		after?: () => Promise<void>;
+		after?: ContextClosable;
 		traceId?: string;
 	} = { payload: true },
 ): ContextFactory {
@@ -134,15 +136,21 @@ export function createContext(
 	const graphql = createGraphQLClient(apiKey, wid);
 	const storage = createStorageProvider(wid);
 	const credential = new DefaultCredentialProvider(graphql, payload);
-	const completeCallbacks = [];
-	const onComplete = closable => {
+	const completeCallbacks: ContextClosable[] = [];
+	const onComplete = (closable: ContextClosable) => {
+		if (closable.priority === undefined) {
+			closable.priority = DefaultPriority;
+		}
 		completeCallbacks.push(closable);
 	};
 	const close = async () => {
-		let callback = completeCallbacks.pop();
-		while (callback) {
-			await handleError(callback);
-			callback = completeCallbacks.pop();
+		let closable = sortBy(completeCallbacks, "priority").pop();
+		while (closable) {
+			if (closable.name) {
+				debug(`Closing '${closable.name}'`);
+			}
+			await handleError(closable.callback);
+			closable = completeCallbacks.pop();
 		}
 	};
 

@@ -708,21 +708,25 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 				},
 			});
 			if (this.ctx?.onComplete) {
-				this.ctx.onComplete(async () => {
-					await handleError(
-						async () => _topic.flush(),
-						async () => {
-							/** Intentionally left empty */
-						},
-					);
-					_topic = undefined;
-					await handleError(
-						async () => await _pubsub.close(),
-						async () => {
-							/** Intentionally left empty */
-						},
-					);
-					_pubsub = undefined;
+				this.ctx.onComplete({
+					name: "pubsub",
+					priority: Number.MIN_SAFE_INTEGER,
+					callback: async () => {
+						await handleError(
+							async () => await _topic.flush(),
+							async () => {
+								/** Intentionally left empty */
+							},
+						);
+						_topic = undefined;
+						await handleError(
+							async () => await _pubsub.close(),
+							async () => {
+								/** Intentionally left empty */
+							},
+						);
+						_pubsub = undefined;
+					},
 				});
 			}
 		}
