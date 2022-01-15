@@ -713,7 +713,15 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 					priority: Number.MIN_SAFE_INTEGER,
 					callback: async () => {
 						await handleError(
-							async () => await _topic.flush(),
+							async () =>
+								new Promise((resolve, reject) => {
+									_topic.flush((err, resp) => {
+										if (err) {
+											reject(err);
+										}
+										resolve(resp);
+									});
+								}),
 							async () => {
 								/** Intentionally left empty */
 							},
