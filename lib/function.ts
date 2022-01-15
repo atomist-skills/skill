@@ -97,8 +97,7 @@ export async function processEvent(
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () =>
-			debug(`Completed event handler '${context.name}'`),
+		callback: async () => debug(`Closing event handler '${context.name}'`),
 	});
 	if (isSubscriptionIncoming(event)) {
 		debug(
@@ -132,7 +131,7 @@ export async function processCommand(
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
 		callback: async () =>
-			debug(`Completed command handler '${context.name}'`),
+			debug(`Closing command handler '${context.name}'`),
 	});
 	debug(`Invoking command handler '${context.name}'`);
 	try {
@@ -166,7 +165,7 @@ export async function processWebhook(
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
 		callback: async () =>
-			debug(`Completed webhook handler '${context.name}'`),
+			debug(`Closing webhook handler '${context.name}'`),
 	});
 	debug(`Invoking webhook handler '${context.name}'`);
 	try {
