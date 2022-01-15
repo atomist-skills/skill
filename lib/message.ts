@@ -728,7 +728,15 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 						);
 						_topic = undefined;
 						await handleError(
-							async () => await _pubsub.close(),
+							async () =>
+								new Promise((resolve, reject) => {
+									_pubsub.close((err, resp) => {
+										if (err) {
+											reject(err);
+										}
+										resolve(resp);
+									});
+								}),
 							async () => {
 								/** Intentionally left empty */
 							},
