@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
+import * as http from "http";
+import * as https from "https";
 import { RequestInit, Response } from "node-fetch";
+
+const httpAgent = new http.Agent({
+	keepAlive: true,
+});
+const httpsAgent = new https.Agent({
+	keepAlive: true,
+});
 
 export interface HttpClient {
 	request<T>(
@@ -32,6 +41,15 @@ export class NodeFetchHttpClient implements HttpClient {
 		url: string,
 		options: RequestInit,
 	): Promise<Response & { json(): Promise<T> }> {
+		if (options.agent === undefined) {
+			options.agent = parsedUrl => {
+				if (parsedUrl.protocol == "http:") {
+					return httpAgent;
+				} else {
+					return httpsAgent;
+				}
+			};
+		}
 		const f = (await import("node-fetch")).default;
 		return f(url, options);
 	}
