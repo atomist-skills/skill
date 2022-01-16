@@ -681,8 +681,8 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 								method: "POST",
 								body: JSON.stringify(body),
 								headers: {
-									"Content-Type": "application/json",
-									"Authorization": `Bearer ${await auth.getAccessToken()}`,
+									"content-type": "application/json",
+									"authorization": `Bearer ${await auth.getAccessToken()}`,
 								},
 							})
 						).json();
@@ -690,7 +690,7 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 							return response.messageIds[0];
 						} else {
 							warn(
-								`Error sending pubsub message, retrying: ${JSON.stringify(
+								`Error sending message, retrying: ${JSON.stringify(
 									response,
 								)}`,
 							);
