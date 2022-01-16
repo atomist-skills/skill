@@ -33,7 +33,7 @@ import {
 	WebhookContext,
 } from "./handler/handler";
 import { createHttpClient } from "./http";
-import { debug, error, warn } from "./log";
+import { debug, error } from "./log";
 import {
 	CommandIncoming,
 	EventIncoming,
@@ -642,21 +642,11 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
 			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			await this.topic.publishMessage(
-				{
-					data: messageBuffer,
-					orderingKey: this.ctx.correlationId,
-				},
-				(err, res) => {
-					if (err) {
-						warn(`Publish message failed: ${JSON.stringify(err)}`);
-					}
-					if (res) {
-						debug(`Publish message successful: ${res}`);
-					}
-				},
-			);
-			debug(`Sent message in ${Date.now() - start} ms`);
+			const messageId = await this.topic.publishMessage({
+				data: messageBuffer,
+				orderingKey: this.ctx.correlationId,
+			});
+			debug(`Sent message '${messageId}' in ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error occurred sending message: ${err.stack}`);
 		}
