@@ -33,7 +33,7 @@ import {
 	WebhookContext,
 } from "./handler/handler";
 import { createHttpClient } from "./http";
-import { debug, error } from "./log";
+import { debug, error, warn } from "./log";
 import {
 	CommandIncoming,
 	EventIncoming,
@@ -689,6 +689,11 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 						if (response?.messageIds?.length > 0) {
 							return response.messageIds[0];
 						} else {
+							warn(
+								`Error sending pubsub message, retrying: ${JSON.stringify(
+									response,
+								)}`,
+							);
 							throw new Error(response);
 						}
 					})) as any;
