@@ -106,6 +106,11 @@ export {
 } from "./lib/message";
 export {} from "./lib/payload";
 export {} from "./lib/payload_resolve";
+export {
+	createPubSubPublisher,
+	PubSubMessage,
+	PubSubPublisher,
+} from "./lib/pubsub";
 export { retry, RetryOptions } from "./lib/retry";
 export * as state from "./lib/state";
 export * as status from "./lib/status";

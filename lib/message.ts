@@ -22,7 +22,6 @@ import {
 	SectionBlock,
 	SlackMessage,
 } from "@atomist/slack-messages";
-import { PubSub, Topic } from "@google-cloud/pubsub";
 
 import { GraphQLClient } from "./graphql";
 import {
@@ -32,7 +31,7 @@ import {
 	HandlerStatus,
 	WebhookContext,
 } from "./handler/handler";
-import { debug, error, warn } from "./log";
+import { debug, error } from "./log";
 import {
 	CommandIncoming,
 	EventIncoming,
@@ -45,7 +44,8 @@ import {
 	SubscriptionIncoming,
 	WebhookIncoming,
 } from "./payload";
-import { handleError, replacer, toArray } from "./util";
+import { createPubSubPublisher, PubSubPublisher } from "./pubsub";
+import { replacer, toArray } from "./util";
 import cloneDeep = require("lodash.clonedeep");
 
 export interface Destinations {
@@ -78,7 +78,7 @@ export interface MessageClient {
 		ts: number,
 	): Promise<void>;
 
-	topic: Topic;
+	publisher: PubSubPublisher;
 }
 
 export interface CommandMessageClient extends MessageClient {
@@ -178,7 +178,7 @@ export abstract class MessageClientSupport
 		options?: MessageOptions,
 	): Promise<any>;
 
-	abstract topic: Topic;
+	abstract publisher: PubSubPublisher;
 }
 
 const CreateLifecycleAttachmentMutation = `mutation createLifecycleAttachment($value: CustomLifecycleAttachmentInput!) {
@@ -613,10 +613,6 @@ export interface StatusPublisher {
 	publish(status: HandlerResponse["status"]): Promise<void>;
 }
 
-// Global topic for faster message send
-let _topic: Topic;
-let _pubsub: PubSub;
-
 abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 	protected constructor(
 		protected readonly request:
@@ -638,115 +634,18 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 		try {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			await this.topic.publishMessage(
-				{
-					data: messageBuffer,
-					orderingKey: this.ctx.correlationId,
-				},
-				(err, res) => {
-					if (err) {
-						warn(`Publish message failed: ${JSON.stringify(err)}`);
-					}
-					if (res) {
-						debug(`Publish message successful: ${res}`);
-					}
-				},
-			);
-			debug(`Sent message in ${Date.now() - start} ms`);
+			const messageId = await this.publisher.publish({
+				data: message,
+				orderingKey: this.ctx.correlationId,
+			});
+			debug(`Sent message '${messageId}' in ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error occurred sending message: ${err.stack}`);
 		}
 	}
 
-	get topic() {
-		if (!_topic) {
-			_pubsub = new PubSub({});
-			const topicName =
-				process.env.ATOMIST_TOPIC ||
-				`${this.ctx.workspaceId}-${this.request.skill.id}-response`;
-			const retry = {
-				retryCodes: [
-					-1, // 'IGNORE'
-					// 10, // 'ABORTED'
-					// 1, // 'CANCELLED',
-					// 4, // 'DEADLINE_EXCEEDED'
-					// 13, // 'INTERNAL'
-					// 8, // 'RESOURCE_EXHAUSTED'
-					// 14, // 'UNAVAILABLE'
-					// 2, // 'UNKNOWN'
-				],
-				backoffSettings: {
-					// The initial delay time, in milliseconds, between the completion
-					// of the first failed request and the initiation of the first retrying request.
-					initialRetryDelayMillis: 100,
-					// The multiplier by which to increase the delay time between the completion
-					// of failed requests, and the initiation of the subsequent retrying request.
-					retryDelayMultiplier: 1.3,
-					// The maximum delay time, in milliseconds, between requests.
-					// When this value is reached, retryDelayMultiplier will no longer be used to increase delay time.
-					maxRetryDelayMillis: 60000,
-					// The initial timeout parameter to the request.
-					initialRpcTimeoutMillis: 5000,
-					// The multiplier by which to increase the timeout parameter between failed requests.
-					rpcTimeoutMultiplier: 1.0,
-					// The maximum timeout parameter, in milliseconds, for a request. When this value is reached,
-					// rpcTimeoutMultiplier will no longer be used to increase the timeout.
-					maxRpcTimeoutMillis: 600000,
-					// The total time, in milliseconds, starting from when the initial request is sent,
-					// after which an error will be returned, regardless of the retrying attempts made meanwhile.
-					totalTimeoutMillis: 600000,
-				},
-			};
-			_topic = _pubsub.topic(topicName, {
-				messageOrdering: true,
-				batching: {
-					maxMessages: 1,
-				},
-				gaxOpts: {
-					retry,
-				},
-			});
-			if (this.ctx?.onComplete) {
-				this.ctx.onComplete({
-					name: "pubsub",
-					priority: Number.MIN_SAFE_INTEGER,
-					callback: async () => {
-						await handleError(
-							async () =>
-								new Promise((resolve, reject) => {
-									_topic.flush((err, resp) => {
-										if (err) {
-											reject(err);
-										}
-										resolve(resp);
-									});
-								}),
-							async () => {
-								/** Intentionally left empty */
-							},
-						);
-						_topic = undefined;
-						await handleError(
-							async () =>
-								new Promise((resolve, reject) => {
-									_pubsub.close((err, resp) => {
-										if (err) {
-											reject(err);
-										}
-										resolve(resp);
-									});
-								}),
-							async () => {
-								/** Intentionally left empty */
-							},
-						);
-						_pubsub = undefined;
-					},
-				});
-			}
-		}
-		return _topic;
+	get publisher() {
+		return createPubSubPublisher();
 	}
 }
 

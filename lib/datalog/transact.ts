@@ -17,7 +17,7 @@
 import { toEDNStringFromSimpleObject } from "edn-data";
 
 import { Contextual } from "../handler/handler";
-import { debug, error, warn } from "../log/console";
+import { debug, error } from "../log/console";
 import { replacer, toArray } from "../util";
 
 export type DatalogTransact = (
@@ -81,27 +81,16 @@ export function createTransact(
 		try {
 			debug(`Transacting entities: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			await ctx.message.topic.publishMessage(
-				{
-					data: messageBuffer,
-					orderingKey:
-						options?.ordering === false
-							? undefined
-							: ctx.correlationId,
-				},
-				(err, res) => {
-					if (err) {
-						warn(
-							`Transact entities failed: ${JSON.stringify(err)}`,
-						);
-					}
-					if (res) {
-						debug(`Transact entities successful: ${res}`);
-					}
-				},
+			const messageId = await ctx.message.publisher.publish({
+				data: message,
+				orderingKey:
+					options?.ordering === false ? undefined : ctx.correlationId,
+			});
+			debug(
+				`Transacted entities '${messageId}' in ${
+					Date.now() - start
+				} ms`,
 			);
-			debug(`Transacted entities in ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error transacting entities: ${err.stack}`);
 		}
