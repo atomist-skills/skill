@@ -63,10 +63,9 @@ export function createPubSubPublisher(
 				} else if (Buffer.isBuffer(message.data)) {
 					data = message.data.toString("base64");
 				} else {
-					data = Buffer.from(
-						JSON.stringify(message),
-						"utf8",
-					).toString("base64");
+					data = Buffer.from(JSON.stringify(message.data)).toString(
+						"base64",
+					);
 				}
 				const body = {
 					messages: [
