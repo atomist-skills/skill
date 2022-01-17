@@ -11,7 +11,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | License                              | Count |
 | ------------------------------------ | ----- |
 | [0BSD](#0bsd)                        | 5     |
-| [Apache-2.0](#apache-20)             | 96    |
+| [Apache-2.0](#apache-20)             | 92    |
 | [BSD-2-Clause](#bsd-2-clause)        | 8     |
 | [BSD-3-Clause](#bsd-3-clause)        | 23    |
 | [CC-BY-3.0](#cc-by-30)               | 1     |
@@ -21,7 +21,7 @@ This page details all runtime dependencies of `@atomist/skill`.
 | [GPL-3.0-or-later](#gpl-30-or-later) | 1     |
 | [ISC](#isc)                          | 43    |
 | [MIT AND Zlib](#mit-and-zlib)        | 1     |
-| [MIT](#mit)                          | 663   |
+| [MIT](#mit)                          | 660   |
 | [Public Domain](#public-domain)      | 1     |
 | [Python-2.0](#python-20)             | 1     |
 
@@ -106,16 +106,12 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 | `@google-cloud/functions-framework`         | `1.10.0`        | Google Inc.                 | [https://github.com/GoogleCloudPlatform/functions-framework-nodejs](https://github.com/GoogleCloudPlatform/functions-framework-nodejs) |
 | `@google-cloud/logging`                     | `9.6.7`         | Google Inc.                 | [https://github.com/googleapis/nodejs-logging](https://github.com/googleapis/nodejs-logging)                                           |
 | `@google-cloud/paginator`                   | `3.0.5`         | Google Inc.                 | [https://github.com/googleapis/nodejs-paginator](https://github.com/googleapis/nodejs-paginator)                                       |
-| `@google-cloud/precise-date`                | `2.0.3`         | Google Inc.                 | [https://github.com/googleapis/nodejs-precise-date](https://github.com/googleapis/nodejs-precise-date)                                 |
 | `@google-cloud/projectify`                  | `2.0.1`         | Google Inc.                 | [https://github.com/googleapis/nodejs-projectify](https://github.com/googleapis/nodejs-projectify)                                     |
 | `@google-cloud/promisify`                   | `2.0.3`         | Google Inc.                 | [https://github.com/googleapis/nodejs-promisify](https://github.com/googleapis/nodejs-promisify)                                       |
-| `@google-cloud/pubsub`                      | `2.17.0`        | Google Inc.                 | [https://github.com/googleapis/nodejs-pubsub](https://github.com/googleapis/nodejs-pubsub)                                             |
 | `@google-cloud/secret-manager`              | `3.10.1`        | Google LLC                  | [https://github.com/googleapis/nodejs-secret-manager](https://github.com/googleapis/nodejs-secret-manager)                             |
 | `@google-cloud/storage`                     | `5.15.4`        | Google Inc.                 | [https://github.com/googleapis/nodejs-storage](https://github.com/googleapis/nodejs-storage)                                           |
 | `@grpc/grpc-js`                             | `1.3.2`         | Google Inc.                 | [https://github.com/grpc/grpc-node/tree/master/packages/grpc-js](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js)       |
 | `@grpc/proto-loader`                        | `0.6.2`         | Google Inc.                 | [https://github.com/grpc/grpc-node](https://github.com/grpc/grpc-node)                                                                 |
-| `@opentelemetry/api`                        | `1.0.2`         | OpenTelemetry Authors       | [https://github.com/open-telemetry/opentelemetry-js-api](https://github.com/open-telemetry/opentelemetry-js-api)                       |
-| `@opentelemetry/semantic-conventions`       | `0.24.0`        | OpenTelemetry Authors       | [https://github.com/open-telemetry/opentelemetry-js](https://github.com/open-telemetry/opentelemetry-js)                               |
 | `before-after-hook`                         | `2.2.2`         | Gregor Martynus             | [https://github.com/gr2m/before-after-hook](https://github.com/gr2m/before-after-hook)                                                 |
 | `bser`                                      | `2.1.1`         | Wez Furlong                 | [https://github.com/facebook/watchman](https://github.com/facebook/watchman)                                                           |
 | `ecdsa-sig-formatter`                       | `1.0.11`        | D2L Corporation             | [https://github.com/Brightspace/node-ecdsa-sig-formatter](https://github.com/Brightspace/node-ecdsa-sig-formatter)                     |
@@ -410,7 +406,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `@types/connect`                                     | `3.4.35`       |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/cross-spawn`                                 | `6.0.2`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/dot-object`                                  | `2.1.2`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
-| `@types/duplexify`                                   | `3.6.0`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/express-serve-static-core`                   | `4.17.23`      |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/express`                                     | `4.17.13`      |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
 | `@types/flat`                                        | `5.0.2`        |                                | [https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)                                                                                             |
@@ -723,7 +718,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `lodash.merge`                                       | `4.6.2`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.once`                                        | `4.1.1`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.set`                                         | `4.3.2`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
-| `lodash.snakecase`                                   | `4.1.1`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.sortby`                                      | `4.7.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.union`                                       | `4.6.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
 | `lodash.uniq`                                        | `4.5.0`        | John-David Dalton              | [https://github.com/lodash/lodash](https://github.com/lodash/lodash)                                                                                                                                 |
@@ -782,7 +776,6 @@ MIT License - [https://opensource.org/licenses/MIT](https://opensource.org/licen
 | `onetime`                                            | `5.1.2`        | Sindre Sorhus                  | [https://github.com/sindresorhus/onetime](https://github.com/sindresorhus/onetime)                                                                                                                   |
 | `os-tmpdir`                                          | `1.0.2`        | Sindre Sorhus                  | [https://github.com/sindresorhus/os-tmpdir](https://github.com/sindresorhus/os-tmpdir)                                                                                                               |
 | `p-cancelable`                                       | `1.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/p-cancelable](https://github.com/sindresorhus/p-cancelable)                                                                                                         |
-| `p-defer`                                            | `3.0.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/p-defer](https://github.com/sindresorhus/p-defer)                                                                                                                   |
 | `p-limit`                                            | `2.3.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/p-limit](https://github.com/sindresorhus/p-limit)                                                                                                                   |
 | `p-limit`                                            | `3.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/p-limit](https://github.com/sindresorhus/p-limit)                                                                                                                   |
 | `p-locate`                                           | `4.1.0`        | Sindre Sorhus                  | [https://github.com/sindresorhus/p-locate](https://github.com/sindresorhus/p-locate)                                                                                                                 |
