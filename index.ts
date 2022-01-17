@@ -105,7 +105,11 @@ export {
 	SlackFileMessage,
 } from "./lib/message";
 export {} from "./lib/payload";
-export {} from "./lib/payload_resolve";
+export {
+	PayloadResolver,
+	resolvePayload,
+	setPayloadResolvers,
+} from "./lib/payload_resolve";
 export {
 	createPubSubPublisher,
 	PubSubMessage,
