@@ -22,7 +22,6 @@ import {
 	SectionBlock,
 	SlackMessage,
 } from "@atomist/slack-messages";
-import { Topic } from "@google-cloud/pubsub";
 
 import { GraphQLClient } from "./graphql";
 import {
@@ -32,8 +31,7 @@ import {
 	HandlerStatus,
 	WebhookContext,
 } from "./handler/handler";
-import { createHttpClient } from "./http";
-import { debug, error, warn } from "./log";
+import { debug, error } from "./log";
 import {
 	CommandIncoming,
 	EventIncoming,
@@ -46,11 +44,9 @@ import {
 	SubscriptionIncoming,
 	WebhookIncoming,
 } from "./payload";
-import { isStaging, replacer, toArray } from "./util";
+import { createPubSubPublisher, PubSubPublisher } from "./pubsub";
+import { replacer, toArray } from "./util";
 import cloneDeep = require("lodash.clonedeep");
-import { GoogleAuth } from "google-auth-library";
-
-import { retry } from "./retry";
 
 export interface Destinations {
 	users?: string | string[];
@@ -82,7 +78,7 @@ export interface MessageClient {
 		ts: number,
 	): Promise<void>;
 
-	topic: Pick<Topic, "publishMessage">;
+	publisher: PubSubPublisher;
 }
 
 export interface CommandMessageClient extends MessageClient {
@@ -182,7 +178,7 @@ export abstract class MessageClientSupport
 		options?: MessageOptions,
 	): Promise<any>;
 
-	abstract topic: Pick<Topic, "publishMessage">;
+	abstract publisher: PubSubPublisher;
 }
 
 const CreateLifecycleAttachmentMutation = `mutation createLifecycleAttachment($value: CustomLifecycleAttachmentInput!) {
@@ -617,9 +613,6 @@ export interface StatusPublisher {
 	publish(status: HandlerResponse["status"]): Promise<void>;
 }
 
-// Global topic for faster message send
-let _topic: Pick<Topic, "publishMessage">;
-
 abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 	protected constructor(
 		protected readonly request:
@@ -641,9 +634,8 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 		try {
 			debug(`Sending message: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			const messageId = await this.topic.publishMessage({
-				data: messageBuffer,
+			const messageId = await this.publisher.publish({
+				data: message,
 				orderingKey: this.ctx.correlationId,
 			});
 			debug(`Sent message '${messageId}' in ${Date.now() - start} ms`);
@@ -652,55 +644,8 @@ abstract class AbstractPubSubMessageClient extends AbstractMessageClient {
 		}
 	}
 
-	get topic() {
-		if (!_topic) {
-			const topicName =
-				process.env.ATOMIST_TOPIC ||
-				`${this.ctx.workspaceId}-${this.request.skill.id}-response`;
-			const projectId = isStaging()
-				? "atomist-skill-staging"
-				: "atomist-skill-production";
-			const url = `https://pubsub.googleapis.com/v1/projects/${projectId}/topics/${topicName}:publish`;
-			const auth = new GoogleAuth({
-				scopes: "https://www.googleapis.com/auth/cloud-platform",
-			});
-			const http = createHttpClient();
-			_topic = {
-				publishMessage: async message => {
-					const body = {
-						messages: [
-							{
-								data: message.data.toString("base64"),
-								ordering_key: message.orderingKey,
-							},
-						],
-					};
-					return (await retry<string>(async () => {
-						const response = await (
-							await http.request<{ messageIds: string[] }>(url, {
-								method: "POST",
-								body: JSON.stringify(body),
-								headers: {
-									"content-type": "application/json",
-									"authorization": `Bearer ${await auth.getAccessToken()}`,
-								},
-							})
-						).json();
-						if (response?.messageIds?.length > 0) {
-							return response.messageIds[0];
-						} else {
-							warn(
-								`Error sending message, retrying: ${JSON.stringify(
-									response,
-								)}`,
-							);
-							throw new Error(response);
-						}
-					})) as any;
-				},
-			};
-		}
-		return _topic;
+	get publisher() {
+		return createPubSubPublisher();
 	}
 }
 

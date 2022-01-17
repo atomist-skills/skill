@@ -81,9 +81,8 @@ export function createTransact(
 		try {
 			debug(`Transacting entities: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			const messageBuffer = Buffer.from(JSON.stringify(message), "utf8");
-			const messageId = await ctx.message.topic.publishMessage({
-				data: messageBuffer,
+			const messageId = await ctx.message.publisher.publish({
+				data: message,
 				orderingKey:
 					options?.ordering === false ? undefined : ctx.correlationId,
 			});
