@@ -278,7 +278,7 @@ export async function commit(
 	};
 	await execPromise(
 		"git",
-		["commit", "-m", message, "--no-verify", "--no-gpg-sign"],
+		["commit", "-m", message, "--no-verify", "--no-gpg-sign", "--signoff"],
 		{ cwd: dir, env },
 	);
 }
