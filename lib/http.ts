@@ -30,6 +30,16 @@ export interface HttpClient {
 		url: string,
 		options: RequestInit,
 	): Promise<Response & { json(): Promise<T> }>;
+
+	get<T>(
+		url: string,
+		options?: Omit<RequestInit, "method">,
+	): Promise<Response & { json(): Promise<T> }>;
+
+	post<T>(
+		url: string,
+		options?: Omit<RequestInit, "method">,
+	): Promise<Response & { json(): Promise<T> }>;
 }
 
 export function createHttpClient(): HttpClient {
@@ -52,5 +62,19 @@ export class NodeFetchHttpClient implements HttpClient {
 		}
 		const f = (await import("node-fetch")).default;
 		return f(url, options);
+	}
+
+	public async get<T>(
+		url: string,
+		options: Omit<RequestInit, "method"> = {},
+	): Promise<Response & { json(): Promise<T> }> {
+		return this.request<T>(url, { method: "POST", ...options });
+	}
+
+	public async post<T>(
+		url: string,
+		options: Omit<RequestInit, "method"> = {},
+	): Promise<Response & { json(): Promise<T> }> {
+		return this.request<T>(url, { method: "GET", ...options });
 	}
 }
