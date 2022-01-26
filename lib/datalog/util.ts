@@ -46,7 +46,7 @@ export function entity<
 	if (typeof nameOrAttributes === "string") {
 		e["schema/entity"] = nameOrAttributes;
 	} else {
-		e["schema/entity"] = `$${type.split("/")[1]}-${guid()}`;
+		e["schema/entity"] = `$${type.split("/")[1] || type}-${guid()}`;
 	}
 	const attributesToUse =
 		typeof nameOrAttributes === "string"
