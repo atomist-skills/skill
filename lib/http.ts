@@ -68,13 +68,13 @@ export class NodeFetchHttpClient implements HttpClient {
 		url: string,
 		options: Omit<RequestInit, "method"> = {},
 	): Promise<Response & { json(): Promise<T> }> {
-		return this.request<T>(url, { method: "POST", ...options });
+		return this.request<T>(url, { method: "GET", ...options });
 	}
 
 	public async post<T>(
 		url: string,
 		options: Omit<RequestInit, "method"> = {},
 	): Promise<Response & { json(): Promise<T> }> {
-		return this.request<T>(url, { method: "GET", ...options });
+		return this.request<T>(url, { method: "POST", ...options });
 	}
 }
