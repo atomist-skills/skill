@@ -90,8 +90,8 @@ export function formatCommitMarkers(
 ): string {
 	return `
 
-[atomist:generated]
-[atomist-skill:${ctx.skill.namespace}/${ctx.skill.name}]${
+ [atomist:generated]
+ [atomist-skill:${ctx.skill.namespace}/${ctx.skill.name}]${
 		tags.length > 0 ? "\n" : ""
 	}${tags.map(t => ` [${t}]`).join("\n")}`;
 }
