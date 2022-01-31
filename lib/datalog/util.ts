@@ -42,10 +42,14 @@ export function entityWithId<
 	E extends Record<string, EntityType> = Record<string, EntityType>,
 >(
 	idAttributes: string | string[],
+	additionalIdAttributes: Record<string, any> = {},
 ): (type: string, nameOrAttributes: string | E, attributes?: E) => Entity {
 	return (type, nameOrAttributes, attributes) => {
 		const ent = entity(type, nameOrAttributes, attributes);
 		const idValues = {};
+		Object.keys(additionalIdAttributes)
+			.sort()
+			.forEach(a => (idValues[a] = additionalIdAttributes[a]));
 		toArray(idAttributes)
 			.sort()
 			.forEach(a => {

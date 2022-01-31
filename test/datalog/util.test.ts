@@ -13,10 +13,14 @@ describe("datalog.util", () => {
 			name: "python3.9",
 			version: "3.9.2-1",
 		};
-		const entity = entityWithId(["url", "scheme"])("package", data);
+		const entity = entityWithId(["url", "scheme"], { foo: "bar" })(
+			"package",
+			data,
+		);
 		delete entity["schema/entity"];
 		assert.deepStrictEqual(entity, {
 			"package/id": hash({
+				"foo": "bar",
 				"package/scheme": data.scheme,
 				"package/url": data.url,
 			}),
