@@ -15,7 +15,7 @@
  */
 
 import kebabcase = require("lodash.kebabcase");
-import { guid, toArray } from "../util";
+import { guid, hash, toArray } from "../util";
 
 export type EntityType =
 	| string
@@ -33,6 +33,34 @@ export type Entity = {
 	"schema/entity-type": string;
 	"schema/entity": string;
 } & Record<string, EntityType>;
+
+/**
+ * Helper to create a Datalog entity of given type and attributes with
+ * certain attributes making up the id attribute
+ */
+export function entityWithId<
+	E extends Record<string, EntityType> = Record<string, EntityType>,
+>(
+	idAttributes: string | string[],
+): (type: string, nameOrAttributes: string | E, attributes?: E) => Entity {
+	return (type, nameOrAttributes, attributes) => {
+		const ent = entity(type, nameOrAttributes, attributes);
+		const idValues = {};
+		toArray(idAttributes)
+			.sort()
+			.forEach(a => {
+				Object.keys(ent).forEach(attribute => {
+					if (attribute.endsWith(`/${a}`)) {
+						idValues[attribute] = ent[attribute];
+					}
+				});
+			});
+		const id = hash(idValues);
+		const prefix = type.replace(/\//g, ".");
+		ent[`${prefix}/id`] = id;
+		return ent;
+	};
+}
 
 /**
  * Helper to create a Datalog entity of given type and attributes
