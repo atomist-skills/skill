@@ -47,20 +47,26 @@ export function entityWithId<
 	return (type, nameOrAttributes, attributes) => {
 		const ent = entity(type, nameOrAttributes, attributes);
 		const idValues = {};
+		const prefix = type.replace(/\//g, ".");
+
 		Object.keys(additionalIdAttributes)
 			.sort()
-			.forEach(a => (idValues[a] = additionalIdAttributes[a]));
+			.forEach(
+				a =>
+					(idValues[attributeName(a, prefix)] =
+						additionalIdAttributes[a]),
+			);
+
 		toArray(idAttributes)
 			.sort()
 			.forEach(a => {
 				Object.keys(ent).forEach(attribute => {
-					if (attribute.endsWith(`/${a}`)) {
+					if (attribute === attributeName(a, prefix)) {
 						idValues[attribute] = ent[attribute];
 					}
 				});
 			});
 		const id = hash(idValues);
-		const prefix = type.replace(/\//g, ".");
 		ent[`${prefix}/id`] = id;
 		return ent;
 	};
@@ -88,14 +94,18 @@ export function entity<
 	for (const attribute of Object.keys(attributesToUse)) {
 		const value = attributesToUse[attribute];
 		if (value !== undefined) {
-			if (attribute.includes("/")) {
-				e[attribute] = value;
-			} else {
-				e[`${prefix}/${kebabcase(attribute)}`] = value;
-			}
+			e[attributeName(attribute, prefix)] = value;
 		}
 	}
 	return e as any;
+}
+
+function attributeName(attribute: string, prefix: string): string {
+	if (attribute.includes("/")) {
+		return attribute;
+	} else {
+		return `${prefix}/${kebabcase(attribute)}`;
+	}
 }
 
 /**

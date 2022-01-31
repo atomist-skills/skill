@@ -22,29 +22,29 @@ import { hash } from "../../lib/util";
 describe("datalog.util", () => {
 	it("should create entity with id", () => {
 		const data = {
-			url: "pkg:deb/debian/python3.9@3.9.2-1?arch=amd64&os_distro=bullseye&os_name=debian&os_version=11",
+			urlName:
+				"pkg:deb/debian/python3.9@3.9.2-1?arch=amd64&os_distro=bullseye&os_name=debian&os_version=11",
 			scheme: "pkg",
 			type: "deb",
 			namespace: "debian",
 			name: "python3.9",
 			version: "3.9.2-1",
 		};
-		const entity = entityWithId(["url", "scheme"], { foo: "bar" })(
-			"package",
-			data,
-		);
+		const entity = entityWithId(["urlName", "scheme", "bar"], {
+			foo: "bar",
+		})("package", data);
 		delete entity["schema/entity"];
 		assert.deepStrictEqual(entity, {
 			"package/id": hash({
-				"foo": "bar",
+				"package/foo": "bar",
 				"package/scheme": data.scheme,
-				"package/url": data.url,
+				"package/url-name": data.urlName,
 			}),
 			"package/name": "python3.9",
 			"package/namespace": "debian",
 			"package/scheme": "pkg",
 			"package/type": "deb",
-			"package/url":
+			"package/url-name":
 				"pkg:deb/debian/python3.9@3.9.2-1?arch=amd64&os_distro=bullseye&os_name=debian&os_version=11",
 			"package/version": "3.9.2-1",
 			"schema/entity-type": ":package",
