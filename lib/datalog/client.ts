@@ -273,16 +273,18 @@ export function prepareArgs(
 	const names = [];
 	for (const key of Object.keys(parameters)) {
 		const value = parameters[key];
-		let escapedValue;
-		const escape = (v: string) =>
-			typeof v === "string" ? (v.startsWith(":") ? v : `"${v}"`) : v;
-		if (Array.isArray(value)) {
-			escapedValue = `[${value.map(escape).join(" ")}]`;
-		} else {
-			escapedValue = escape(value);
+		if (value !== undefined) {
+			let escapedValue;
+			const escape = (v: string) =>
+				typeof v === "string" ? (v.startsWith(":") ? v : `"${v}"`) : v;
+			if (Array.isArray(value)) {
+				escapedValue = `[${value.map(escape).join(" ")}]`;
+			} else {
+				escapedValue = escape(value);
+			}
+			args.push(escapedValue);
+			names.push(key);
 		}
-		args.push(escapedValue);
-		names.push(key);
 	}
 	if (args.length === 0) {
 		return {
