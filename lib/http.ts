@@ -17,6 +17,7 @@
 import * as http from "http";
 import * as https from "https";
 import { RequestInit, Response } from "node-fetch";
+import forOwn = require("lodash.forown");
 
 const httpAgent = new http.Agent({
 	keepAlive: true,
@@ -25,20 +26,24 @@ const httpsAgent = new https.Agent({
 	keepAlive: true,
 });
 
+export type HttpClientOptions = RequestInit & {
+	parameters?: Record<string, number | string | boolean>;
+};
+
 export interface HttpClient {
 	request<T>(
 		url: string,
-		options: RequestInit,
+		options: HttpClientOptions,
 	): Promise<Response & { json(): Promise<T> }>;
 
 	get<T>(
 		url: string,
-		options?: Omit<RequestInit, "method">,
+		options?: Omit<HttpClientOptions, "method">,
 	): Promise<Response & { json(): Promise<T> }>;
 
 	post<T>(
 		url: string,
-		options?: Omit<RequestInit, "method">,
+		options?: Omit<HttpClientOptions, "method">,
 	): Promise<Response & { json(): Promise<T> }>;
 }
 
@@ -49,7 +54,7 @@ export function createHttpClient(): HttpClient {
 export class NodeFetchHttpClient implements HttpClient {
 	public async request<T>(
 		url: string,
-		options: RequestInit,
+		options: HttpClientOptions,
 	): Promise<Response & { json(): Promise<T> }> {
 		if (options.agent === undefined) {
 			options.agent = parsedUrl => {
@@ -60,21 +65,33 @@ export class NodeFetchHttpClient implements HttpClient {
 				}
 			};
 		}
+
 		const f = (await import("node-fetch")).default;
-		return f(url, options);
+		return f(prepareUrl(url, options.parameters), options);
 	}
 
 	public async get<T>(
 		url: string,
-		options: Omit<RequestInit, "method"> = {},
+		options: Omit<HttpClientOptions, "method"> = {},
 	): Promise<Response & { json(): Promise<T> }> {
 		return this.request<T>(url, { method: "GET", ...options });
 	}
 
 	public async post<T>(
 		url: string,
-		options: Omit<RequestInit, "method"> = {},
+		options: Omit<HttpClientOptions, "method"> = {},
 	): Promise<Response & { json(): Promise<T> }> {
 		return this.request<T>(url, { method: "POST", ...options });
 	}
+}
+
+export function prepareUrl(
+	url: string,
+	parameters: HttpClientOptions["parameters"],
+): string {
+	// Replace url parameters if provided
+	forOwn(parameters || {}, (v, k) => {
+		url = url.replace(new RegExp(`\\$\\{${k}\\}`, "gm"), v.toString());
+	});
+	return url;
 }
