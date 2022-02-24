@@ -87,6 +87,7 @@ export async function assertSkill(
 			},
 		} as any;
 
+		const datalogClient = createDatalogClient(apiKeySecret.value, context);
 		context.datalog = {
 			facts: {},
 			transact: async (entities: any) => {
@@ -106,12 +107,7 @@ export async function assertSkill(
 					mode?: "raw" | "map" | "obj";
 					rules?: string;
 				},
-			) =>
-				createDatalogClient(apiKeySecret.value, context).query(
-					query,
-					parameters,
-					options,
-				),
+			) => datalogClient.query(query, parameters, options),
 		};
 		return {
 			...context,

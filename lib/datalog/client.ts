@@ -21,7 +21,7 @@ import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
 import { SkillConfiguration, SubscriptionIncoming } from "../payload";
 import { retry } from "../retry";
-import { isStaging, toArray } from "../util";
+import { hash, isStaging, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
 import map = require("lodash.map");
 
@@ -66,6 +66,8 @@ class NodeFetchDatalogClient implements DatalogClient {
 	private transactInstance: DatalogTransact;
 
 	public facts = {};
+
+	public cache = new Map<string, any>();
 
 	public async transact(
 		entities: any,
@@ -127,47 +129,58 @@ ${queries.join("\n\n")}
 
 		debug(`Datalog query: ${body}`);
 
-		const f = (await import("node-fetch")).default;
-		const result = await (
-			await retry<Response>(async () => {
-				try {
-					const response = await f(this.url, {
-						method: "post",
-						body,
-						headers: {
-							"authorization": `bearer ${this.apiKey}`,
-							"content-type": "application/edn",
-						},
-					});
-					if (response.status === 500 || response.status === 429) {
-						throw new Error(
-							`${response.status} ${response.statusText}`,
-						);
-					}
-					return response;
-				} catch (e) {
-					// Retry DNS issues
-					if (
-						e.message?.includes("EAI_AGAIN") &&
-						e.message?.includes("getaddrinfo")
-					) {
-						warn(
-							"Retrying Datalog operation due to DNS lookup failure",
-						);
-						throw e;
-					} else if (
-						e.message === "500 Internal Server Error" ||
-						e.message === "429 Throttled"
-					) {
-						throw e;
-					} else {
-						throw new (await import("p-retry")).AbortError(e);
-					}
-				}
-			})
-		).text();
+		let result;
 
-		debug(`Datalog result: ${result}`);
+		const cacheKey = hash(body);
+		if (this.cache.has(cacheKey)) {
+			result = this.cache.get(cacheKey);
+			debug(`Datalog cached result: ${result}`);
+		} else {
+			const f = (await import("node-fetch")).default;
+			result = await (
+				await retry<Response>(async () => {
+					try {
+						const response = await f(this.url, {
+							method: "post",
+							body,
+							headers: {
+								"authorization": `bearer ${this.apiKey}`,
+								"content-type": "application/edn",
+							},
+						});
+						if (
+							response.status === 500 ||
+							response.status === 429
+						) {
+							throw new Error(
+								`${response.status} ${response.statusText}`,
+							);
+						}
+						return response;
+					} catch (e) {
+						// Retry DNS issues
+						if (
+							e.message?.includes("EAI_AGAIN") &&
+							e.message?.includes("getaddrinfo")
+						) {
+							warn(
+								"Retrying Datalog operation due to DNS lookup failure",
+							);
+							throw e;
+						} else if (
+							e.message === "500 Internal Server Error" ||
+							e.message === "429 Throttled"
+						) {
+							throw e;
+						} else {
+							throw new (await import("p-retry")).AbortError(e);
+						}
+					}
+				})
+			).text();
+			this.cache.set(cacheKey, result);
+			debug(`Datalog result: ${result}`);
+		}
 
 		if (options.mode === "raw") {
 			return result;
