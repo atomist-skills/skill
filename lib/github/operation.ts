@@ -125,7 +125,7 @@ export function formatMarkers(
 
 export function formatFooter(ctx: Contextual<any, any>): string {
 	// Do not format footer for DSO skills
-	if (ctx.configuration?.parameters?.atomist?.policy) {
+	if (toArray(ctx.configuration)?.[0].parameters?.atomist?.policy) {
 		return "";
 	}
 
