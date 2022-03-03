@@ -125,6 +125,7 @@ export {
 	after,
 	before,
 	bytes,
+	forEach,
 	formatDate,
 	guid,
 	handleError,

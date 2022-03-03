@@ -358,3 +358,12 @@ export function formatDate(
 	const dateTime = dt.DateTime.fromJSDate(date);
 	return dateTime.toLocaleString({ ...format, timeZone: "UTC" });
 }
+
+export async function forEach<T>(
+	elems: T[],
+	cb: (elem: T) => Promise<void>,
+): Promise<void> {
+	for await (const elem of elems || []) {
+		await cb(elem);
+	}
+}
