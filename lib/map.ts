@@ -26,7 +26,7 @@ export function mapSubscription<T = any>(result: any[]): T {
 		return undefined;
 	}
 
-	const mapped = {};
+	const mapped: any = {};
 
 	const mapper = (v: any) => {
 		if (isPrimitive(v)) {
@@ -75,7 +75,11 @@ export function mapSubscription<T = any>(result: any[]): T {
 			}
 		});
 
-	return mapped as T;
+	if (mapped.unknownEntity) {
+		return mapped.unknownEntity as T;
+	} else {
+		return mapped as T;
+	}
 }
 
 function nameFromKey(value: string, toCamelCase = true): string {
