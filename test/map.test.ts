@@ -321,15 +321,13 @@ describe("map", () => {
 				},
 			];
 			assert.deepStrictEqual(mapSubscription(result), {
-				unknownEntity: {
-					repo: {
-						name: "view-service",
-						org: {
-							installationToken:
-								"v*****************************************4",
-							name: "atomisthq",
-							url: "h****************m",
-						},
+				repo: {
+					name: "view-service",
+					org: {
+						installationToken:
+							"v*****************************************4",
+						name: "atomisthq",
+						url: "h****************m",
 					},
 				},
 			});
@@ -350,15 +348,13 @@ describe("map", () => {
 				undefined,
 			];
 			assert.deepStrictEqual(mapSubscription(result), {
-				unknownEntity: {
-					repo: {
-						name: "view-service",
-						org: {
-							installationToken:
-								"v*****************************************4",
-							name: "atomisthq",
-							url: "h****************m",
-						},
+				repo: {
+					name: "view-service",
+					org: {
+						installationToken:
+							"v*****************************************4",
+						name: "atomisthq",
+						url: "h****************m",
 					},
 				},
 			});
