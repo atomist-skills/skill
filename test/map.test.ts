@@ -359,5 +359,34 @@ describe("map", () => {
 				},
 			});
 		});
+
+		it("should ignore serialize tuple", () => {
+			const result = [
+				"035f392e-dfad-5606-af9c-75702648b5df",
+				{
+					"git.commit/repo": {
+						"git.repo/name": "view-service",
+						"git.repo/org": {
+							"github.org/installation-token":
+								"v*****************************************4",
+							"git.org/name": "atomisthq",
+							"git.provider/url": "h****************m",
+						},
+					},
+				},
+				undefined,
+			];
+			assert.deepStrictEqual(mapSubscription(result), {
+				repo: {
+					name: "view-service",
+					org: {
+						installationToken:
+							"v*****************************************4",
+						name: "atomisthq",
+						url: "h****************m",
+					},
+				},
+			});
+		});
 	});
 });

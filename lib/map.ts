@@ -55,6 +55,16 @@ export function mapSubscription<T = any>(result: any[]): T {
 
 	toArray(result)
 		.filter(r => !!r)
+		.filter(
+			r =>
+				// Filter out result from (atomist/serialize-on ?tuple)
+				!(
+					typeof r === "string" &&
+					/^(((?=.*}$){)|((?!.*}$)))((?!.*-.*)|(?=(.*[-].*){4}))[0-9a-fA-F]{8}[-]?([0-9a-fA-F]{4}[-]?){3}[0-9a-fA-F]{12}?[}]?$/i.test(
+						r,
+					)
+				),
+		)
 		.forEach(r => {
 			const value = {};
 			let key = nameFromKey(r["schema/entity-type"] || "unknownEntity");
