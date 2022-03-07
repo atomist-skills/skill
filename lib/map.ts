@@ -85,8 +85,14 @@ export function mapSubscription<T = any>(result: any[]): T {
 			}
 		});
 
-	if (mapped.unknownEntity) {
-		return mapped.unknownEntity as T;
+	const keys = Object.keys(mapped);
+	if (keys.includes("unknownEntity")) {
+		if (keys.length > 1) {
+			delete mapped.unknownEntity;
+			return mapped as T;
+		} else {
+			return mapped.unknownEntity as T;
+		}
 	} else {
 		return mapped as T;
 	}

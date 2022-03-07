@@ -388,5 +388,30 @@ describe("map", () => {
 				},
 			});
 		});
+
+		it("should ignore serialize tuple but keep rest", () => {
+			const result = [
+				"1afafadd-dd31-5442-92c4-1a88ab9844c0",
+				{
+					"schema/entity-type": "docker/image",
+					"docker.image/digest":
+						"sha256:b98477d8065f90edff2e11fb2bac8aee2085d9a59facf62e3f62a5a444274a2c",
+					"docker.image/repository": {
+						"docker.repository/host": "hub.docker.com",
+						"name": "datadog/agent",
+					},
+				},
+				{ "db/id": null },
+			];
+			assert.deepStrictEqual(mapSubscription(result), {
+				image: {
+					digest: "sha256:b98477d8065f90edff2e11fb2bac8aee2085d9a59facf62e3f62a5a444274a2c",
+					repository: {
+						host: "hub.docker.com",
+						name: "datadog/agent",
+					},
+				},
+			});
+		});
 	});
 });
