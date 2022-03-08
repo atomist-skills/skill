@@ -108,6 +108,9 @@ export async function assertSkill(
 					rules?: string;
 				},
 			) => datalogClient.query(query, parameters, options),
+			retract: async (query: string) => {
+				debug(`Retracting entities: ${query}`);
+			},
 		};
 		return {
 			...context,

@@ -46,6 +46,9 @@ export interface DatalogClient {
 			rules?: string;
 		},
 	): Promise<T[] | string>;
+
+	/** Query datalog */
+	retract(query: string): Promise<void>;
 }
 
 class NodeFetchDatalogClient implements DatalogClient {
@@ -201,6 +204,50 @@ ${queries.join("\n\n")}
 				return toArray(parsed).map(mapSubscription);
 			}
 		}
+	}
+
+	public async retract(query: string): Promise<void> {
+		const body = `{ :retract {:entities-by-query ${query} } }`;
+		const f = (await import("node-fetch")).default;
+		const result = await (
+			await retry<Response>(async () => {
+				try {
+					const response = await f(this.url, {
+						method: "post",
+						body,
+						headers: {
+							"authorization": `bearer ${this.apiKey}`,
+							"content-type": "application/edn",
+						},
+					});
+					if (response.status === 500 || response.status === 429) {
+						throw new Error(
+							`${response.status} ${response.statusText}`,
+						);
+					}
+					return response;
+				} catch (e) {
+					// Retry DNS issues
+					if (
+						e.message?.includes("EAI_AGAIN") &&
+						e.message?.includes("getaddrinfo")
+					) {
+						warn(
+							"Retrying Datalog operation due to DNS lookup failure",
+						);
+						throw e;
+					} else if (
+						e.message === "500 Internal Server Error" ||
+						e.message === "429 Throttled"
+					) {
+						throw e;
+					} else {
+						throw new (await import("p-retry")).AbortError(e);
+					}
+				}
+			})
+		).text();
+		debug(`Datalog result: ${result}`);
 	}
 }
 
