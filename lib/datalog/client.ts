@@ -208,6 +208,9 @@ ${queries.join("\n\n")}
 
 	public async retract(query: string): Promise<void> {
 		const body = `{ :retract {:entities-by-query ${query} } }`;
+
+		debug(`Datalog query: ${body}`);
+
 		const f = (await import("node-fetch")).default;
 		const result = await (
 			await retry<Response>(async () => {
