@@ -66,6 +66,7 @@ export async function persistChanges(
 		labels?: string[];
 		reviewers?: string[];
 		assignReviewer?: boolean;
+		draft?: boolean;
 		update?: (
 			sha: string,
 			pullRequest: RestEndpointMethodTypes["pulls"]["get"]["response"]["data"],
@@ -198,6 +199,7 @@ async function ensurePullRequest(
 		labels?: string[];
 		reviewers?: string[];
 		assignReviewer?: boolean;
+		draft?: boolean;
 		update?: (
 			sha: string,
 			pullRequest: RestEndpointMethodTypes["pulls"]["get"]["response"]["data"],
@@ -277,6 +279,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 					body: body(pullRequest.body),
 					base: push.branch,
 					head: pullRequest.branch,
+					draft: pullRequest.draft,
 				})
 		  ).data
 		: (
@@ -286,6 +289,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 					pull_number: openPrs[0].number,
 					title: pullRequest.title,
 					body: body(pullRequest.body),
+					draft: pullRequest.draft,
 				})
 		  ).data;
 	if (pullRequest.labels?.length > 0) {
