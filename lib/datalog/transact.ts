@@ -128,7 +128,7 @@ async function httpTransact(
 		? `https://api.atomist.services/skills/remote/${ctx.workspaceId}`
 		: `https://api.atomist.com/skills/remote/${ctx.workspaceId}`;
 	await ctx.http.post(url, {
-		body: JSON.stringify(message.data),
+		body: JSON.stringify(message),
 		headers: {
 			"authorization": `Bearer ${ctx.credential.apiKey}`,
 			"x-atomist-correlation-id": ctx.correlationId,
