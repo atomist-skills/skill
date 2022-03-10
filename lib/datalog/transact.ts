@@ -124,12 +124,15 @@ async function httpTransact(
 		"http" | "workspaceId" | "credential" | "correlationId"
 	>,
 ): Promise<void> {
-	const url = isStaging() ? `/${ctx.workspaceId}` : `/${ctx.workspaceId}`;
+	const url = isStaging()
+		? `https://api.atomist.services/skills/remote/${ctx.workspaceId}`
+		: `https://api.atomist.com/skills/remote/${ctx.workspaceId}`;
 	await ctx.http.post(url, {
 		body: JSON.stringify(message.data),
 		headers: {
 			"authorization": `Bearer ${ctx.credential.apiKey}`,
-			"atomist-x-ordering-key":
+			"x-atomist-correlation-id": ctx.correlationId,
+			"x-atomist-ordering-key":
 				options?.ordering === false ? undefined : ctx.correlationId,
 		},
 	});
