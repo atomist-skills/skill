@@ -135,7 +135,8 @@ export function createContext(
 	const wid = workspaceId(payload);
 	const graphql = createGraphQLClient(apiKey, wid);
 	const storage = createStorageProvider(wid);
-	const credential = new DefaultCredentialProvider(graphql, payload);
+	const http = createHttpClient();
+	const credential = new DefaultCredentialProvider(apiKey, graphql, payload);
 	const completeCallbacks: ContextClosable[] = [];
 	const onComplete = (closable: ContextClosable) => {
 		if (closable.priority === undefined) {
@@ -179,7 +180,7 @@ export function createContext(
 			workspaceId: wid,
 			credential,
 			graphql,
-			http: createHttpClient(),
+			http,
 			storage,
 			message,
 			datalog: createDatalogClient(apiKey, {
@@ -189,6 +190,8 @@ export function createContext(
 				onComplete,
 				trigger: payload,
 				message,
+				credential,
+				http,
 			}),
 			project: createProjectLoader({ onComplete }),
 			trigger: payload,
@@ -217,7 +220,7 @@ export function createContext(
 			workspaceId: wid,
 			credential,
 			graphql,
-			http: createHttpClient(),
+			http,
 			storage,
 			message,
 			datalog: createDatalogClient(apiKey, {
@@ -227,6 +230,8 @@ export function createContext(
 				onComplete,
 				trigger: payload,
 				message,
+				credential,
+				http,
 			}),
 			project: createProjectLoader({ onComplete }),
 			trigger: payload,
@@ -255,7 +260,7 @@ export function createContext(
 			workspaceId: wid,
 			credential,
 			graphql,
-			http: createHttpClient(),
+			http,
 			storage,
 			message,
 			datalog: createDatalogClient(apiKey, {
@@ -265,6 +270,8 @@ export function createContext(
 				onComplete,
 				trigger: payload,
 				message,
+				credential,
+				http,
 			}),
 			project: createProjectLoader({ onComplete }),
 			trigger: payload,
@@ -293,7 +300,7 @@ export function createContext(
 			workspaceId: wid,
 			credential,
 			graphql,
-			http: createHttpClient(),
+			http,
 			storage,
 			message,
 			datalog: createDatalogClient(apiKey, {
@@ -303,6 +310,8 @@ export function createContext(
 				onComplete,
 				trigger: payload,
 				message,
+				credential,
+				http,
 			}),
 			project: createProjectLoader(),
 			trigger: payload,

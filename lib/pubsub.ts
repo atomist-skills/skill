@@ -42,10 +42,7 @@ const publishers: Map<string, PubSubPublisher> = new Map();
 export function createPubSubPublisher(
 	options: { topic?: string } = {},
 ): PubSubPublisher {
-	const topicName =
-		options?.topic ||
-		process.env.ATOMIST_TOPIC ||
-		`${this.ctx.workspaceId}-${this.request.skill.id}-response`;
+	const topicName = options?.topic || process.env.ATOMIST_TOPIC;
 	if (!publishers.has(topicName)) {
 		const projectId = isStaging()
 			? "atomist-skill-staging"

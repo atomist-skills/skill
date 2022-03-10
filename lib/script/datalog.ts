@@ -58,6 +58,8 @@ export async function query(args: {
 		onComplete: undefined,
 		trigger: undefined,
 		message: undefined,
+		credential: undefined,
+		http: undefined,
 	});
 
 	const query = (

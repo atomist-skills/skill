@@ -63,6 +63,8 @@ class NodeFetchDatalogClient implements DatalogClient {
 			| "skill"
 			| "trigger"
 			| "message"
+			| "credential"
+			| "http"
 		>,
 	) {}
 
@@ -264,6 +266,8 @@ export function createDatalogClient(
 		| "skill"
 		| "trigger"
 		| "message"
+		| "credential"
+		| "http"
 	>,
 	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
 		(isStaging()

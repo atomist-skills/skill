@@ -18,7 +18,7 @@ import { toEDNStringFromSimpleObject } from "edn-data";
 
 import { Contextual } from "../handler/handler";
 import { debug, error } from "../log/console";
-import { replacer, toArray } from "../util";
+import { isStaging, replacer, toArray } from "../util";
 
 export type DatalogTransact = (
 	entities: any | any[],
@@ -28,7 +28,13 @@ export type DatalogTransact = (
 export function createTransact(
 	ctx: Pick<
 		Contextual<any, any>,
-		"onComplete" | "workspaceId" | "correlationId" | "skill" | "message"
+		| "onComplete"
+		| "workspaceId"
+		| "correlationId"
+		| "skill"
+		| "message"
+		| "credential"
+		| "http"
 	>,
 ): DatalogTransact {
 	const stats = { facts: 0, entities: 0 };
@@ -81,18 +87,50 @@ export function createTransact(
 		try {
 			debug(`Transacting entities: ${JSON.stringify(message, replacer)}`);
 			const start = Date.now();
-			const messageId = await ctx.message.publisher.publish({
-				data: message,
-				orderingKey:
-					options?.ordering === false ? undefined : ctx.correlationId,
-			});
-			debug(
-				`Transacted entities '${messageId}' in ${
-					Date.now() - start
-				} ms`,
-			);
+			if (process.env.ATOMIST_TOPIC) {
+				const messageId = await pubSubTransact(message, options, ctx);
+				debug(
+					`Transacted entities '${messageId}' in ${
+						Date.now() - start
+					} ms`,
+				);
+			} else {
+				await httpTransact(message, options, ctx);
+				debug(`Transacted entities ${Date.now() - start} ms`);
+			}
 		} catch (err) {
 			error(`Error transacting entities: ${err.stack}`);
 		}
 	};
+}
+
+async function pubSubTransact(
+	message: any,
+	options = { ordering: true },
+	ctx: Pick<Contextual<any, any>, "message" | "correlationId">,
+): Promise<string> {
+	return await ctx.message.publisher.publish({
+		data: message,
+		orderingKey:
+			options?.ordering === false ? undefined : ctx.correlationId,
+	});
+}
+
+async function httpTransact(
+	message: any,
+	options = { ordering: true },
+	ctx: Pick<
+		Contextual<any, any>,
+		"http" | "workspaceId" | "credential" | "correlationId"
+	>,
+): Promise<void> {
+	const url = isStaging() ? `/${ctx.workspaceId}` : `/${ctx.workspaceId}`;
+	await ctx.http.post(url, {
+		body: JSON.stringify(message.data),
+		headers: {
+			"authorization": `Bearer ${ctx.credential.apiKey}`,
+			"atomist-x-ordering-key":
+				options?.ordering === false ? undefined : ctx.correlationId,
+		},
+	});
 }

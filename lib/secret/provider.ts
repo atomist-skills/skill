@@ -53,10 +53,13 @@ export function isGitHubAppCredential(spec: any): spec is GitHubAppCredential {
 
 export interface CredentialProvider {
 	resolve<T>(spec: CredentialResolver<T>): Promise<T | undefined>;
+
+	apiKey: string;
 }
 
 export class DefaultCredentialProvider implements CredentialProvider {
 	constructor(
+		private readonly _apiKey: string,
 		private readonly graphClient: GraphQLClient,
 		private readonly payload:
 			| CommandIncoming
@@ -67,5 +70,9 @@ export class DefaultCredentialProvider implements CredentialProvider {
 
 	public async resolve<T>(spec: CredentialResolver<T>): Promise<T> {
 		return spec(this.graphClient, this.payload);
+	}
+
+	get apiKey() {
+		return this._apiKey;
 	}
 }
