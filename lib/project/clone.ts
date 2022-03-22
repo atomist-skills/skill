@@ -70,6 +70,11 @@ export interface CloneOptions {
 	 * symlinks are cloned as small files instead.
 	 */
 	symLinks?: boolean;
+
+	/**
+	 * If set to true checking out the provided ref will be attempted (default).
+	 */
+	checkout?: boolean;
 }
 
 export async function doClone(
@@ -129,19 +134,23 @@ export async function doClone(
 		await import("p-retry")
 	)(() => execPromise("git", cloneArgs), retryOptions);
 
-	try {
-		await execPromise("git", ["checkout", checkoutRef, "--"], {
-			cwd: repoDir,
-		});
-	} catch (err) {
-		// When the head moved on and we only cloned with depth; we might have to do a full clone to get to the commit we want
-		debug(
-			`Ref ${checkoutRef} not in cloned history. Attempting full clone`,
-		);
-		await execPromise("git", ["fetch", "--unshallow"], { cwd: repoDir });
-		await execPromise("git", ["checkout", checkoutRef, "--"], {
-			cwd: repoDir,
-		});
+	if (options.checkout !== false) {
+		try {
+			await execPromise("git", ["checkout", checkoutRef, "--"], {
+				cwd: repoDir,
+			});
+		} catch (err) {
+			// When the head moved on and we only cloned with depth; we might have to do a full clone to get to the commit we want
+			debug(
+				`Ref ${checkoutRef} not in cloned history. Attempting full clone`,
+			);
+			await execPromise("git", ["fetch", "--unshallow"], {
+				cwd: repoDir,
+			});
+			await execPromise("git", ["checkout", checkoutRef, "--"], {
+				cwd: repoDir,
+			});
+		}
 	}
 	return repoDir;
 }
