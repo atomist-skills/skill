@@ -361,9 +361,9 @@ export function formatDate(
 
 export async function forEach<T>(
 	elems: T[],
-	cb: (elem: T, index?: number) => Promise<void>,
+	cb: (elem: T, index?: number, elems?: T[]) => Promise<void>,
 ): Promise<void> {
 	for (let i = 0; i < (elems || []).length; i++) {
-		await cb(elems[i], i);
+		await cb(elems[i], i, elems);
 	}
 }
