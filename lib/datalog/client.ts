@@ -25,6 +25,8 @@ import { hash, isStaging, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
 import map = require("lodash.map");
 
+const StatusCodesToRetry = [429, 503, 504];
+
 export interface DatalogClient {
 	/** Additional facts to be transacted on matching entities */
 	facts: Record<string, Record<string, string>>;
@@ -151,35 +153,29 @@ ${queries.join("\n\n")}
 							headers: {
 								"authorization": `bearer ${this.apiKey}`,
 								"content-type": "application/edn",
+								"x-atomist-correlation-id":
+									this.ctx.correlationId,
 							},
 						});
-						if (
-							response.status === 500 ||
-							response.status === 429
-						) {
-							throw new Error(
-								`${response.status} ${response.statusText}`,
-							);
+						if (response.status !== 200) {
+							throw new ResponseError(response);
 						}
 						return response;
 					} catch (e) {
-						// Retry DNS issues
 						if (
+							e instanceof ResponseError &&
+							StatusCodesToRetry.includes(e.status())
+						) {
+							warn("Retrying Datalog query due to query error");
+							throw e;
+						} else if (
 							e.message?.includes("EAI_AGAIN") &&
 							e.message?.includes("getaddrinfo")
 						) {
-							warn(
-								"Retrying Datalog operation due to DNS lookup failure",
-							);
+							warn("Retrying Datalog query due to DNS failure");
 							throw e;
-						} else if (
-							e.message === "500 Internal Server Error" ||
-							e.message === "429 Throttled"
-						) {
-							throw e;
-						} else {
-							throw new (await import("p-retry")).AbortError(e);
 						}
+						throw new (await import("p-retry")).AbortError(e);
 					}
 				})
 			).text();
@@ -223,32 +219,28 @@ ${queries.join("\n\n")}
 						headers: {
 							"authorization": `bearer ${this.apiKey}`,
 							"content-type": "application/edn",
+							"x-atomist-correlation-id": this.ctx.correlationId,
 						},
 					});
-					if (response.status === 500 || response.status === 429) {
-						throw new Error(
-							`${response.status} ${response.statusText}`,
-						);
+					if (response.status !== 200) {
+						throw new ResponseError(response);
 					}
 					return response;
 				} catch (e) {
-					// Retry DNS issues
 					if (
+						e instanceof ResponseError &&
+						StatusCodesToRetry.includes(e.status())
+					) {
+						warn("Retrying Datalog retract due to query error");
+						throw e;
+					} else if (
 						e.message?.includes("EAI_AGAIN") &&
 						e.message?.includes("getaddrinfo")
 					) {
-						warn(
-							"Retrying Datalog operation due to DNS lookup failure",
-						);
+						warn("Retrying Datalog retract due to DNS failure");
 						throw e;
-					} else if (
-						e.message === "500 Internal Server Error" ||
-						e.message === "429 Throttled"
-					) {
-						throw e;
-					} else {
-						throw new (await import("p-retry")).AbortError(e);
 					}
+					throw new (await import("p-retry")).AbortError(e);
 				}
 			})
 		).text();
@@ -373,4 +365,14 @@ export function prepareArgs(
 		query: finalQuery,
 		args: args.join(" "),
 	};
+}
+
+class ResponseError extends Error {
+	constructor(private readonly response: Response) {
+		super();
+	}
+
+	public status(): number {
+		return this.response.status;
+	}
 }
