@@ -166,7 +166,9 @@ ${queries.join("\n\n")}
 							e instanceof ResponseError &&
 							StatusCodesToRetry.includes(e.status())
 						) {
-							warn("Retrying Datalog query due to query error");
+							warn(
+								`Retrying Datalog query due to ${e.status()} error`,
+							);
 							throw e;
 						} else if (
 							e.message?.includes("EAI_AGAIN") &&
@@ -231,7 +233,9 @@ ${queries.join("\n\n")}
 						e instanceof ResponseError &&
 						StatusCodesToRetry.includes(e.status())
 					) {
-						warn("Retrying Datalog retract due to query error");
+						warn(
+							`Retrying Datalog retract due to ${e.status()} error`,
+						);
 						throw e;
 					} else if (
 						e.message?.includes("EAI_AGAIN") &&
