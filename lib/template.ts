@@ -86,7 +86,14 @@ async function hb(): Promise<any> {
 	handlebars.registerHelper("date", (arg, format) =>
 		formatDate(arg, format ? dt.DateTime[format] : undefined),
 	);
-	handlebars.registerHelper("duration", arg => formatDuration(arg));
+	handlebars.registerHelper("duration", arg => {
+		const dur = formatDuration(arg);
+		if (dur === "now") {
+			return dur;
+		} else {
+			return `${dur} ago`;
+		}
+	});
 	handlebars.registerHelper("ifCond", function (v1, operator, v2, options) {
 		switch (operator) {
 			case "==":
