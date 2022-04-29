@@ -359,6 +359,26 @@ export function formatDate(
 	return dateTime.toLocaleString({ ...format, timeZone: "UTC" });
 }
 
+export function formatDuration(
+	date: Date,
+	format = "d [day] h [hour] m [minute] s [second] S [ms]",
+): string {
+	const duration = Date.now() - date.getTime();
+	if (duration < 1000 * 60) {
+		return "now";
+	}
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const moment = require("moment");
+	// The following require is needed to initialize the format function
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const momentDurationFormatSetup = require("moment-duration-format");
+	momentDurationFormatSetup(moment);
+
+	return moment
+		.duration(duration, "millisecond")
+		.format(format, { trim: "both", largest: 1 });
+}
+
 export async function forEach<T>(
 	elems: T[],
 	cb: (elem: T, index?: number, elems?: T[]) => Promise<void>,

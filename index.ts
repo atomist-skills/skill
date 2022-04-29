@@ -127,6 +127,7 @@ export {
 	bytes,
 	forEach,
 	formatDate,
+	formatDuration,
 	guid,
 	handleError,
 	handleErrorSync,

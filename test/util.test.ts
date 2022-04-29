@@ -21,6 +21,7 @@ import {
 	bytes,
 	extractParameters,
 	formatDate,
+	formatDuration,
 	guid,
 	levenshteinSort,
 	pluralize,
@@ -154,6 +155,18 @@ describe("util", () => {
 				formatDate(date, dt.DateTime.DATETIME_FULL),
 				"August 12, 2021, 8:31 PM UTC",
 			);
+		});
+	});
+
+	describe("formatDuration", () => {
+		it("should format days duration correctly", () => {
+			const date = dt.DateTime.now().minus({ days: 2 }).toJSDate();
+			assert.strictEqual(formatDuration(date), "2 days");
+		});
+
+		it("should format duration correctly", () => {
+			const date = dt.DateTime.now().minus({ second: 10 }).toJSDate();
+			assert.strictEqual(formatDuration(date), "now");
 		});
 	});
 });

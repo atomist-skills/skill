@@ -19,7 +19,7 @@ import * as _handlebars from "handlebars";
 import * as dt from "luxon";
 import * as path from "path";
 
-import { bytes, formatDate, pluralize } from "./util";
+import { bytes, formatDate, formatDuration, pluralize } from "./util";
 
 export async function render(
 	name: string,
@@ -86,6 +86,7 @@ async function hb(): Promise<any> {
 	handlebars.registerHelper("date", (arg, format) =>
 		formatDate(arg, format ? dt.DateTime[format] : undefined),
 	);
+	handlebars.registerHelper("duration", arg => formatDuration(arg));
 	handlebars.registerHelper("ifCond", function (v1, operator, v2, options) {
 		switch (operator) {
 			case "==":
