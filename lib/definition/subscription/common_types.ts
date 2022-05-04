@@ -37,7 +37,7 @@ export interface Commit {
 		login: string;
 		emails: Array<{ address: string }>;
 	};
-	refs: Array<{ name: string; type: "branch" }>;
+	refs: Array<{ name: string; type: "branch" | "tag" }>;
 }
 
 export interface DockerImage {
@@ -260,6 +260,14 @@ export interface OnDockerAnalysisComplete {
  */
 export interface OnPush {
 	commit: Commit;
+}
+
+export interface OnTag {
+	commit: Commit;
+	ref: {
+		name: string;
+		type: string;
+	};
 }
 
 import sortBy = require("lodash.sortby");

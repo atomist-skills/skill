@@ -357,6 +357,9 @@ export async function createJavaScriptSkillInput(
 		}
 	});
 	(is.datalogSubscriptions || []).forEach(d => {
+		if (d.query.startsWith("@")) {
+			d.query = namedDatalog(d.query);
+		}
 		const eds = datalogSubscriptions.find(ds => d.name === ds.name);
 		if (eds) {
 			eds.query = d.query ? d.query : eds.query;
