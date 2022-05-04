@@ -72,7 +72,7 @@ export class DefaultCredentialProvider implements CredentialProvider {
 		return spec(this.graphClient, this.payload);
 	}
 
-	get apiKey() {
+	get apiKey(): string {
 		return this._apiKey;
 	}
 }
