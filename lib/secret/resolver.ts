@@ -212,3 +212,22 @@ export function gitHubAppToken(
 		return undefined;
 	};
 }
+
+/**
+ * Create a GitHubAppCredential instances from a token or Datalog repo including
+ * the installation-token in the payload
+ */
+export function gitHubAppTokenFromRepository(
+	tokenOrRepo: string | { repo: { org: { installationToken: string } } },
+): CredentialResolver<GitHubAppCredential> {
+	return async () => {
+		const token =
+			typeof tokenOrRepo === "string"
+				? tokenOrRepo
+				: tokenOrRepo.repo?.org?.installationToken;
+		return {
+			token,
+			permissions: {},
+		};
+	};
+}

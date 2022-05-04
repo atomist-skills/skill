@@ -21,4 +21,8 @@ export {
 	GitHubAppCredential,
 	GitHubCredential,
 } from "./provider";
-export { gitHubAppToken, gitHubUserToken } from "./resolver";
+export {
+	gitHubAppToken,
+	gitHubAppTokenFromRepository,
+	gitHubUserToken,
+} from "./resolver";
