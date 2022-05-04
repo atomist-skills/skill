@@ -172,7 +172,7 @@ export abstract class MessageClientSupport
 	): Promise<void>;
 
 	protected abstract doSend(
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+		// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 		msg: any,
 		destinations: Destinations,
 		options?: MessageOptions,
