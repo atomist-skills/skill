@@ -262,10 +262,20 @@ export function createCheck<D, C>(
 		}
 		const optsToUse =
 			typeof options === "function" ? await options(ctx) : options;
-		ctx.chain.check = await raiseCheck(ctx, ctx.chain.id, {
-			sha: ctx.chain.id.sha,
-			...optsToUse,
-		});
+		try {
+			ctx.chain.check = await raiseCheck(ctx, ctx.chain.id, {
+				sha: ctx.chain.id.sha,
+				...optsToUse,
+			});
+		} catch (e) {
+			if (e.status === 403) {
+				return success(
+					"Repository not accessible with installation token",
+				).hidden();
+			} else {
+				throw e;
+			}
+		}
 		return undefined;
 	};
 }
