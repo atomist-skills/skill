@@ -35,13 +35,13 @@ export type ExtendedDockerRegistry = DockerRegistry & {
 export async function doAuthed<T>(
 	ctx: EventContext<any, any>,
 	registries: ExtendedDockerRegistry[],
-	cb: () => Promise<T>,
+	cb: (registry: ExtendedDockerRegistry) => Promise<T>,
 ): Promise<T> {
 	let error;
 	for (const registry of registries) {
 		try {
 			await authenticate(ctx, [registry]);
-			const result = await cb();
+			const result = await cb(registry);
 			return result;
 		} catch (e) {
 			warn(`Error running authenticated Docker operation: ${e.stack}`);
