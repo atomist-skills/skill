@@ -17,6 +17,7 @@
 import * as assert from "power-assert";
 
 import { processEvent, processWebhook } from "../lib/function";
+import { transform, wrapEventHandler } from "../lib/handler/index";
 import { success } from "../lib/status";
 import { guid } from "../lib/util";
 
@@ -137,15 +138,15 @@ describe("function", () => {
 						name,
 						`${payload.subscription.name}`,
 					);
-					return async ctx => {
-						(ctx.message as any).publish = publish;
-						assert.deepStrictEqual(ctx.data, [
-							{
+					return wrapEventHandler(
+						transform(async ctx => {
+							(ctx.message as any).publish = publish;
+							assert.deepStrictEqual(ctx.data, {
 								commit: { sha: "123456" },
-							},
-						]);
-						return success();
-					};
+							});
+							return success();
+						}),
+					);
 				},
 			);
 		});
