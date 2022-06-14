@@ -16,10 +16,16 @@
 
 import * as assert from "power-assert";
 
-import { entityWithId } from "../../lib/datalog/index";
+import { asKeyword, entityWithId } from "../../lib/datalog/index";
+import { toEdnString } from "../../lib/datalog/transact";
 import { hash } from "../../lib/util";
 
 describe("datalog.util", () => {
+	it("should probably handle keywords", () => {
+		const result = toEdnString({ foo: asKeyword("bar"), bar: "foo" });
+		assert.deepStrictEqual(result, '{:foo :bar :bar "foo"}');
+	});
+
 	it("should create entity with id", () => {
 		const data = {
 			urlName:
