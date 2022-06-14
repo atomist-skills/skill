@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { toEDNStringFromSimpleObject } from "edn-data";
-
 import { Contextual } from "../handler/handler";
 import { debug, error } from "../log/console";
 import { isStaging, replacer, toArray } from "../util";
@@ -78,10 +76,7 @@ export function createTransact(
 				id: ctx.workspaceId,
 			},
 			type: "facts_ingestion",
-			entities: toEDNStringFromSimpleObject(toArray(entities)).replace(
-				/":(\S*?)"/gm,
-				":$1",
-			),
+			entities: toEdnString(toArray(entities)),
 		};
 
 		try {
@@ -136,4 +131,45 @@ async function httpTransact(
 				options?.ordering === false ? undefined : ctx.correlationId,
 		},
 	});
+}
+
+export function toEdnString(value: Record<string, any>): string {
+	if (typeof value === "string") {
+		return JSON.stringify(value);
+	}
+	if (Array.isArray(value)) {
+		return `[${value.map(v => toEdnString(v)).join(" ")}]`;
+	}
+	if (typeof value === "number") {
+		return (value as number).toString();
+	}
+	if (typeof value === "boolean") {
+		return JSON.stringify(value);
+	}
+	if (value === null) {
+		return "nil";
+	}
+	if (value instanceof Date) {
+		return `#inst "${value.toISOString()}"`;
+	}
+	if (typeof value === "bigint") {
+		return `${value}N`;
+	}
+	if (value?._key) {
+		return `:${value._key}`;
+	}
+	if (value instanceof Map) {
+		return `{${[...value]
+			.map(([k, v]) => `${toEdnString(k)} ${toEdnString(v)}`)
+			.join(" ")}}`;
+	}
+	if (value instanceof Set) {
+		return `#{${[...value].map(v => toEdnString(v)).join(" ")}}`;
+	}
+	if (typeof value === "object") {
+		return `{${Object.entries(value)
+			.map(([k, v]) => `${`:${k}`} ${toEdnString(v)}`)
+			.join(" ")}}`;
+	}
+	throw new TypeError(`Unknown type: ${JSON.stringify(value)}`);
 }

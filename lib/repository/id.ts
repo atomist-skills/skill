@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Atomist, Inc.
+ * Copyright © 2022 Atomist, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { OnPush } from "../definition/subscription/common_types";
 import { GitHubAppCredential, GitHubCredential } from "../secret/provider";
 
 export enum RepositoryProviderType {
@@ -70,4 +71,18 @@ export function gitHubComRepository(details: {
 			}
 		},
 	};
+}
+
+export function fromRepo(
+	repo: OnPush["commit"]["repo"],
+): AuthenticatedRepositoryId<GitHubAppCredential> {
+	return gitHubComRepository({
+		owner: repo.org.name,
+		repo: repo.name,
+		sourceId: repo.sourceId,
+		credential: {
+			token: repo.org.installationToken,
+			permissions: {},
+		},
+	}) as any;
 }

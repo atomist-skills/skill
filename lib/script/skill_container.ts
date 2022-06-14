@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Atomist, Inc.
+ * Copyright © 2022 Atomist, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { toEDNStringFromSimpleObject } from "edn-data";
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import * as path from "path";
@@ -162,14 +161,9 @@ export async function createYamlSkillInput(
 					const filePath = path.join(cwd, file);
 					const fileName = path.basename(filePath);
 					const extName = path.extname(fileName);
-					let schema = (
+					const schema = (
 						await fs.readFile(path.join(cwd, file))
 					).toString();
-					if (file.endsWith(".json")) {
-						schema = toEDNStringFromSimpleObject(
-							JSON.parse(schema),
-						);
-					}
 					return {
 						schema,
 						name: fileName.replace(extName, ""),

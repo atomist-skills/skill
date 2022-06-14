@@ -130,3 +130,10 @@ export function entityRef(entities: Entity | Entity[], type?: string): string {
 	}
 	return undefined;
 }
+
+/**
+ * Helper to create an EDN keyword in an object value
+ */
+export function asKeyword(value: string): { _key: string } {
+	return { _key: value };
+}
