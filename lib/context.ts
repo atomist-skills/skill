@@ -29,7 +29,6 @@ import {
 import { createHttpClient } from "./http";
 import { debug } from "./log/console";
 import { initLogging, logPayload, runtime } from "./log/util";
-import { mapSubscription } from "./map";
 import {
 	PubSubCommandMessageClient,
 	PubSubEventMessageClient,
@@ -253,7 +252,7 @@ export function createContext(
 			},
 		);
 		context = {
-			data: toArray(payload.subscription?.result).map(mapSubscription),
+			data: toArray(payload.subscription?.result),
 			name: payload.subscription?.name,
 			correlationId: payload.correlation_id,
 			executionId: ctx.eventId,

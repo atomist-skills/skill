@@ -21,6 +21,7 @@ import * as path from "path";
 import { Check, CreateCheck, createCheck as raiseCheck } from "../github/check";
 import { api } from "../github/operation";
 import { error } from "../log/console";
+import { mapSubscription } from "../map";
 import { prepareStatus } from "../message";
 import { CloneOptions } from "../project/clone";
 import { Project } from "../project/project";
@@ -90,6 +91,21 @@ export function wrapEventHandler(eh: EventHandler): EventHandler {
 		} else {
 			return eh(ctx);
 		}
+	};
+}
+
+/**
+ * Transform the incoming edn subscription result into a JavaScript object.
+ */
+export function transform<E = any, C = any>(
+	handle: EventHandler<E, C>,
+): EventHandler<E, C> {
+	return async (ctx: EventContext<any, C>) => {
+		const data = mapSubscription(ctx.data);
+		return handle({
+			...ctx,
+			data,
+		});
 	};
 }
 
