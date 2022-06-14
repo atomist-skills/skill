@@ -21,6 +21,7 @@ export {
 } from "./filter";
 export {
 	AuthenticatedRepositoryId,
+	fromRepo,
 	gitHubComRepository as gitHub,
 	RepositoryId,
 	RepositoryProviderType,

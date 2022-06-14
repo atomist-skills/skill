@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { OnPush } from "../definition/subscription/common_types";
 import { GitHubAppCredential, GitHubCredential } from "../secret/provider";
 
 export enum RepositoryProviderType {
@@ -70,4 +71,18 @@ export function gitHubComRepository(details: {
 			}
 		},
 	};
+}
+
+export function fromRepo(
+	repo: OnPush["commit"]["repo"],
+): AuthenticatedRepositoryId<GitHubAppCredential> {
+	return gitHubComRepository({
+		owner: repo.org.name,
+		repo: repo.name,
+		sourceId: repo.sourceId,
+		credential: {
+			token: repo.org.installationToken,
+			permissions: {},
+		},
+	}) as any;
 }
