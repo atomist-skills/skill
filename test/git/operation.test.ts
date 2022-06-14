@@ -47,7 +47,7 @@ describe("operation", () => {
 	});
 
 	describe("hasBranch", () => {
-		it.skip("finds existing branch", async () => {
+		it("finds existing branch", async () => {
 			assert(await hasBranch(process.cwd(), "main"));
 		});
 
