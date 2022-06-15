@@ -66,6 +66,7 @@ export * as prompt from "./lib/prompt";
 // lib/repository
 export * as repository from "./lib/repository";
 // lib/script
+export { start } from "./lib/script/skill_run";
 // lib/secret
 export * as secret from "./lib/secret";
 // lib/slack

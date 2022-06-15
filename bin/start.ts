@@ -37,6 +37,7 @@ void yargs
 			}),
 		async argv => {
 			return (await import("../lib/script/skill_run")).runSkill(
+				undefined,
 				argv.skill,
 			);
 		},

@@ -25,6 +25,7 @@ import {
 	processEvent,
 	processWebhook,
 } from "../function";
+import { CommandHandler, EventHandler, WebhookHandler } from "../handler/index";
 import { debug } from "../log/console";
 import { runtime } from "../log/util";
 import {
@@ -34,7 +35,12 @@ import {
 	isWebhookIncoming,
 } from "../payload";
 
-export async function runSkill(skill?: string): Promise<void> {
+export const start = runSkill;
+
+export async function runSkill(
+	handlers?: Record<string, EventHandler | CommandHandler | WebhookHandler>,
+	skill?: string,
+): Promise<void> {
 	const payloadPath = process.env.ATOMIST_PAYLOAD;
 	if (!payloadPath) {
 		const nm = await (
@@ -77,6 +83,11 @@ export async function runSkill(skill?: string): Promise<void> {
 								),
 						},
 					}),
+					handlers
+						? async name => {
+								return handlers[name];
+						  }
+						: undefined,
 				);
 			} catch (e) {
 				// Ignore

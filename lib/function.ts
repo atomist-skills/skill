@@ -71,15 +71,18 @@ export const configurableEntryPoint = async (
 	pubSubEvent: PubSubMessage,
 	context: { eventId: string },
 	factory?: ContextFactory,
+	loader?: (
+		name: string,
+	) => Promise<EventHandler | CommandHandler | WebhookHandler>,
 ): Promise<void> => {
 	await namespace.run(async () => {
 		const payload = await resolvePayload(pubSubEvent);
 		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-			await processEvent(payload, context, undefined, factory);
+			await processEvent(payload, context, loader as any, factory);
 		} else if (isCommandIncoming(payload)) {
-			await processCommand(payload, context, undefined, factory);
+			await processCommand(payload, context, loader as any, factory);
 		} else if (isWebhookIncoming(payload)) {
-			await processWebhook(payload, context, undefined, factory);
+			await processWebhook(payload, context, loader as any, factory);
 		}
 	});
 };
