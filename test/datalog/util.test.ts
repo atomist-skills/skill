@@ -53,7 +53,7 @@ describe("datalog.util", () => {
 			"package/url-name":
 				"pkg:deb/debian/python3.9@3.9.2-1?arch=amd64&os_distro=bullseye&os_name=debian&os_version=11",
 			"package/version": "3.9.2-1",
-			"schema/entity-type": ":package",
+			"schema/entity-type": { _key: "package" },
 		});
 	});
 });
