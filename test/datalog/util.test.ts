@@ -22,7 +22,7 @@ import { hash } from "../../lib/util";
 
 describe("datalog.util", () => {
 	it("should probably handle keywords", () => {
-		const result = toEdnString({ foo: asKeyword("bar"), bar: "foo" });
+		const result = toEdnString({ foo: asKeyword(":bar"), bar: "foo" });
 		assert.deepStrictEqual(result, '{:foo :bar :bar "foo"}');
 	});
 

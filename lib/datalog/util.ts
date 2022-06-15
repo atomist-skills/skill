@@ -17,6 +17,8 @@
 import kebabcase = require("lodash.kebabcase");
 import { guid, hash, toArray } from "../util";
 
+export type EntityKeyword = { _key: string };
+
 export type EntityType =
 	| string
 	| string[]
@@ -27,7 +29,8 @@ export type EntityType =
 	| Date
 	| Date[]
 	| { set: string[] }
-	| { add: string[] };
+	| { add: string[] }
+	| EntityKeyword;
 
 export type Entity = {
 	"schema/entity-type": string;
@@ -134,6 +137,9 @@ export function entityRef(entities: Entity | Entity[], type?: string): string {
 /**
  * Helper to create an EDN keyword in an object value
  */
-export function asKeyword(value: string): { _key: string } {
+export function asKeyword(value: string): EntityKeyword {
+	if (value?.startsWith(":")) {
+		return { _key: value.slice(1) };
+	}
 	return { _key: value };
 }
