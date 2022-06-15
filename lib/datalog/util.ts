@@ -33,7 +33,7 @@ export type EntityType =
 	| EntityKeyword;
 
 export type Entity = {
-	"schema/entity-type": string;
+	"schema/entity-type": EntityKeyword;
 	"schema/entity": string;
 } & Record<string, EntityType>;
 
@@ -82,7 +82,7 @@ export function entity<
 	E extends Record<string, EntityType> = Record<string, EntityType>,
 >(type: string, nameOrAttributes: string | E, attributes?: E): Entity {
 	const e = {
-		"schema/entity-type": `:${type}`,
+		"schema/entity-type": asKeyword(type),
 	};
 	if (typeof nameOrAttributes === "string") {
 		e["schema/entity"] = nameOrAttributes;
@@ -117,7 +117,7 @@ function attributeName(attribute: string, prefix: string): string {
  */
 export function entityRefs(entities: Entity[], type?: string): string[] {
 	return entities
-		.filter(e => !type || e["schema/entity-type"] === `:${type}`)
+		.filter(e => !type || e["schema/entity-type"] === asKeyword(type))
 		.filter(e => e["schema/entity"])
 		.map(e => e["schema/entity"]);
 }
