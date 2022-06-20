@@ -109,7 +109,7 @@ export function transform<E = any, C = any>(
 	};
 }
 
-export function transformData<T = any>(data: any[]): T {
+export function transformData<T = any>(data: any): T {
 	return mapSubscription<T>(data);
 }
 
