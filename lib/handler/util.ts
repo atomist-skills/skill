@@ -109,6 +109,10 @@ export function transform<E = any, C = any>(
 	};
 }
 
+export function transformData<T = any>(data: any[]): T {
+	return mapSubscription<T>(data);
+}
+
 export type ChainedHandler<D, C, S> = (
 	context: EventContext<D, C> & { chain: S },
 ) => Promise<void | HandlerStatus>;
