@@ -117,7 +117,7 @@ function attributeName(attribute: string, prefix: string): string {
  */
 export function entityRefs(entities: Entity[], type?: string): string[] {
 	return entities
-		.filter(e => !type || e["schema/entity-type"] === asKeyword(type))
+		.filter(e => !type || e["schema/entity-type"]?._key === type)
 		.filter(e => e["schema/entity"])
 		.map(e => e["schema/entity"]);
 }

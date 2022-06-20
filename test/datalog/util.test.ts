@@ -16,7 +16,12 @@
 
 import * as assert from "power-assert";
 
-import { asKeyword, entityWithId } from "../../lib/datalog/index";
+import {
+	asKeyword,
+	entity,
+	entityRefs,
+	entityWithId,
+} from "../../lib/datalog/index";
 import { toEdnString } from "../../lib/datalog/transact";
 import { hash } from "../../lib/util";
 
@@ -55,5 +60,11 @@ describe("datalog.util", () => {
 			"package/version": "3.9.2-1",
 			"schema/entity-type": { _key: "package" },
 		});
+	});
+	it("should correctly find entities", () => {
+		const entities = [entity("foo/bar", "$foo", { foo: "bar" })];
+		const ref = entityRefs(entities, "foo/bar");
+		assert.deepStrictEqual(ref.length, 1);
+		assert.deepStrictEqual(ref[0], "$foo");
 	});
 });
