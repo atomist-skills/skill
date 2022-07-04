@@ -58,22 +58,69 @@ export type ContextClosable = {
 };
 
 export interface Contextual<T, C> {
+	/** Name of the event subscription, command or webhook */
 	name: string;
+
+	/** Workspace Id of currently executing skill */
 	workspaceId: string;
+
+	/** Correlation Id of the currently executing skill */
 	correlationId: string;
+
+	/** Execution Id of the currently executing skill */
 	executionId: string;
 
+	/**
+	 * Resolver to obtain credentials from GraphQL
+	 * @deprecated use Datalog subscriptions
+	 */
 	credential: CredentialProvider;
+
+	/**
+	 * Client to query GraphQL data
+	 * @deprecated use Datalog to query and transact
+	 */
 	graphql: GraphQLClient;
+
+	/**
+	 * Datalog client to query and transact
+	 */
 	datalog: DatalogClient;
+
+	/**
+	 * Pre-configured HTTP client
+	 */
 	http: HttpClient;
+
+	/**
+	 * Client to send chat messages
+	 */
 	message: MessageClient;
+
+	/**
+	 * Clone and load GitHub repositories
+	 */
 	project: ProjectLoader;
+
+	/**
+	 * Access to store and retrieve files from a storage backend
+	 * @deprecated
+	 */
 	storage: StorageProvider;
 
+	/**
+	 * Original trigger unprocessed payload
+	 */
 	trigger: T;
 
+	/**
+	 * Configuration of the currently executing skill
+	 */
 	configuration: C;
+
+	/**
+	 * Details about the currently executing skill
+	 */
 	skill: {
 		id: string;
 		name: string;
@@ -98,6 +145,7 @@ export interface EventContext<
 	C = any,
 	P = EventIncoming | SubscriptionIncoming,
 > extends Contextual<P, Configuration<C>> {
+	/** Subscription data */
 	data: E;
 }
 
@@ -115,10 +163,15 @@ export interface CommandContext<C = any>
 
 export interface WebhookContext<B = any, C = any>
 	extends Contextual<WebhookIncoming, Configuration<C>> {
+	/** HTTP headers */
 	headers: Record<string, string>;
+	/** Raw webhook payload */
 	body: string;
+	/** Parsed JS object if payload is application/json */
 	json: B;
+	/** URL that the webhook payload was sent to */
 	url: string;
+	/** Name of the webhook parameter */
 	name: string;
 }
 

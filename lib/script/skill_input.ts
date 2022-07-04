@@ -597,7 +597,6 @@ export async function writeSkillYaml(
 	const yaml = await import("js-yaml");
 	const content = yaml.dump(
 		{
-			apiVersion: 1,
 			skill,
 		},
 		{ skipInvalid: true },
