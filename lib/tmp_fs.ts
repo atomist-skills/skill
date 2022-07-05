@@ -18,11 +18,11 @@ import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 
-import { Contextual } from "./handler/handler";
+import { EventContext } from "./handler/handler";
 import { guid } from "./util";
 
 export async function createDir(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	options?: string | { name?: string; path?: string },
 ): Promise<string> {
 	if (typeof options === "string") {
@@ -41,14 +41,14 @@ export async function createDir(
 }
 
 export async function createFilePath(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	name?: string,
 ): Promise<string> {
 	return createFile(ctx, { name });
 }
 
 export async function createFile(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	options?: { path?: string; name?: string; content?: string },
 ): Promise<string> {
 	const tmpPath = options?.path

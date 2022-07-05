@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-import { HandlerStatus } from "./handler/handler";
+import { State, Status } from "./handler/handler";
 
-class BuildableHandlerStatus implements HandlerStatus {
+class BuildableStatus implements Status {
 	constructor(
-		public code: number,
+		public state: State,
 		public reason?: string,
-		public visibility?: undefined | "hidden",
 		public _abort?: boolean,
 	) {}
-
-	public hidden(): this {
-		this.visibility = "hidden";
-		return this;
-	}
 
 	public abort(): this {
 		this._abort = true;
@@ -36,29 +30,40 @@ class BuildableHandlerStatus implements HandlerStatus {
 }
 
 /**
- * Create a successful HandlerStatus with optionally provided
+ * Create a completed Status with optionally provided
  * reason text
  *
  * The return object exposes a hidden function that can be used to
  * set the status to visibility: hidden or abort the step processing early.
  */
-export function success(reason?: string): HandlerStatus & {
-	hidden: () => BuildableHandlerStatus;
-	abort: () => BuildableHandlerStatus;
+export function completed(reason?: string): Status & {
+	abort: () => BuildableStatus;
 } {
-	return new BuildableHandlerStatus(0, reason);
+	return new BuildableStatus(State.Completed, reason);
 }
 
 /**
- * Create a failed HandlerStatus with optionally provided
+ * Create a failed Status with optionally provided
  * reason text
  *
  * The return object exposes a hidden function that can be used to
  * set the status to visibility: hidden or abort the step processing early.
  */
-export function failure(reason?: string): HandlerStatus & {
-	hidden: () => BuildableHandlerStatus;
-	abort: () => BuildableHandlerStatus;
+export function failed(reason?: string): Status & {
+	abort: () => BuildableStatus;
 } {
-	return new BuildableHandlerStatus(1, reason);
+	return new BuildableStatus(State.Failed, reason);
+}
+
+/**
+ * Create a running Status with optionally provided
+ * reason text
+ *
+ * The return object exposes a hidden function that can be used to
+ * set the status to visibility: hidden or abort the step processing early.
+ */
+export function running(reason?: string): Status & {
+	abort: () => BuildableStatus;
+} {
+	return new BuildableStatus(State.Running, reason);
 }

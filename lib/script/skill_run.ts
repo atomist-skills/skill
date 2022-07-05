@@ -14,121 +14,77 @@
  * limitations under the License.
  */
 
-import * as fs from "fs-extra";
+import { parseEDNString } from "edn-data";
 import * as path from "path";
 
-import * as namespace from "../cls";
 import { createContext, loggingCreateContext } from "../context";
-import {
-	configurableEntryPoint,
-	processCommand,
-	processEvent,
-	processWebhook,
-} from "../function";
-import { CommandHandler, EventHandler, WebhookHandler } from "../handler/index";
+import { configurableEntryPoint } from "../function";
+import { EventHandler } from "../handler/handler";
 import { debug } from "../log/console";
 import { runtime } from "../log/util";
-import {
-	isCommandIncoming,
-	isEventIncoming,
-	isSubscriptionIncoming,
-	isWebhookIncoming,
-} from "../payload";
+import { EventIncoming } from "../payload";
 
 export const start = runSkill;
 
 export async function runSkill(
-	handlers?: Record<string, EventHandler | CommandHandler | WebhookHandler>,
-	skill?: string,
+	handlers?: Record<string, EventHandler>,
 ): Promise<void> {
-	const payloadPath = process.env.ATOMIST_PAYLOAD;
-	if (!payloadPath) {
-		const nm = await (
-			await import("find-up")
-		)("node_modules", { cwd: __dirname, type: "directory" });
-		process.chdir(path.dirname(nm));
+	const nm = await (
+		await import("find-up")
+	)("node_modules", { cwd: __dirname, type: "directory" });
+	process.chdir(path.dirname(nm));
 
-		const express = await import("express");
-		const bodyParser = await import("body-parser");
-		const port = process.env.PORT || 8080;
+	const express = await import("express");
+	const bodyParser = await import("body-parser");
+	const port = process.env.PORT || 8080;
 
-		const app = express();
-		// eslint-disable-next-line deprecation/deprecation
-		app.use(bodyParser.json({ limit: "1024mb" }));
+	const app = express();
+	app.use(bodyParser.raw({ type: "application/edn" }));
 
-		app.post("/", async (req, res) => {
-			const message = req.body.message;
-			const eventId = message.messageId;
-			const traceId = req.get("x-cloud-trace-context");
-			const start = Date.now();
+	app.post("/", async (req, res) => {
+		const start = Date.now();
+		const message: Buffer = req.body;
+		const event: EventIncoming = parseEDNString(message.toString(), {
+			mapAs: "object",
+			keywordAs: "string",
+			listAs: "array",
+		}) as any;
 
-			try {
-				await configurableEntryPoint(
-					message,
-					{
-						eventId,
+		try {
+			await configurableEntryPoint(
+				event,
+				loggingCreateContext(createContext, {
+					payload: true,
+					before: () => debug("Skill execution started"),
+					after: {
+						name: "skill run",
+						priority: Number.MAX_SAFE_INTEGER - 100,
+						callback: async () =>
+							debug(
+								`Skill execution took ${Date.now() - start} ms`,
+							),
 					},
-					loggingCreateContext(createContext, {
-						payload: true,
-						traceId: traceId ? traceId.split("/")[0] : undefined,
-						before: () => debug("Cloud Run execution started"),
-						after: {
-							name: "cloud run",
-							priority: Number.MAX_SAFE_INTEGER - 100,
-							callback: async () =>
-								debug(
-									`Cloud Run execution took ${
-										Date.now() - start
-									} ms, finished with status: 'ok'`,
-								),
-						},
-					}),
-					handlers
-						? async name => {
-								return handlers[name];
-						  }
-						: undefined,
-				);
-			} catch (e) {
-				// Ignore
-			} finally {
-				res.sendStatus(201);
-			}
-		});
-
-		app.listen(port, () => {
-			const rt = runtime();
-			console.log(
-				"Starting http listener atomist/skill:%s (%s) nodejs:%s",
-				rt.skill.version,
-				rt.skill.sha.slice(0, 7),
-				rt.node.version,
+				}),
+				handlers
+					? async name => {
+							return handlers[name];
+					  }
+					: undefined,
 			);
-		});
-	} else {
-		process.chdir(process.env.ATOMIST_HOME || "/atm/home");
+		} catch (e) {
+			// Ignore
+		} finally {
+			res.sendStatus(201);
+		}
+	});
 
-		const payload = await fs.readJson(payloadPath || "/atm/payload.json");
-		const ctx = { eventId: process.env.ATOMIST_EVENT_ID };
-		await namespace.run(async () => {
-			if (isEventIncoming(payload)) {
-				if (skill) {
-					payload.extensions.operationName = skill;
-				}
-				await processEvent(payload, ctx);
-			} else if (isSubscriptionIncoming(payload)) {
-				if (skill) {
-					payload.subscription.name = skill;
-				}
-				await processEvent(payload, ctx);
-			} else if (isCommandIncoming(payload)) {
-				if (skill) {
-					payload.command = skill;
-				}
-				await processCommand(payload, ctx);
-			} else if (isWebhookIncoming(payload)) {
-				await processWebhook(payload, ctx);
-			}
-		});
-	}
+	app.listen(port, () => {
+		const rt = runtime();
+		console.log(
+			"Starting http listener atomist/skill:%s (%s) nodejs:%s",
+			rt.skill.version,
+			rt.skill.sha.slice(0, 7),
+			rt.node.version,
+		);
+	});
 }

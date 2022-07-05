@@ -20,7 +20,6 @@ import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 
 import { error } from "./log/console";
-import { Arg } from "./payload";
 import sortBy = require("lodash.sortby");
 import * as dt from "luxon";
 
@@ -112,32 +111,6 @@ export async function requirePath(
 	}
 
 	throw new Error(`'${file}' not found in '${p}' or '${p}/lib'`);
-}
-
-export function extractParameters(intent: string): Arg[] {
-	const args: Arg[] = [];
-	const regexp =
-		// eslint-disable-next-line no-useless-escape
-		/^[a-zA-Z\s]*(\s+--([a-z.A-Z_]*)=(?:'([^']*?)'|"([^"]*?)"|([\w\-\.]*?)))*$/g;
-	let intentToMatch = intent.trim();
-	let match = regexp.exec(intentToMatch);
-	while (!!match && !!match[1] && !!match[2]) {
-		const name = match[2];
-		const value = match[3] || match[4] || match[5];
-		args.push({ name, value });
-		intentToMatch = intentToMatch.replace(match[1], "").trim();
-		regexp.lastIndex = 0;
-		match = regexp.exec(intentToMatch);
-	}
-
-	return args
-		.reduce((p, c) => {
-			if (!p.some(e => e.name === c.name)) {
-				p.push(c);
-			}
-			return p;
-		}, [])
-		.reverse();
 }
 
 function keyToHide(key: string): boolean {

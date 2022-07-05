@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-import { Attachment } from "@atomist/slack-messages";
-
-import { eventHandlerLoader } from "../action";
 import * as namespace from "../cls";
 import {
 	ContextFactory,
@@ -24,26 +21,18 @@ import {
 	loggingCreateContext,
 } from "../context";
 import { createDatalogClient } from "../datalog/client";
-import { processCommand, processEvent, processWebhook } from "../function";
-import { Contextual, HandlerStatus } from "../handler/handler";
+import { processEvent } from "../function";
+import { EventContext, Status } from "../handler/handler";
+import { createHttpClient } from "../http";
 import { debug } from "../log/console";
-import { Destinations, HandlerResponse, MessageOptions } from "../message";
-import {
-	CommandIncoming,
-	EventIncoming,
-	isCommandIncoming,
-	isEventIncoming,
-	isSubscriptionIncoming,
-	isWebhookIncoming,
-	WebhookIncoming,
-} from "../payload";
-import { apiKey } from "../script/skill_register";
-import { guid, handlerLoader, replacer } from "../util";
+import { EventIncoming, isEventIncoming } from "../payload";
+import { apiKey } from "../script/util";
+import { handlerLoader, replacer } from "../util";
 
 export async function assertSkill(
-	payload: CommandIncoming | EventIncoming | WebhookIncoming,
-	ctx: Partial<Contextual<any, any>> = {},
-): Promise<undefined | HandlerStatus> {
+	payload: EventIncoming,
+	ctx: Partial<EventContext<any, any>> = {},
+): Promise<undefined | Status> {
 	// Enable straight console logging
 	process.env.ATOMIST_CONSOLE_LOG = "1";
 	// Disable docker auth so that we can rely on local creds
@@ -51,43 +40,20 @@ export async function assertSkill(
 	// Disable de-dupe checking
 	process.env.ATOMIST_SKIP_DEDUPE = "1";
 
-	const apiKeySecret = payload.secrets.find(
-		s => s.uri === "atomist://api-key",
-	);
-	if (apiKeySecret) {
-		apiKeySecret.value = await apiKey();
+	if (payload.token) {
+		payload.token = await apiKey();
 	}
 
-	let status: HandlerResponse["status"];
-	const factory: ContextFactory = (p, c) => {
-		const context = loggingCreateContext(createContext)(p, c);
-		context.message = {
-			respond: async (msg: any) => {
-				debug(`Sending message: ${JSON.stringify(msg, replacer)}`);
-			},
-			send: async (msg: any) => {
-				debug(`Sending message: ${JSON.stringify(msg, replacer)}`);
-			},
-			delete: async (
-				destinations: Destinations,
-				options: MessageOptions,
-			) => {
-				debug(`Deleting message: ${JSON.stringify(options, replacer)}`);
-			},
-			publish: async (result: HandlerResponse["status"]) => {
+	let status: Status;
+	const factory: ContextFactory = p => {
+		const context = loggingCreateContext(createContext)(p);
+		context.status = {
+			publish: async (result: Status) => {
 				status = result;
 			},
-			attach: async (attachment: Attachment) => {
-				debug(
-					`Sending attachment: ${JSON.stringify(
-						attachment,
-						replacer,
-					)}`,
-				);
-			},
-		} as any;
+		};
 
-		const datalogClient = createDatalogClient(apiKeySecret.value, context);
+		const datalogClient = createDatalogClient(payload, createHttpClient());
 		context.datalog = {
 			facts: {},
 			transact: async (entities: any) => {
@@ -119,27 +85,8 @@ export async function assertSkill(
 	};
 
 	await namespace.run(async () => {
-		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-			await processEvent(
-				payload,
-				{ eventId: guid() },
-				eventHandlerLoader("events"),
-				factory,
-			);
-		} else if (isCommandIncoming(payload)) {
-			await processCommand(
-				payload,
-				{ eventId: guid() },
-				handlerLoader("commands"),
-				factory,
-			);
-		} else if (isWebhookIncoming(payload)) {
-			await processWebhook(
-				payload,
-				{ eventId: guid() },
-				handlerLoader("webhooks"),
-				factory,
-			);
+		if (isEventIncoming(payload)) {
+			await processEvent(payload, handlerLoader("events"), factory);
 		}
 	});
 	return status;
