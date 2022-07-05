@@ -17,50 +17,14 @@
 import * as assert from "assert";
 import * as fs from "fs-extra";
 
-import {
-	namedDatalog,
-	namedGraphQl,
-} from "../../../lib/definition/subscription/named";
+import { namedDatalog } from "../../../lib/definition/subscription/named";
 
 describe("named", () => {
-	it("should load onNewChatUser subscription", () => {
-		const subscription = namedGraphQl("@atomist/skill/chat/onNewUser");
+	it("should load on_push datalog subscription", () => {
+		const subscription = namedDatalog("@atomist/skill/on_push");
 		assert.deepStrictEqual(
 			subscription,
-			`subscription onNewUser {
-  ChatId {
-    screenName
-    isBot
-    timezoneLabel
-    person {
-      forename
-      surname
-      name
-      emails {
-        address
-      }
-      gitHubId {
-        login
-      }
-      chatId {
-        screenName
-        chatTeam {
-          id
-        }
-      }
-    }
-  }
-}
-`,
-		);
-	});
-	it("should load onDockerImage datalog subscription", () => {
-		const subscription = namedDatalog("@atomist/skill/on_docker_image");
-		assert.deepStrictEqual(
-			subscription,
-			fs
-				.readFileSync("datalog/subscription/on_docker_image.edn")
-				.toString(),
+			fs.readFileSync("datalog/subscription/on_push.edn").toString(),
 		);
 	});
 });

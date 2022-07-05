@@ -17,40 +17,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 
-import { inlineFragments } from "./util";
-
-export function namedGraphQl(name: string): string {
-	const segments = name.split("/");
-	let module;
-	let file;
-	if (segments[0].startsWith("@")) {
-		module = segments.slice(0, 2).join("/");
-		file = segments.slice(2).join("/");
-	} else {
-		module = segments[0];
-		file = segments.slice(1).join("/");
-	}
-	const root = __dirname.includes("node_modules")
-		? path.join(__dirname.split("node_modules")[0], "node_modules", module)
-		: process.cwd();
-	const filePath = path.join(
-		root,
-		"graphql",
-		"subscription",
-		`${file}.graphql`,
-	);
-
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const prettier = require("prettier");
-	return prettier.format(
-		inlineFragments(
-			fs.readFileSync(filePath).toString(),
-			path.join(root, "graphql"),
-		),
-		{ parser: "graphql" },
-	);
-}
-
 export function namedDatalog(name: string): string {
 	const segments = name.split("/");
 	let module;
