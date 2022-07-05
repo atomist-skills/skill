@@ -14,282 +14,84 @@
  * limitations under the License.
  */
 
+import { parseEDNString } from "edn-data";
 import * as assert from "power-assert";
 
-import { processEvent, processWebhook } from "../lib/function";
-import { transform, wrapEventHandler } from "../lib/handler/index";
-import { success } from "../lib/status";
-import { guid } from "../lib/util";
+import { processEvent } from "../lib/function";
+import { State } from "../lib/handler/handler";
+import { EventIncoming } from "../lib/payload";
+import { completed } from "../lib/status";
 
 describe("function", () => {
 	describe("processEvent", () => {
 		it("should execute datalog subscription handler", async () => {
-			const payload = {
-				correlation_id: guid(),
-				subscription: {
-					name: "check-complete",
-					result: [
-						[
-							{
-								"schema/entity-type": "git/commit",
-								"git.commit/sha": "123456",
-							},
-						],
-					],
-				},
-				team_id: "123456",
-				type: "not sure what goes here",
-				secrets: [
-					{
-						uri: "atomist://api-key",
-						value: "123456",
-					},
-				],
-				skill: {
-					namespace: "atomist",
-					name: "container-run-skill",
-					id: "70b0b9cf-737b-4c61-b90c-c47f461d8615",
-					version: "2.1.9-75",
-					configuration: {
-						name: "sonarcloud",
-						enabled: true,
-						resourceProviders: [
-							{
-								name: "github",
-								typeName: "GitHubAppResourceProvider",
-								selectedResourceProviders: [
-									{
-										id: "AK748NQC5_75b34148-c780-4cdb-a641-d4c34b74515e",
-									},
-								],
-							},
-							{
-								name: "secret",
-								typeName: "SecretProvider",
-								selectedResourceProviders: [
-									{
-										id: "AK748NQC5_d35537a0-9c72-4b23-81ea-96de97d79d5e",
-									},
-								],
-							},
-						],
-						parameters: [
-							{
-								name: "env_map",
-								value: '[{"name":"SONAR_TOKEN","secret":"AK748NQC5_d35537a0-9c72-4b23-81ea-96de97d79d5e"}]',
-							},
-							{
-								name: "subscription_filter",
-								value: ["onPush"],
-							},
-							{
-								name: "docker_image",
-								value: "sonarsource/sonar-scanner-cli:4.4",
-							},
-							{
-								name: "docker_command",
-								value: "/usr/bin/entrypoint.sh sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=${data.Push[0].repo.owner}:${data.Push[0].repo.name} -Dsonar.organization=sdm-org",
-							},
-							{
-								name: "docker_env",
-								value: [
-									"SONAR_USER_HOME=/atm/home/.sonar",
-									"SONAR_PROJECT_BASE_DIR=/atm/home",
-								],
-							},
-							{
-								name: "docker_cache",
-								value: [".scannerwork/**", ".sonar/**"],
-							},
-							{
-								name: "docker_check",
-								value: true,
-							},
-							{
-								name: "repos",
-								value: {
-									includes: [
-										{
-											providerId:
-												"AK748NQC5_75b34148-c780-4cdb-a641-d4c34b74515e",
-											ownerId:
-												"AK748NQC5_atomisthqa_AK748NQC5",
-											repoIds: [
-												"AK748NQC5_AK748NQC5_atomisthqa_242068264",
-											],
-										},
-									],
-									excludes: null,
-								},
-							},
-						],
-					},
-				},
-			};
-			const publish = async msg => {
-				assert.deepStrictEqual(msg.code, 0);
-			};
+			const payloadString = `{:execution-id
+   "698e4c21-bf56-482b-be70-54273910fc37.YgDUPm3oIpDTT0SbYH5t5"
+ :skill
+   {:namespace "atomist"
+    :name "go-sample-skill"
+    :version "0.1.0-42"}
+ :workspace-id "T29E48P34"
+ :type :subscription
+ :context
+   {:subscription
+      {:name "on_push"
+       :configuration {:name "go_sample_skill"}
+       :result
+         ([{:schema/entity-type :git/commit
+            :git.commit/repo
+              {:git.repo/name "go-sample-skill"
+               :git.repo/source-id "490643782"
+               :git.repo/default-branch "main"
+               :git.repo/org
+                 {:github.org/installation-token
+                    "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"
+                  :git.org/name "atomist-skills"
+                  :git.provider/url "https://github.com"}}
+            :git.commit/author
+              {:git.user/name "Christian Dupuis"
+               :git.user/login "cdupuis"
+               :git.user/emails
+                 [{:email.email/address "cd@atomist.com"}]}
+            :git.commit/sha
+              "68c3d821eddc46c4dc4b1de0ffb1a6c29a5342a9"
+            :git.commit/message "Update README.md"
+            :git.ref/refs
+              [{:git.ref/name "main"
+                :git.ref/type
+                  {:db/id 83562883711320
+                   :db/ident :git.ref.type/branch}}]}])
+       :after-basis-t 4284274
+       :tx 13194143817586}}
+ :urls
+   {:execution
+      "https://api.atomist.com/executions/698e4c21-bf56-482b-be70-54273910fc37.YgDUPm3oIpDTT0SbYH5t5"
+    :logs
+      "https://api.atomist.com/executions/698e4c21-bf56-482b-be70-54273910fc37.YgDUPm3oIpDTT0SbYH5t5/logs"
+    :transactions
+      "https://api.atomist.com/executions/698e4c21-bf56-482b-be70-54273910fc37.YgDUPm3oIpDTT0SbYH5t5/transactions"
+    :query
+      "https://api.atomist.com/datalog/team/T29E48P34/queries"}
+ :token "[JSON_WEB_TOKEN]"}`;
 
-			await processEvent(
-				payload as any,
-				{ eventId: "654321" },
-				async name => {
-					assert.deepStrictEqual(
-						name,
-						`${payload.subscription.name}`,
-					);
-					return wrapEventHandler(
-						transform(async ctx => {
-							(ctx.message as any).publish = publish;
-							assert.deepStrictEqual(ctx.data, {
-								commit: { sha: "123456" },
-							});
-							return success();
-						}),
-					);
-				},
-			);
-		});
-	});
-
-	describe("processWebhook", () => {
-		it("should execute webhook handler", async () => {
-			const payload = {
-				correlation_id:
-					"583a683e-ece0-41d8-8428-405d7559ca05.w3Xsv5KbRcWfByAQuYBp9",
-				type: "webhook_raw_payload",
-				team_id: "AK748NQC5",
-				skill: {
-					namespace: "atomist",
-					name: "container-run-skill",
-					id: "70b0b9cf-737b-4c61-b90c-c47f461d8615",
-					version: "2.1.9-75",
-					configuration: {
-						name: "sonarcloud",
-						enabled: true,
-						resourceProviders: [
-							{
-								name: "github",
-								typeName: "GitHubAppResourceProvider",
-								selectedResourceProviders: [
-									{
-										id: "AK748NQC5_75b34148-c780-4cdb-a641-d4c34b74515e",
-									},
-								],
-							},
-							{
-								name: "secret",
-								typeName: "SecretProvider",
-								selectedResourceProviders: [
-									{
-										id: "AK748NQC5_d35537a0-9c72-4b23-81ea-96de97d79d5e",
-									},
-								],
-							},
-						],
-						parameters: [
-							{
-								name: "env_map",
-								value: '[{"name":"SONAR_TOKEN","secret":"AK748NQC5_d35537a0-9c72-4b23-81ea-96de97d79d5e"}]',
-							},
-							{
-								name: "subscription_filter",
-								value: ["onPush"],
-							},
-							{
-								name: "docker_image",
-								value: "sonarsource/sonar-scanner-cli:4.4",
-							},
-							{
-								name: "docker_command",
-								value: "/usr/bin/entrypoint.sh sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=${data.Push[0].repo.owner}:${data.Push[0].repo.name} -Dsonar.organization=sdm-org",
-							},
-							{
-								name: "docker_env",
-								value: [
-									"SONAR_USER_HOME=/atm/home/.sonar",
-									"SONAR_PROJECT_BASE_DIR=/atm/home",
-								],
-							},
-							{
-								name: "docker_cache",
-								value: [".scannerwork/**", ".sonar/**"],
-							},
-							{
-								name: "docker_check",
-								value: true,
-							},
-							{
-								name: "repos",
-								value: {
-									includes: [
-										{
-											providerId:
-												"AK748NQC5_75b34148-c780-4cdb-a641-d4c34b74515e",
-											ownerId:
-												"AK748NQC5_atomisthqa_AK748NQC5",
-											repoIds: [
-												"AK748NQC5_AK748NQC5_atomisthqa_242068264",
-											],
-										},
-									],
-									excludes: null,
-								},
-							},
-						],
-					},
-				},
-				webhook: {
-					parameter_name: "sonarcloud-event-manual",
-					url: "h********************************************************************************************3",
-					headers: {
-						"x-forwarded-proto": "https",
-						"user-agent": "c*********1",
-						"x-scheme": "https",
-						"x-forwarded-port": "443",
-						"host": "webhook-staging.atomist.services",
-						"content-length": "35",
-						"x-forwarded-host": "webhook-staging.atomist.services",
-						"content-type": "application/json",
-						"x-real-ip": "93.220.126.54",
-						"x-forwarded-for": "93.220.126.54",
-						"x-request-id": "53268bdd7f6f9a0568228246b41fcb4f",
-						"accept": "*/*",
-					},
-					body: '{"username":"xyz","password":"zyx"}',
-				},
-				secrets: [
-					{
-						uri: "atomist://api-key",
-						value: "123456",
-					},
-				],
-				log_url:
-					"h**************************************************************************************************9",
-			};
+			const event: EventIncoming = parseEDNString(payloadString, {
+				mapAs: "object",
+				keywordAs: "string",
+				listAs: "array",
+			}) as any;
 
 			const publish = async msg => {
-				assert.deepStrictEqual(msg.code, 0);
+				assert.deepStrictEqual(msg.state, State.Completed);
 			};
 
-			await processWebhook(
-				payload as any,
-				{ eventId: "654321" },
-				async name => {
-					assert.deepStrictEqual(
-						name,
-						`${payload.webhook.parameter_name}`,
-					);
-					return async ctx => {
-						(ctx.message as any).publish = publish;
-						assert.deepStrictEqual(ctx.json, {
-							username: "xyz",
-							password: "zyx",
-						});
-						return success();
-					};
-				},
-			);
+			await processEvent(event, async name => {
+				assert.deepStrictEqual(name, "on_push");
+				return async ctx => {
+					ctx.status.publish = publish;
+					assert.deepStrictEqual(ctx.event, event);
+					return completed();
+				};
+			});
 		});
 	});
 });
