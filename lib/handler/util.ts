@@ -20,102 +20,20 @@ import * as path from "path";
 
 import { Check, CreateCheck, createCheck as raiseCheck } from "../github/check";
 import { api } from "../github/operation";
-import { error } from "../log/console";
-import { mapSubscription } from "../map";
-import { prepareStatus } from "../message";
 import { CloneOptions } from "../project/clone";
 import { Project } from "../project/project";
 import {
 	AuthenticatedRepositoryId,
 	gitHubComRepository,
-	RepositoryId,
 } from "../repository/id";
-import { gitHubAppToken } from "../secret/resolver";
-import { failure, success } from "../status";
-import { createStorageProvider } from "../storage/provider";
-import { createFile } from "../tmp_fs";
-import { guid, isStaging, replacer } from "../util";
-import {
-	EventContext,
-	EventHandler,
-	HandlerStatus,
-	MappingEventHandler,
-} from "./handler";
-
-export function wrapEventHandler(eh: EventHandler): EventHandler {
-	return async ctx => {
-		const meh = eh as any as MappingEventHandler;
-		if (typeof meh !== "function" && meh.map && meh.handle) {
-			const data = meh.map(ctx.data);
-			return meh.handle({
-				...ctx,
-				data,
-			});
-		}
-
-		if (Array.isArray(ctx.data)) {
-			const results = [];
-			for (const event of ctx.data) {
-				try {
-					const result = await eh({ ...ctx, data: event });
-					if (result) {
-						results.push(result);
-					}
-				} catch (e) {
-					error(`Error occurred: ${e.stack}`);
-					results.push(prepareStatus(e, ctx));
-				}
-			}
-			let reason;
-			if (results.some(r => r.visibility !== "hidden")) {
-				reason = results
-					.filter(r => r.visibility !== "hidden")
-					.map(r => r.reason)
-					.join(", ");
-			} else {
-				reason = results.map(r => r.reason).join(", ");
-			}
-			return {
-				code: results.reduce((p, c) => {
-					if (c.code !== 0) {
-						return c.code;
-					} else {
-						return 0;
-					}
-				}, 0),
-				reason,
-				visibility: results.some(r => r.visibility !== "hidden")
-					? undefined
-					: "hidden",
-			};
-		} else {
-			return eh(ctx);
-		}
-	};
-}
-
-/**
- * Transform the incoming edn subscription result into a JavaScript object.
- */
-export function transform<E = any, C = any>(
-	handle: EventHandler<E, C>,
-): EventHandler<E, C> {
-	return async (ctx: EventContext<any, C>) => {
-		const data = mapSubscription(ctx.data);
-		return handle({
-			...ctx,
-			data,
-		});
-	};
-}
-
-export function transformData<T = any>(data: any): T {
-	return mapSubscription<T>(data);
-}
+import { GitHubAppCredential } from "../secret/provider";
+import { completed, failed } from "../status";
+import { guid } from "../util";
+import { EventContext, EventHandler, State, Status } from "./handler";
 
 export type ChainedHandler<D, C, S> = (
 	context: EventContext<D, C> & { chain: S },
-) => Promise<void | HandlerStatus>;
+) => Promise<void | Status>;
 
 /**
  * Chain a series of [[ChainedHandler]]s until the first one
@@ -148,34 +66,26 @@ export function all<D, C, S = any>(
 				results.push(result);
 			}
 		}
-		let reason;
-		if (results.some(r => r.visibility !== "hidden")) {
-			reason = results
-				.filter(r => r.visibility !== "hidden")
-				.map(r => r.reason)
-				.join(", ");
-		} else {
-			reason = results.map(r => r.reason).join(", ");
-		}
+		const reason = results.map(r => r.reason).join(", ");
 		return {
-			code: results.reduce((p, c) => {
-				if (c.code !== 0) {
-					return c.code;
+			state: results.reduce((p, c) => {
+				if (c.state !== State.Completed) {
+					return c.state;
 				} else {
-					return 0;
+					return State.Completed;
 				}
-			}, 0),
+			}, State.Completed),
 			reason,
-			visibility: results.some(r => r.visibility !== "hidden")
-				? undefined
-				: "hidden",
 		};
 	};
 }
 
 export type CreateRepositoryId<D, C> = (
 	ctx: EventContext<D, C>,
-) => Pick<RepositoryId, "sourceId" | "owner" | "repo" | "sha" | "branch">;
+) => Pick<
+	AuthenticatedRepositoryId<GitHubAppCredential>,
+	"sourceId" | "owner" | "repo" | "sha" | "branch" | "credential"
+>;
 
 export function createRef<D, C>(
 	id: CreateRepositoryId<D, C>,
@@ -183,14 +93,7 @@ export function createRef<D, C>(
 	return async ctx => {
 		const repositoryId: AuthenticatedRepositoryId<any> =
 			typeof id === "function" ? id(ctx) : (id as any);
-		if (!repositoryId.credential) {
-			const credential = await ctx.credential.resolve(
-				gitHubAppToken(repositoryId),
-			);
-			ctx.chain.id = gitHubComRepository({ ...repositoryId, credential });
-		} else {
-			ctx.chain.id = gitHubComRepository({ ...repositoryId });
-		}
+		ctx.chain.id = gitHubComRepository({ ...repositoryId });
 	};
 }
 
@@ -207,7 +110,7 @@ export function cloneRef<D, C>(
 > {
 	return async ctx => {
 		if (!ctx.chain.id) {
-			return failure(
+			return failed(
 				"'id' missing in chain. Make sure to include 'createRef' in handler chain",
 			);
 		}
@@ -232,7 +135,7 @@ export function cloneFiles<D, C>(
 > {
 	return async ctx => {
 		if (!ctx.chain.id) {
-			return failure(
+			return failed(
 				"'id' missing in chain. Make sure to include 'createRef' in handler chain",
 			);
 		}
@@ -276,7 +179,7 @@ export function createCheck<D, C>(
 > {
 	return async ctx => {
 		if (!ctx.chain.id) {
-			return failure(
+			return failed(
 				"'id' missing in chain. Make sure to include 'createRef' in handler chain",
 			);
 		}
@@ -289,42 +192,13 @@ export function createCheck<D, C>(
 			});
 		} catch (e) {
 			if (e.status === 403) {
-				return success(
+				return completed(
 					"Repository not accessible with installation token",
-				).hidden();
+				);
 			} else {
 				throw e;
 			}
 		}
 		return undefined;
-	};
-}
-
-export function dedupe<E, C>(): EventHandler<E, C> {
-	return async ctx => {
-		if (process.env.ATOMIST_SKIP_DEDUPE) {
-			return undefined;
-		}
-
-		const correlationId = ctx.correlationId;
-		const workspaceId = ctx.workspaceId;
-		const name = isStaging()
-			? "atm-staging-cloud-run-dedupe"
-			: "atm-prod-cloud-run-dedupe";
-		const key = `correlation_ids/${correlationId}`;
-		const storage = createStorageProvider(workspaceId, name);
-
-		try {
-			await storage.retrieve(key);
-			return success(
-				"Duplicate correlation-id detected. Aborting...",
-			).hidden();
-		} catch (e) {
-			const p = await createFile(ctx, {
-				content: JSON.stringify(ctx.trigger, replacer),
-			});
-			await storage.store(key, p);
-			return undefined;
-		}
 	};
 }

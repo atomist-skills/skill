@@ -21,16 +21,20 @@ import { guid } from "../lib/util";
 
 describe("context", () => {
 	it("should call all callbacks on close", async () => {
-		const ctx = createContext(
-			{
-				data: {},
-				extensions: { team_id: "1223456", correlation_id: guid() },
-				skill: {
-					id: "654321",
-				},
-			} as any,
-			{} as any,
-		);
+		const ctx = createContext({
+			"skill": {
+				id: "654321",
+				name: "foo",
+				namespace: "bar",
+				version: "1.0.0",
+			},
+			"type": "subscription",
+			"token": undefined,
+			"urls": undefined,
+			"context": undefined,
+			"execution-id": guid(),
+			"workspace-id": "T29E48P34",
+		});
 		let closed1 = false;
 		ctx.onComplete({
 			name: "1",
