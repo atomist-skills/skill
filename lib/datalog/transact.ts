@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { Contextual } from "../handler/handler";
+import { HttpClient } from "../http";
 import { debug, error } from "../log/console";
-import { isStaging, replacer, toArray } from "../util";
+import { EventIncoming } from "../payload";
+import { toArray } from "../util";
 
 export type DatalogTransact = (
 	entities: any | any[],
@@ -24,27 +25,9 @@ export type DatalogTransact = (
 ) => Promise<void>;
 
 export function createTransact(
-	ctx: Pick<
-		Contextual<any, any>,
-		| "onComplete"
-		| "workspaceId"
-		| "correlationId"
-		| "skill"
-		| "message"
-		| "credential"
-		| "http"
-	>,
+	payload: EventIncoming,
+	http: HttpClient,
 ): DatalogTransact {
-	const stats = { facts: 0, entities: 0 };
-	if (ctx.onComplete) {
-		ctx.onComplete({
-			name: "transact",
-			callback: async () => {
-				debug(`Transaction stats: ${JSON.stringify(stats)}`);
-			},
-		});
-	}
-
 	return async (entities, options = { ordering: true }) => {
 		const invalidEntities = toArray(entities).filter(e =>
 			Object.values(e).some(v => v === undefined),
@@ -58,77 +41,39 @@ export function createTransact(
 			throw new Error("Entities with 'undefined' properties detected");
 		}
 
-		stats.facts = toArray(entities).reduce((p, c) => {
-			const facts = Object.keys(c).filter(
-				f =>
-					f !== "schema/entity" &&
-					f !== "schema/entity-type" &&
-					f !== "db/id",
-			);
-			return p + facts.length;
-		}, stats.facts);
-		stats.entities += toArray(entities).length;
-
 		const message = {
-			api_version: "1",
-			correlation_id: ctx.correlationId,
-			team: {
-				id: ctx.workspaceId,
-			},
-			type: "facts_ingestion",
-			entities: toEdnString(toArray(entities)),
+			transactions: [
+				{
+					"data": toArray(entities),
+					"ordering-key": options?.ordering
+						? payload["execution-id"]
+						: undefined,
+				},
+			],
 		};
 
 		try {
-			debug(`Transacting entities: ${JSON.stringify(message, replacer)}`);
+			debug(`Transacting entities: ${toEdnString(message)}`);
 			const start = Date.now();
-			if (process.env.ATOMIST_TOPIC) {
-				const messageId = await pubSubTransact(message, options, ctx);
-				debug(
-					`Transacted entities '${messageId}' in ${
-						Date.now() - start
-					} ms`,
-				);
-			} else {
-				await httpTransact(message, options, ctx);
-				debug(`Transacted entities ${Date.now() - start} ms`);
-			}
+			await httpTransact(message, payload, http);
+			debug(`Transacted entities ${Date.now() - start} ms`);
 		} catch (err) {
 			error(`Error transacting entities: ${err.stack}`);
 		}
 	};
 }
 
-async function pubSubTransact(
-	message: any,
-	options = { ordering: true },
-	ctx: Pick<Contextual<any, any>, "message" | "correlationId">,
-): Promise<string> {
-	return await ctx.message.publisher.publish({
-		data: message,
-		orderingKey:
-			options?.ordering === false ? undefined : ctx.correlationId,
-	});
-}
-
 async function httpTransact(
 	message: any,
-	options = { ordering: true },
-	ctx: Pick<
-		Contextual<any, any>,
-		"http" | "workspaceId" | "credential" | "correlationId"
-	>,
+	payload: EventIncoming,
+	http: HttpClient,
 ): Promise<void> {
-	const url = isStaging()
-		? `https://api.atomist.services/skills/remote/${ctx.workspaceId}`
-		: `https://api.atomist.com/skills/remote/${ctx.workspaceId}`;
-	await ctx.http.post(url, {
-		body: JSON.stringify(message),
+	const url = payload.urls.transactions;
+	await http.post(url, {
+		body: toEdnString(message),
 		headers: {
-			"authorization": `Bearer ${ctx.credential.apiKey}`,
-			"x-atomist-correlation-id": ctx.correlationId,
-			"x-atomist-ordering-key":
-				options?.ordering === false ? undefined : ctx.correlationId,
+			"authorization": `Bearer ${payload.token}`,
+			"content-type": `application/edn`,
 		},
 	});
 }
@@ -146,7 +91,7 @@ export function toEdnString(value: Record<string, any>): string {
 	if (typeof value === "boolean") {
 		return JSON.stringify(value);
 	}
-	if (value === null) {
+	if (value === null || value === undefined) {
 		return "nil";
 	}
 	if (value instanceof Date) {
@@ -166,10 +111,16 @@ export function toEdnString(value: Record<string, any>): string {
 	if (value instanceof Set) {
 		return `#{${[...value].map(v => toEdnString(v)).join(" ")}}`;
 	}
-	if (typeof value === "object") {
-		return `{${Object.entries(value)
+	const filteredValue: Record<string, any> = {};
+	Object.keys(value).forEach(k => {
+		if (value[k]) {
+			filteredValue[k] = value[k];
+		}
+	});
+	if (typeof filteredValue === "object") {
+		return `{${Object.entries(filteredValue)
 			.map(([k, v]) => `${`:${k}`} ${toEdnString(v)}`)
 			.join(" ")}}`;
 	}
-	throw new TypeError(`Unknown type: ${JSON.stringify(value)}`);
+	throw new TypeError(`Unknown type: ${JSON.stringify(filteredValue)}`);
 }

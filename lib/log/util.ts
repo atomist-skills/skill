@@ -14,31 +14,19 @@
  * limitations under the License.
  */
 
-import { createLogger } from "@atomist/skill-logging";
 import * as dt from "luxon";
 
-import { ContextClosable, Contextual } from "../handler/handler";
-import {
-	isCommandIncoming,
-	isEventIncoming,
-	isSubscriptionIncoming,
-	isWebhookIncoming,
-} from "../payload";
+import { ContextClosable, EventContext } from "../handler/handler";
+import { EventIncoming, isEventIncoming } from "../payload";
 import { handleErrorSync, isStaging, replacer } from "../util";
 import { debug, setLogger } from "./console";
+import { createLogger } from "./logger";
 
 export function initLogging(
-	context: {
-		eventId?: string;
-		correlationId: string;
-		workspaceId: string;
-		skillId: string;
-		traceId?: string;
-	},
-	onComplete: (callback: ContextClosable) => void,
-	labels: Record<string, any> = {},
+	payload: EventIncoming,
+	onComplete: (closable: ContextClosable) => void,
 ): void {
-	const logger = createLogger(context, labels);
+	const logger = createLogger(payload);
 	setLogger(logger);
 	onComplete({
 		name: "logger",
@@ -61,16 +49,16 @@ export function enabled(level: string): boolean {
 	return configuredLevel >= Level[level];
 }
 
-export function dsoUrl(ctx: Contextual<any, any>): string {
+export function dsoUrl(ctx: EventContext): string {
 	return `https://dso.atomist.${isStaging() ? "services" : "com"}/${
-		ctx.workspaceId
-	}/overview?correlation_id=${ctx.correlationId}`;
+		ctx.event["workspace-id"]
+	}/overview?correlation_id=${ctx.event["execution-id"]}`;
 }
 
-export function url(ctx: Contextual<any, any>): string {
+export function url(ctx: EventContext): string {
 	return `https://go.atomist.${isStaging() ? "services" : "com"}/log/${
-		ctx.workspaceId
-	}/${ctx.correlationId}`;
+		ctx.event["workspace-id"]
+	}/${ctx.event["execution-id"]}`;
 }
 
 export function runtime(): {
@@ -119,15 +107,10 @@ export function runtime(): {
 	};
 }
 
-export function logPayload(ctx: Contextual<any, any>): void {
-	const payload = ctx.trigger;
+export function logPayload(payload: EventIncoming): void {
 	let label;
-	if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
+	if (isEventIncoming(payload)) {
 		label = "event";
-	} else if (isCommandIncoming(payload)) {
-		label = "command";
-	} else if (isWebhookIncoming(payload)) {
-		label = "webhook";
 	}
 
 	debug(`Incoming ${label} message: ${JSON.stringify(payload, replacer)}`);

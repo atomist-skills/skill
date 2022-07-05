@@ -19,7 +19,7 @@ import * as fs from "fs-extra";
 
 import { PushStrategy } from "../definition/parameter/definition";
 import * as git from "../git/operation";
-import { Contextual, HandlerStatus } from "../handler/handler";
+import { EventContext, Status } from "../handler/handler";
 import { debug } from "../log/console";
 import { Project } from "../project/project";
 import { AuthenticatedRepositoryId } from "../repository/id";
@@ -51,7 +51,7 @@ import uniq = require("lodash.uniq");
  * @return skill handler return status
  */
 export async function persistChanges(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	project: Project,
 	strategy: PushStrategy,
 	push: {
@@ -81,10 +81,10 @@ export async function persistChanges(
 		message?: string;
 		editors?: git.CommitEditor[];
 	},
-): Promise<HandlerStatus> {
+): Promise<Status> {
 	const gitStatus = await git.status(project);
 	if (gitStatus.isClean && (!commit?.editors || commit.editors.length < 1)) {
-		return status.success(`No changes to push`);
+		return status.completed(`No changes to push`);
 	}
 	const createPullRequest =
 		strategy === "pr" ||
@@ -96,12 +96,10 @@ export async function persistChanges(
 		(push.branch !== push.defaultBranch &&
 			strategy === "pr_default_commit");
 	if (!createPullRequest && !createCommit) {
-		return status
-			.success(
-				`Skipping because of selected push strategy (${strategy}), ` +
-					`branch (${push.branch}), and default branch (${push.defaultBranch})`,
-			)
-			.hidden();
+		return status.completed(
+			`Skipping because of selected push strategy (${strategy}), ` +
+				`branch (${push.branch}), and default branch (${push.defaultBranch})`,
+		);
 	}
 	debug(
 		`Attempting to persist changes with: ${JSON.stringify({
@@ -119,11 +117,11 @@ export async function persistChanges(
 	const slug = `${project.id.owner}/${project.id.repo}`;
 	const commitMsg =
 		addCommitMarkers(commit.message, ctx) ||
-		`Updates from ${ctx.skill.namespace}/${ctx.skill.name}\n\n[atomist:generated]`;
+		`Updates from ${ctx.event.skill.namespace}/${ctx.event.skill.name}\n\n[atomist:generated]`;
 	const repoUrl = `https://github.com/${slug}`;
 	const branch = createPullRequest
 		? pullRequest.branch ||
-		  `atomist/${ctx.skill.name.toLowerCase()}-${Date.now()}`
+		  `atomist/${ctx.event.skill.name.toLowerCase()}-${Date.now()}`
 		: push.branch;
 	const changedFiles = await git.changedFiles(project);
 	if (!gitStatus.isClean) {
@@ -146,7 +144,7 @@ export async function persistChanges(
 			)),
 		);
 		if (changedFiles.length === 0) {
-			return status.success(`No changes to push`);
+			return status.completed(`No changes to push`);
 		} else {
 			return await ensurePullRequest(
 				ctx,
@@ -167,7 +165,7 @@ export async function persistChanges(
 		} else {
 			await git.push(project, { branch });
 		}
-		return status.success(
+		return status.completed(
 			`Pushed changes to [${slug}/${branch}](${repoUrl})`,
 		);
 	}
@@ -189,7 +187,7 @@ export async function persistChanges(
  * @param push push that triggered this activity
  */
 async function ensurePullRequest(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	project: Project,
 	pullRequest: {
 		title: string;
@@ -214,7 +212,7 @@ async function ensurePullRequest(
 		author: { login: string };
 		branch: string;
 	},
-): Promise<HandlerStatus> {
+): Promise<Status> {
 	const gh = api(project.id, ctx);
 
 	const files = uniq(pullRequest.changedFiles).sort();
@@ -383,7 +381,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 	}
 
 	if (pushRequired) {
-		return status.success(
+		return status.completed(
 			`Pushed changes to [${slug}/${
 				pullRequest.branch
 			}](${repoUrl}) and ${newPr ? "raised" : "updated"} [#${
@@ -391,7 +389,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 			}](${pr.html_url})`,
 		);
 	} else {
-		return status.success(
+		return status.completed(
 			`No changes pushed to ` +
 				`[${slug}/${pullRequest.branch}](${repoUrl})` +
 				` because [#${pr.number}](${pr.html_url}) is up to date`,
@@ -410,7 +408,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
  * @param comment comment to create when closing pull requests
  */
 export async function closePullRequests(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	project: Project,
 	base: string,
 	head: string,
@@ -443,82 +441,46 @@ ${formatMarkers(ctx)}`,
 	}
 }
 
-const OpenPullRequestByShaQuery = `query openPullRequestBySha($sha: String!, $owner: String!, $repo: String!) {
-  PullRequest(state: "open") {
-    number
-    url
-    repo(owner: $owner, name: $repo) {
-      owner
-      name
-    }
-    head(sha: $sha) @required {
-      sha
-    }
-    comments {
-      commentId
-      body
-    }
-  }
-}`;
-
-interface OpenPullRequestByShaResponse {
-	PullRequest: Array<{
-		number: number;
-		url: string;
-		repo: {
-			owner: string;
-			name: string;
-		};
-		head: {
-			sha: string;
-		};
-		comments: Array<{
-			commentId: string;
-			body: string;
-		}>;
-	}>;
-}
-
-interface OpenPullRequestByShaVariables {
-	sha: string;
-	owner: string;
-	repo: string;
-}
-
 export async function commentPullRequest(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	id: AuthenticatedRepositoryId<any>,
 	comment: ((pr: { url: string; number: number }) => string) | string,
 	type: string,
 ): Promise<void> {
-	const openPrs = await ctx.graphql.query<
-		OpenPullRequestByShaResponse,
-		OpenPullRequestByShaVariables
-	>(OpenPullRequestByShaQuery, {
-		sha: id.sha,
+	const github = await api(id);
+
+	const openPrs = await github.pulls.list({
 		owner: id.owner,
 		repo: id.repo,
+		state: "open",
+		head: id.sha,
 	});
-	if (openPrs?.PullRequest?.length > 0) {
-		const openPr = openPrs.PullRequest[0];
-		const existingComment = (openPr.comments || []).find(
+
+	if (openPrs?.data?.length > 0) {
+		const openPr = openPrs.data[0];
+		const comments = await github.issues.listComments({
+			owner: id.owner,
+			repo: id.repo,
+			issue_number: openPr.number,
+		});
+		const existingComment = (comments.data || []).find(
 			c =>
 				c.body.includes(
-					`[atomist-skill:${ctx.skill.namespace}/${ctx.skill.name}]`,
+					`[atomist-skill:${ctx.event.skill.namespace}/${ctx.event.skill.name}]`,
 				) && c.body.includes(`[atomist-comment-type:${type}]`),
 		);
 		const body = typeof comment === "function" ? comment(openPr) : comment;
 		if (existingComment) {
-			await api(id).issues.updateComment({
+			await github.issues.updateComment({
 				owner: id.owner,
 				repo: id.repo,
-				comment_id: +existingComment.commentId,
+				comment_id: +existingComment.id,
 				body: `${body}
 
 ${formatMarkers(ctx, `atomist-comment-type:${type}`)}`,
 			});
 		} else {
-			await api(id).issues.createComment({
+			await github.issues.createComment({
 				owner: id.owner,
 				repo: id.repo,
 				issue_number: openPr.number,
@@ -530,10 +492,7 @@ ${formatMarkers(ctx, `atomist-comment-type:${type}`)}`,
 	}
 }
 
-export function addCommitMarkers(
-	msg: string,
-	ctx: Contextual<any, any>,
-): string {
+export function addCommitMarkers(msg: string, ctx: EventContext): string {
 	if (!msg) {
 		return msg;
 	}
@@ -546,7 +505,7 @@ export function addCommitMarkers(
 
 function wrapWithCommitMarkers(
 	editors: git.CommitEditor[],
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 ): git.CommitEditor[] {
 	if (editors?.length > 0) {
 		return editors.map(e => async pd => {

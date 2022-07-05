@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Logger } from "@atomist/skill-logging";
 import * as util from "util";
 
 import * as namespace from "../cls";
+import { Logger } from "./logger";
 import { redact } from "./redact";
 import { enabled } from "./util";
 

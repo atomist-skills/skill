@@ -24,7 +24,7 @@ import {
 	formatFooter,
 	formatMarkers,
 } from "../github/operation";
-import { EventContext, EventHandler, HandlerStatus } from "../handler/handler";
+import { EventContext, EventHandler, Status } from "../handler/handler";
 import { chain, createRef, CreateRepositoryId } from "../handler/util";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import * as status from "../status";
@@ -59,7 +59,7 @@ export interface PullRequestHandlerResponse<S, C, D = string> {
  * the need for cloning a repository.
  */
 export function pullRequestHandler<S, C, D = string>(parameters: {
-	when?: (ctx: EventContext<S, C>) => HandlerStatus | undefined;
+	when?: (ctx: EventContext<S, C>) => Status | undefined;
 	id: CreateRepositoryId<S, C>;
 	execute: (
 		ctx: EventContext<S, C> & {
@@ -67,7 +67,7 @@ export function pullRequestHandler<S, C, D = string>(parameters: {
 				id: AuthenticatedRepositoryId<any>;
 			};
 		},
-	) => Promise<HandlerStatus | PullRequestHandlerResponse<S, C, D>>;
+	) => Promise<Status | PullRequestHandlerResponse<S, C, D>>;
 }): EventHandler<S, C> {
 	return chain<
 		S,
@@ -86,8 +86,8 @@ export function pullRequestHandler<S, C, D = string>(parameters: {
 		createRef<S, C>(parameters.id),
 		async ctx => {
 			const executeResult = await parameters.execute(ctx);
-			if ((executeResult as HandlerStatus).code !== undefined) {
-				return executeResult as HandlerStatus;
+			if ((executeResult as Status).state !== undefined) {
+				return executeResult as Status;
 			}
 
 			const result = executeResult as PullRequestHandlerResponse<S, C, D>;
@@ -111,9 +111,9 @@ export function pullRequestHandler<S, C, D = string>(parameters: {
 			} catch (e) {
 				if (e instanceof EditContentError) {
 					if (e.code === EditContentErrorCode.InvalidSha) {
-						return status.success(`Branch moved on`).hidden();
+						return status.completed(`Branch moved on`);
 					} else if (e.code === EditContentErrorCode.InvalidRef) {
-						return status.success(`Ref not found`).hidden();
+						return status.completed(`Ref not found`);
 					}
 				}
 				throw e;
@@ -206,7 +206,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 					});
 				}
 
-				return status.success(
+				return status.completed(
 					`Pushed changes to [${slug}/${
 						result.commit.branch
 					}](${repoUrl}) and ${newPr ? "raised" : "updated"} [#${
@@ -214,7 +214,7 @@ ${formatMarkers(ctx, `atomist-diff:${diffHash}`)}
 					}](${pr.html_url})`,
 				);
 			} else {
-				return status.success(`No changes to push`).hidden();
+				return status.completed(`No changes to push`);
 			}
 		},
 	) as EventHandler<S, C>;

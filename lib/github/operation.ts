@@ -16,9 +16,8 @@
 
 import { Octokit } from "@octokit/rest"; // eslint-disable-line @typescript-eslint/no-unused-vars
 
-import { Contextual } from "../handler/handler";
+import { Contextual, EventContext } from "../handler/handler";
 import { debug } from "../log/console";
-import { isSubscriptionIncoming } from "../payload";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import { GitHubAppCredential, GitHubCredential } from "../secret/provider";
 import { toArray } from "../util";
@@ -31,7 +30,7 @@ export function api(
 		AuthenticatedRepositoryId<GitHubCredential | GitHubAppCredential>,
 		"credential" | "apiUrl"
 	>,
-	ctx?: Contextual<any, any>,
+	ctx?: Contextual,
 ): Octokit {
 	const url = id?.apiUrl || DefaultGitHubApiUrl;
 
@@ -82,65 +81,61 @@ export function api(
 }
 
 export function formatCommitMarkers(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	...tags: string[]
 ): string {
 	return `
 
  [atomist:generated]
- [atomist-skill:${ctx.skill.namespace}/${ctx.skill.name}]${
+ [atomist-skill:${ctx.event.skill.namespace}/${ctx.event.skill.name}]${
 		tags.length > 0 ? "\n" : ""
 	}${tags.map(t => ` [${t}]`).join("\n")}`;
 }
 
-export function formatMarkers(
-	ctx: Contextual<any, any>,
-	...tags: string[]
-): string {
-	const tx = isSubscriptionIncoming(ctx.trigger)
-		? ctx.trigger.subscription["after-basis-t"]
-		: undefined;
+export function formatMarkers(ctx: EventContext, ...tags: string[]): string {
+	const tx = ctx.event.context.subscription?.["after-basis-t"] || undefined;
 	return `
 <!--
   [atomist:generated]
-  [atomist-skill:${ctx.skill.namespace}/${ctx.skill.name}]
-  [atomist-version:${ctx.skill.version}]
-  [atomist-configuration:${toArray(ctx.configuration || [])
-		.map(c => c.name)
-		.join(",")}]
-  [atomist-workspace-id:${ctx.workspaceId}]${
+  [atomist-skill:${ctx.event.skill.namespace}/${ctx.event.skill.name}]
+  [atomist-version:${ctx.event.skill.version}]
+  [atomist-configuration:${
+		ctx.event.context.subscription?.configuration?.name ||
+		ctx.event.context.webhook?.["configuration-name"]
+  }]
+  [atomist-workspace-id:${ctx.event["workspace-id"]}]${
 		tx
 			? `
   [atomist-tx:${tx}]`
 			: ""
 	}
-  [atomist-correlation-id:${ctx.correlationId}]${
+  [atomist-correlation-id:${ctx.event["execution-id"]}]${
 		tags.length > 0 ? "\n" : ""
 	}${tags.map(t => `  [${t}]`).join("\n")}
 -->`;
 }
 
-export function formatFooter(ctx: Contextual<any, any>): string {
+export function formatFooter(ctx: EventContext): string {
 	// Do not format footer for DSO skills
-	if (toArray(ctx.configuration)?.[0].parameters?.atomist?.policy) {
+	if (ctx.event.skill.configuration?.atomist?.policy) {
 		return "";
 	}
 
 	const skillUrl =
-		ctx.configuration?.parameters?.atomist?.skillUrl ||
-		`https://go.atomist.com/catalog/skills/${ctx.skill.namespace}/${ctx.skill.name}`;
+		ctx.event.skill.configuration?.atomist?.skillUrl ||
+		`https://go.atomist.com/catalog/skills/${ctx.event.skill.namespace}/${ctx.event.skill.name}`;
 	return `	
 ---
 
 <p align="center">
 <sub>
-<a href="${skillUrl}">${ctx.skill.namespace}/${
-		ctx.skill.name
-	}</a> \u00B7 ${toArray(ctx.configuration || [])
+<a href="${skillUrl}">${ctx.event.skill.namespace}/${
+		ctx.event.skill.name
+	}</a> \u00B7 ${toArray(ctx.event.skill.configuration || [])
 		.map(
 			c =>
 				`<a href="${
-					c.parameters?.atomist?.configurationUrl || c.url
+					c?.atomist?.configurationUrl || c.url
 				}">Configure</a>`,
 		)
 		.join("\u00B7")}
