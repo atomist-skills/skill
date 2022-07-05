@@ -16,14 +16,14 @@
 
 import { entity, entityRefs } from "../datalog/util";
 import { api } from "../github/operation";
-import { Contextual } from "../handler/handler";
+import { EventContext } from "../handler/handler";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import { Annotation } from "./policy";
 
 import groupBy = require("lodash.groupby");
 
 export async function transactAudit(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	id: AuthenticatedRepositoryId<any>,
 	ruleId: string,
 	message: string,
@@ -52,7 +52,7 @@ export async function transactAudit(
 		}),
 		entity("sarif/run", "$sarif-run", {
 			"commit": "$commit",
-			"sarif.tool.driver/name": `${ctx.skill.namespace}/${ctx.skill.name}#${ruleId}`,
+			"sarif.tool.driver/name": `${ctx.event.skill.namespace}/${ctx.event.skill.name}#${ruleId}`,
 		}),
 	];
 

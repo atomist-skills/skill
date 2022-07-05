@@ -16,4 +16,3 @@
 
 export * as datalog from "./common_types";
 export * from "./named";
-export * as types from "./typings/types";

@@ -15,15 +15,9 @@
  */
 
 export {
-	commitMatchesRepoFilter,
-	matchesRefFilter,
-	matchesRepoFilter,
-} from "./filter";
-export {
 	AuthenticatedRepositoryId,
 	fromRepo,
 	gitHubComRepository as gitHub,
 	RepositoryId,
 	RepositoryProviderType,
 } from "./id";
-export { linkedRepositories, linkedRepository } from "./linked";
