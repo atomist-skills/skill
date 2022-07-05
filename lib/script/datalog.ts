@@ -19,10 +19,11 @@ import * as yaml from "js-yaml";
 import * as path from "path";
 
 import { createDatalogClient } from "../datalog/client";
+import { createHttpClient } from "../http";
 import { Skill } from "../payload";
 import { guid } from "../util";
 import { AtomistSkillInput } from "./skill_input";
-import { apiKey, wid } from "./skill_register";
+import { apiKey, wid } from "./util";
 
 export async function query(args: {
 	cwd: string;
@@ -51,16 +52,18 @@ export async function query(args: {
 		} as any;
 	}
 
-	const client = createDatalogClient(await apiKey(), {
-		workspaceId: await wid(args.workspace),
-		correlationId: guid(),
-		skill,
-		onComplete: undefined,
-		trigger: undefined,
-		message: undefined,
-		credential: undefined,
-		http: undefined,
-	});
+	const client = createDatalogClient(
+		{
+			"workspace-id": await wid(args.workspace),
+			"execution-id": guid(),
+			skill,
+			"urls": undefined,
+			"context": undefined,
+			"token": await apiKey(),
+			"type": undefined,
+		},
+		createHttpClient(),
+	);
 
 	const query = (
 		await fs.readFile(path.join(args.cwd, args.query))

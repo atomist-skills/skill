@@ -17,7 +17,7 @@
 import { Check } from "../github/check";
 import { api } from "../github/operation";
 import { commentPullRequest } from "../github/pull_request";
-import { EventContext, EventHandler, HandlerStatus } from "../handler/handler";
+import { EventContext, EventHandler, Status } from "../handler/handler";
 import {
 	chain,
 	ChainedHandler,
@@ -27,11 +27,10 @@ import {
 	createRef,
 	CreateRepositoryId,
 } from "../handler/util";
-import { SubscriptionIncoming } from "../payload";
 import { CloneOptions } from "../project/clone";
 import { Project } from "../project/project";
 import { AuthenticatedRepositoryId } from "../repository/id";
-import { success } from "../status";
+import * as status from "../status";
 import { isStaging } from "../util";
 import { transactAudit } from "./audit";
 import { markdownLink } from "./badge";
@@ -66,8 +65,8 @@ function createDetails<D, C>(
 }
 
 export function whenOne<S, C>(
-	...whens: Array<(ctx: EventContext<S, C>) => HandlerStatus | undefined>
-): (ctx: EventContext<S, C>) => HandlerStatus | undefined {
+	...whens: Array<(ctx: EventContext<S, C>) => Status | undefined>
+): (ctx: EventContext<S, C>) => Status | undefined {
 	return ctx => {
 		let result;
 		for (const when of whens) {
@@ -81,8 +80,8 @@ export function whenOne<S, C>(
 }
 
 export function whenAll<S, C>(
-	...whens: Array<(ctx: EventContext<S, C>) => HandlerStatus | undefined>
-): (ctx: EventContext<S, C>) => HandlerStatus | undefined {
+	...whens: Array<(ctx: EventContext<S, C>) => Status | undefined>
+): (ctx: EventContext<S, C>) => Status | undefined {
 	return ctx => {
 		for (const when of whens) {
 			const result = when(ctx);
@@ -97,21 +96,21 @@ export function whenAll<S, C>(
 export function whenParameter<S, C>(
 	parameterName: string,
 	message?: string,
-): (ctx: EventContext<S, C>) => HandlerStatus | undefined {
+): (ctx: EventContext<S, C>) => Status | undefined {
 	return ctx => {
-		if (ctx.configuration.parameters[parameterName] !== true) {
-			return success(
+		if (ctx.event.skill.configuration[parameterName] !== true) {
+			return status.completed(
 				message
 					? message
 					: `Configuration parameter _${parameterName}_ not enabled`,
-			).hidden();
+			);
 		}
 		return undefined;
 	};
 }
 
 export function checkHandler<S, C>(parameters: {
-	when?: (ctx: EventContext<S, C>) => HandlerStatus | undefined;
+	when?: (ctx: EventContext<S, C>) => Status | undefined;
 	id: CreateRepositoryId<S, C>;
 	clone?: (ctx: EventContext<S, C>) => CloneOptions | string[] | boolean;
 	details?: (ctx: EventContext<S, C>) => PolicyDetails;
@@ -132,7 +131,7 @@ export function checkHandler<S, C>(parameters: {
 		comment?: (pr: { url: string; number: number }) => string;
 		annotations?: Annotation[];
 		actions?: Action[];
-		status: HandlerStatus;
+		status: Status;
 	}>;
 }): EventHandler<S, C> {
 	return chain<
@@ -164,13 +163,13 @@ export function checkHandler<S, C>(parameters: {
 						await cloneRef(cloneResult as any)(ctx);
 					}
 				} catch (e) {
-					return success(
+					return status.completed(
 						`Failed to clone ${ctx.chain.id.owner}/${
 							ctx.chain.id.repo
 						}#${
 							ctx.chain.id.sha?.slice(0, 7) || ctx.chain.id.branch
 						}`,
-					).hidden();
+					);
 				}
 			}
 			return undefined;
@@ -181,7 +180,7 @@ export function checkHandler<S, C>(parameters: {
 				return undefined;
 			}
 			const app = isStaging() ? "atomista" : "atomist";
-			const tx = (ctx.trigger as SubscriptionIncoming).subscription.tx;
+			const tx = ctx.event.context.subscription?.tx;
 			const checks = (
 				await api(ctx.chain.id).checks.listForRef({
 					owner: ctx.chain.id.owner,
@@ -197,9 +196,9 @@ export function checkHandler<S, C>(parameters: {
 					.filter(c => !isNaN(+c.external_id))
 					.some(c => tx > 0 && +c.external_id > tx)
 			) {
-				return success(
+				return status.completed(
 					"Skipping execution of outdated subscription result",
-				).hidden();
+				);
 			}
 			return undefined;
 		},
@@ -248,7 +247,7 @@ export function checkHandler<S, C>(parameters: {
 				if (ctx.chain.details.check.includeBadge !== false) {
 					badge = `${await markdownLink({
 						sha: ctx.chain.id.sha,
-						workspace: ctx.workspaceId,
+						workspace: ctx.event["workspace-id"],
 						name: ctx.chain.details.check.name,
 						title: ctx.chain.details.check.title,
 						conclusion: result.conclusion,

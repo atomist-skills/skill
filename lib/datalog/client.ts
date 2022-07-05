@@ -16,12 +16,12 @@
 
 import { Response } from "node-fetch";
 
-import { Contextual } from "../handler/handler";
+import { HttpClient } from "../http";
 import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
-import { SkillConfiguration, SubscriptionIncoming } from "../payload";
+import { EventIncoming } from "../payload";
 import { retry } from "../retry";
-import { hash, isStaging, toArray } from "../util";
+import { hash, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
 import map = require("lodash.map");
 
@@ -55,19 +55,8 @@ export interface DatalogClient {
 
 class NodeFetchDatalogClient implements DatalogClient {
 	constructor(
-		private readonly apiKey: string,
-		private readonly url: string,
-		private readonly ctx: Pick<
-			Contextual<any, any>,
-			| "onComplete"
-			| "workspaceId"
-			| "correlationId"
-			| "skill"
-			| "trigger"
-			| "message"
-			| "credential"
-			| "http"
-		>,
+		private readonly payload: EventIncoming,
+		private readonly http: HttpClient,
 	) {}
 
 	private transactInstance: DatalogTransact;
@@ -81,7 +70,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 		options: { ordering: boolean } = { ordering: true },
 	): Promise<void> {
 		if (!this.transactInstance) {
-			this.transactInstance = createTransact(this.ctx);
+			this.transactInstance = createTransact(this.payload, this.http);
 		}
 		return this.transactInstance(entities, options);
 	}
@@ -100,33 +89,25 @@ class NodeFetchDatalogClient implements DatalogClient {
 			};
 		} = {},
 	): Promise<T[] | string> {
-		if (
-			(this.ctx.trigger as SubscriptionIncoming)?.subscription?.[
-				"after-basis-t"
-			]
-		) {
+		if (this.payload.context.subscription?.["after-basis-t"]) {
 			options = {
 				...(options || {}),
 				tx:
 					options?.tx ||
-					(this.ctx.trigger as SubscriptionIncoming).subscription[
-						"after-basis-t"
-					],
+					this.payload.context.subscription?.["after-basis-t"],
 				configurationName:
 					options?.configurationName ||
-					(
-						(this.ctx.trigger as SubscriptionIncoming).skill
-							.configuration as SkillConfiguration
-					).name,
+					this.payload.context.subscription?.configuration?.name ||
+					this.payload.context.webhook?.["configuration-name"],
 			};
 		}
 
 		let body;
 		if (typeof query === "string") {
-			body = prepareQueryBody(query, parameters, options, this.ctx);
+			body = prepareQueryBody(query, parameters, options, this.payload);
 		} else {
 			const queries = map(query, (v, k) =>
-				prepareQueryBody(v, parameters, options, this.ctx, k),
+				prepareQueryBody(v, parameters, options, this.payload, k),
 			);
 			body = `{
 :queries [
@@ -147,14 +128,14 @@ ${queries.join("\n\n")}
 			result = await (
 				await retry<Response>(async () => {
 					try {
-						const response = await f(this.url, {
+						const response = await f(this.payload.urls.query, {
 							method: "post",
 							body,
 							headers: {
-								"authorization": `bearer ${this.apiKey}`,
+								"authorization": `bearer ${this.payload.token}`,
 								"content-type": "application/edn",
 								"x-atomist-correlation-id":
-									this.ctx.correlationId,
+									this.payload["execution-id"],
 							},
 						});
 						if (response.status !== 200) {
@@ -215,13 +196,14 @@ ${queries.join("\n\n")}
 		const result = await (
 			await retry<Response>(async () => {
 				try {
-					const response = await f(this.url, {
+					const response = await f(this.payload.urls.query, {
 						method: "post",
 						body,
 						headers: {
-							"authorization": `bearer ${this.apiKey}`,
+							"authorization": `bearer ${this.payload.token}`,
 							"content-type": "application/edn",
-							"x-atomist-correlation-id": this.ctx.correlationId,
+							"x-atomist-correlation-id":
+								this.payload["execution-id"],
 						},
 					});
 					if (response.status !== 200) {
@@ -253,34 +235,11 @@ ${queries.join("\n\n")}
 }
 
 export function createDatalogClient(
-	apiKey: string,
-	ctx: Pick<
-		Contextual<any, any>,
-		| "onComplete"
-		| "workspaceId"
-		| "correlationId"
-		| "skill"
-		| "trigger"
-		| "message"
-		| "credential"
-		| "http"
-	>,
-	endpoint: string = process.env.ATOMIST_DATALOG_ENDPOINT ||
-		(isStaging()
-			? "https://api-staging.atomist.services/datalog"
-			: "https://api.atomist.com/datalog"),
+	payload: EventIncoming,
+	http: HttpClient,
 ): DatalogClient {
-	let url = endpoint;
 	// In case the datalog endpoint is passed we also need to set the workspace id
-	if (
-		[
-			"https://api-staging.atomist.services/datalog",
-			"https://api.atomist.com/datalog",
-		].includes(endpoint)
-	) {
-		url = `${endpoint}/team/${ctx.workspaceId}`;
-	}
-	return new NodeFetchDatalogClient(apiKey, url, ctx);
+	return new NodeFetchDatalogClient(payload, http);
 }
 
 export function prepareQueryBody<P>(
@@ -293,7 +252,7 @@ export function prepareQueryBody<P>(
 		rules?: string;
 		paging?: { limit: number; offset: number };
 	},
-	ctx: Pick<Contextual<any, any>, "skill">,
+	payload: EventIncoming,
 	name?: string,
 ): string {
 	const argsAndQuery = prepareArgs(query, parameters);
@@ -311,7 +270,7 @@ export function prepareQueryBody<P>(
 	}
 	if (options?.configurationName) {
 		bodyParts.push(
-			`:skill-ref {:name "${ctx.skill.name}" :namespace "${ctx.skill.namespace}" :configuration-name "${options.configurationName}"}`,
+			`:skill-ref {:name "${payload.skill.name}" :namespace "${payload.skill.namespace}" :configuration-name "${options.configurationName}"}`,
 		);
 	}
 	if (options?.rules) {

@@ -16,9 +16,8 @@
 
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
 
-import { Contextual } from "../handler/handler";
+import { EventContext } from "../handler/handler";
 import { dsoUrl, url } from "../log/util";
-import { isSubscriptionIncoming } from "../payload";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import { GitHubAppCredential, GitHubCredential } from "../secret/provider";
 import { isStaging } from "../util";
@@ -76,14 +75,14 @@ export interface Check {
 }
 
 export async function createCheck(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	id: AuthenticatedRepositoryId<GitHubCredential | GitHubAppCredential>,
 	parameters: CreateCheck,
 ): Promise<Check> {
 	let terminated = false;
-	const externalId = isSubscriptionIncoming(ctx.trigger)
-		? ctx.trigger.subscription["after-basis-t"]?.toString()
-		: ctx.correlationId;
+	const externalId =
+		ctx.event.context.subscription?.["after-basis-t"]?.toString() ||
+		ctx.event["execution-id"];
 	// Check if there is a check open with that name
 	const openChecks = (
 		await api(id, ctx).checks.listForRef({
@@ -129,7 +128,7 @@ export async function createCheck(
 			external_id: externalId,
 			details_url:
 				parameters.detailsUrl ||
-				(ctx.configuration?.parameters?.atomist?.policy
+				(ctx.event.skill.configuration?.atomist?.policy
 					? dsoUrl(ctx)
 					: url(ctx)),
 			status: "in_progress",
@@ -157,7 +156,7 @@ export async function createCheck(
 			external_id: externalId,
 			details_url:
 				parameters.detailsUrl ||
-				(ctx.configuration?.parameters?.atomist?.policy
+				(ctx.event.skill.configuration?.atomist?.policy
 					? dsoUrl(ctx)
 					: url(ctx)),
 			status: "in_progress",
