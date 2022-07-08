@@ -28,7 +28,7 @@ void yargs
 		"run",
 		"Start container skill",
 		args => args.options({}),
-		async argv => {
+		async _ => {
 			return (await import("../lib/script/skill_run")).runSkill(
 				undefined,
 			);

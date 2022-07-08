@@ -46,7 +46,7 @@ export async function assertSkill(
 		listAs: "array",
 	}) as any;
 
-	if (payload.token) {
+	if (!payload.token) {
 		payload.token = await apiKey();
 	}
 

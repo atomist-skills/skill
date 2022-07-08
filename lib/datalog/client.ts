@@ -89,16 +89,18 @@ class NodeFetchDatalogClient implements DatalogClient {
 			};
 		} = {},
 	): Promise<T[] | string> {
-		if (this.payload.context.subscription?.["after-basis-t"]) {
+		if (this.payload.context.subscription?.metadata?.["after-basis-t"]) {
 			options = {
 				...(options || {}),
 				tx:
 					options?.tx ||
-					this.payload.context.subscription?.["after-basis-t"],
+					this.payload.context.subscription?.metadata?.[
+						"after-basis-t"
+					],
 				configurationName:
 					options?.configurationName ||
 					this.payload.context.subscription?.configuration?.name ||
-					this.payload.context.webhook?.["configuration-name"],
+					this.payload.context.webhook?.configuration?.name,
 			};
 		}
 
