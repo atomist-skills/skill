@@ -40,7 +40,7 @@ export interface OnPush {
 		"git.repo/source-id": string;
 		"git.repo/default-branch": string;
 		"git.repo/org": {
-			"git.org/installation-token": string;
+			"github.org/installation-token": string;
 			"git.org/name": string;
 			"git.provider/url": string;
 		};
