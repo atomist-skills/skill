@@ -180,7 +180,7 @@ export function checkHandler<S, C>(parameters: {
 				return undefined;
 			}
 			const app = isStaging() ? "atomista" : "atomist";
-			const tx = ctx.event.context.subscription?.tx;
+			const tx = ctx.event.context.subscription?.metadata?.tx;
 			const checks = (
 				await api(ctx.chain.id).checks.listForRef({
 					owner: ctx.chain.id.owner,
