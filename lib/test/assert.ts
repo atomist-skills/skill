@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { parseEDNString } from "edn-data";
+
 import * as namespace from "../cls";
 import {
 	ContextFactory,
@@ -30,15 +32,19 @@ import { apiKey } from "../script/util";
 import { handlerLoader, replacer } from "../util";
 
 export async function assertSkill(
-	payload: EventIncoming,
+	message: string,
 	ctx: Partial<EventContext<any, any>> = {},
 ): Promise<undefined | Status> {
 	// Enable straight console logging
 	process.env.ATOMIST_CONSOLE_LOG = "1";
 	// Disable docker auth so that we can rely on local creds
 	process.env.ATOMIST_SKIP_DOCKER_AUTH = "1";
-	// Disable de-dupe checking
-	process.env.ATOMIST_SKIP_DEDUPE = "1";
+
+	const payload: EventIncoming = parseEDNString(message.toString(), {
+		mapAs: "object",
+		keywordAs: "string",
+		listAs: "array",
+	}) as any;
 
 	if (payload.token) {
 		payload.token = await apiKey();
