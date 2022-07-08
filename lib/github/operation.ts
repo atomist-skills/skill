@@ -93,7 +93,9 @@ export function formatCommitMarkers(
 }
 
 export function formatMarkers(ctx: EventContext, ...tags: string[]): string {
-	const tx = ctx.event.context.subscription?.["after-basis-t"] || undefined;
+	const tx =
+		ctx.event.context.subscription?.metadata?.["after-basis-t"] ||
+		undefined;
 	return `
 <!--
   [atomist:generated]
@@ -101,7 +103,7 @@ export function formatMarkers(ctx: EventContext, ...tags: string[]): string {
   [atomist-version:${ctx.event.skill.version}]
   [atomist-configuration:${
 		ctx.event.context.subscription?.configuration?.name ||
-		ctx.event.context.webhook?.["configuration-name"]
+		ctx.event.context.webhook?.configuration?.name
   }]
   [atomist-workspace-id:${ctx.event["workspace-id"]}]${
 		tx

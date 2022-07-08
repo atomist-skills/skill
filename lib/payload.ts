@@ -27,6 +27,22 @@ export interface Skill<C = any> {
 	configuration?: C;
 }
 
+export interface Configuration {
+	capabilities: Array<{
+		providers: Array<{
+			"namespace": string;
+			"name": string;
+			"configuration-name": string;
+		}>;
+		spec: {
+			namespace: string;
+			name: string;
+		};
+	}>;
+	name: string;
+	parameters: Array<{ name: string; value: any }>;
+}
+
 export interface EventIncoming<E = any, C = any> {
 	"execution-id": string;
 	"skill": Skill<C>;
@@ -34,22 +50,24 @@ export interface EventIncoming<E = any, C = any> {
 	"workspace-id": string;
 	"context": {
 		subscription?: {
-			"name": string;
-			"configuration": {
-				name: string;
-				parameters: Array<{ name: string; value: any }>;
+			name: string;
+			configuration: Configuration;
+			result: E[];
+			metadata: {
+				"tx": number;
+				"after-basis-t": number;
+				"schedule-name": string;
 			};
-			"tx": number;
-			"after-basis-t": number;
-			"result": E[];
 		};
 		webhook?: {
-			"name": string;
-			"configuration-name": string;
-			"url": string;
-			"body": string;
-			"headers": Record<string, string>;
-			"tags": Array<{ name: string; value: string }>;
+			name: string;
+			configuration: Configuration;
+			request: {
+				url: string;
+				body: string;
+				headers: Record<string, string>;
+				tags: Array<{ name: string; value: string }>;
+			};
 		};
 	};
 	"urls": {
