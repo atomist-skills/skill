@@ -17,6 +17,7 @@
 import * as Queue from "better-queue";
 import * as util from "util";
 
+import { asKeyword } from "../datalog/index";
 import { toEdnString } from "../datalog/transact";
 import { createHttpClient } from "../http";
 import { EventIncoming } from "../payload";
@@ -103,7 +104,7 @@ export function createLogger(payload: EventIncoming): Logger {
 		const fmsg = util.format(msg, ...parameters);
 		logQueue.push({
 			timestamp: new Date().toISOString(),
-			level: severity,
+			level: asKeyword(severity.toLowerCase()),
 			text: fmsg,
 		});
 		// tslint:disable-next-line:no-console
