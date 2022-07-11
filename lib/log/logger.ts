@@ -17,7 +17,7 @@
 import * as Queue from "better-queue";
 import * as util from "util";
 
-import { asKeyword } from "../datalog/index";
+import { asKeyword, EntityKeyword } from "../datalog/index";
 import { toEdnString } from "../datalog/transact";
 import { createHttpClient } from "../http";
 import { EventIncoming } from "../payload";
@@ -62,7 +62,7 @@ export interface Logger {
 
 interface Entry {
 	timestamp: string;
-	level: string;
+	level: EntityKeyword;
 	text: string;
 }
 
@@ -72,7 +72,9 @@ export function createLogger(payload: EventIncoming): Logger {
 	const logQueue = new Queue<Entry, Promise<void>>({
 		store: new Store(),
 		process: async (entries: Entry[], cb) => {
-			const filteredEntries = entries.filter(e => e.level !== "EXIT");
+			const filteredEntries = entries.filter(
+				e => e.level?._key !== "EXIT",
+			);
 			await createHttpClient().post(payload.urls.logs, {
 				body: toEdnString({
 					logs: filteredEntries,
@@ -121,7 +123,7 @@ export function createLogger(payload: EventIncoming): Logger {
 		info: (msg: string, ...parameters) =>
 			queueLog(msg, "INFO", ...parameters),
 		warn: (msg: string, ...parameters) =>
-			queueLog(msg, "WARNING", ...parameters),
+			queueLog(msg, "WARN", ...parameters),
 		error: (msg: string, ...parameters) =>
 			queueLog(msg, "ERROR", ...parameters),
 		close: async () => {
