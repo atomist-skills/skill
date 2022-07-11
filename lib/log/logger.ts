@@ -17,8 +17,8 @@
 import * as Queue from "better-queue";
 import * as util from "util";
 
-import { asKeyword, EntityKeyword } from "../datalog/index";
 import { toEdnString } from "../datalog/transact";
+import { asKeyword, EntityKeyword } from "../datalog/util";
 import { createHttpClient } from "../http";
 import { EventIncoming } from "../payload";
 
