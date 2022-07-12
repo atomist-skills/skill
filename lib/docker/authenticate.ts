@@ -22,8 +22,9 @@ import {
 	DockerRegistryType,
 } from "../definition/subscription/common_types";
 import { Contextual, EventContext } from "../handler/handler";
-import { warn } from "../log/index";
+import { debug, warn } from "../log/index";
 import { createFile } from "../tmp_fs";
+import { replacer } from "../util";
 
 export type ExtendedDockerRegistry = DockerRegistry & {
 	serviceAccount: string;
@@ -66,6 +67,13 @@ export async function authenticate(
 	if (process.env.ATOMIST_SKIP_DOCKER_AUTH) {
 		return;
 	}
+	debug(
+		`Authenticating using registries: ${JSON.stringify(
+			registries,
+			replacer,
+			undefined,
+		)}`,
+	);
 	const dockerConfig = {
 		auths: {},
 	} as any;
