@@ -86,3 +86,24 @@ export function fromRepo(
 		},
 	}) as any;
 }
+
+export function fromCommit(
+	commit: OnPush,
+): AuthenticatedRepositoryId<GitHubAppCredential> {
+	const branch = commit["git.ref/refs"]?.find(
+		r => r["git.ref/type"]["db/ident"] === "git.ref.type/branch",
+	)?.["git.ref/name"];
+	return gitHubComRepository({
+		owner: commit["git.commit/repo"]["git.repo/org"]["git.org/name"],
+		repo: commit["git.commit/repo"]["git.repo/name"],
+		sourceId: commit["git.commit/repo"]["git.repo/source-id"],
+		sha: commit["git.commit/sha"],
+		branch,
+		credential: {
+			token: commit["git.commit/repo"]["git.repo/org"][
+				"git.org/installation-token"
+			],
+			permissions: {},
+		},
+	}) as any;
+}

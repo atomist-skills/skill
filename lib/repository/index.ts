@@ -16,6 +16,7 @@
 
 export {
 	AuthenticatedRepositoryId,
+	fromCommit,
 	fromRepo,
 	gitHubComRepository as gitHub,
 	RepositoryId,
