@@ -24,7 +24,7 @@ import {
 import { Contextual, EventContext } from "../handler/handler";
 import { debug, warn } from "../log/index";
 import { createFile } from "../tmp_fs";
-import { replacer } from "../util";
+import { replacer, toArray } from "../util";
 
 export type ExtendedDockerRegistry = DockerRegistry & {
 	serviceAccount: string;
@@ -35,13 +35,15 @@ export type ExtendedDockerRegistry = DockerRegistry & {
 
 export async function doAuthed<T>(
 	ctx: EventContext<any, any>,
-	registries: ExtendedDockerRegistry[],
-	cb: (registry: ExtendedDockerRegistry) => Promise<T>,
+	registries: Array<ExtendedDockerRegistry | ExtendedDockerRegistry[]>,
+	cb: (
+		registry: ExtendedDockerRegistry | ExtendedDockerRegistry[],
+	) => Promise<T>,
 ): Promise<T> {
 	let error;
 	for (const registry of registries) {
 		try {
-			await authenticate(ctx, [registry]);
+			await authenticate(ctx, toArray(registry));
 			const result = await cb(registry);
 			return result;
 		} catch (e) {
