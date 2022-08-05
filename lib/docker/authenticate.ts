@@ -58,7 +58,12 @@ export async function doAuthed<T>(
 }
 
 export interface DefaultDockerCredentials {
-	dockerhub?: { "username": string; "api-key": string };
+	dockerhub?: {
+		"username": string;
+		"api-key": string;
+		"global-username": string;
+		"global-api-key": string;
+	};
 	github?: { "atomist-bot": { pat: string } };
 }
 
@@ -143,9 +148,15 @@ export async function authenticate(
 	) {
 		dockerConfig.auths["https://index.docker.io/v1/"] = {
 			auth: Buffer.from(
-				ctx.configuration.parameters?.dockerhub.username +
+				(ctx.configuration.parameters?.dockerhub.username ||
+					ctx.configuration.parameters?.dockerhub[
+						"global-username"
+					]) +
 					":" +
-					ctx.configuration.parameters?.dockerhub["api-key"],
+					(ctx.configuration.parameters?.dockerhub["api-key"] ||
+						ctx.configuration.parameters?.dockerhub[
+							"global-api-key"
+						]),
 			)?.toString("base64"),
 		};
 	}

@@ -362,6 +362,10 @@ function extractConfigurationParameters(
 			const rec = parameters["atomist"] || {};
 			rec[camelCase(p.name.split("://")[1])] = p.value;
 			parameters["atomist"] = rec;
+		} else if (p.name === "dockerhub_global_read_username") {
+			parameters["dockerhub.global-username"] = p.value;
+		} else if (p.name === "dockerhub_global_read_api_key") {
+			parameters["dockerhub.global-api-key"] = p.value;
 		} else {
 			parameters[p.name] = p.value;
 		}
