@@ -39,7 +39,7 @@ export async function runSkill(
 	const port = process.env.PORT || 8080;
 
 	const app = express();
-	app.use(bodyParser.raw({ type: "application/edn" }));
+	app.use(bodyParser.raw({ limit: "50mb", type: "application/edn" }));
 
 	app.post("/", async (req, res) => {
 		const start = Date.now();
