@@ -62,7 +62,7 @@ export function enabled(level: string): boolean {
 }
 
 export function dsoUrl(ctx: Contextual<any, any>): string {
-	return `https://dso.atomist.${isStaging() ? "services" : "com"}/${
+	return `https://dso.docker.${isStaging() ? "services" : "com"}/${
 		ctx.workspaceId
 	}/overview?correlation_id=${ctx.correlationId}`;
 }
