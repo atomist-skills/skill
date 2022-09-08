@@ -17,7 +17,7 @@
 import { RestEndpointMethodTypes } from "@octokit/plugin-rest-endpoint-methods";
 import { Octokit } from "@octokit/rest";
 
-import { entity, entityRef } from "../datalog/util";
+import { asKeyword, entity, entityRef } from "../datalog/util";
 import { Contextual } from "../handler/handler";
 import { warn } from "../log/console";
 import { handleError, loggingErrorHandler } from "../util";
@@ -75,13 +75,13 @@ export const PullRequestTransactor: ResponseTransactor<
 		const sourceBranchEntity = entity("git/ref", {
 			"name": pr.head.ref,
 			"repo": entityRef(repoEntity),
-			"type": ":git.ref.type/branch",
+			"type": asKeyword("git.ref.type/branch"),
 			"git.provider/url": "https://github.com",
 		});
 		const destinationBranchEntity = entity("git/ref", {
 			"name": pr.base.ref,
 			"repo": entityRef(repoEntity),
-			"type": ":git.ref.type/branch",
+			"type": asKeyword("git.ref.type/branch"),
 			"git.provider/url": "https://github.com",
 		});
 		const prEntity = entity("github/pullrequest", {
