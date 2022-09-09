@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { entity, entityRefs } from "../datalog/util";
+import { asKeyword, entity, entityRefs } from "../datalog/util";
 import { api } from "../github/operation";
 import { EventContext } from "../handler/handler";
 import { AuthenticatedRepositoryId } from "../repository/id";
@@ -71,21 +71,21 @@ export async function transactAudit(
 				"level": annotationsByPath[path].find(
 					a => a.annotationLevel === "failure",
 				)
-					? ":sarif.result.level/error"
+					? asKeyword("sarif.result.level/error")
 					: annotationsByPath[path].find(
 							a => a.annotationLevel === "warning",
 					  )
-					? ":sarif.result.level/warning"
-					: ":sarif.result.level/note",
+					? asKeyword("sarif.result.level/warning")
+					: asKeyword("sarif.result.level/note"),
 				"kind": annotationsByPath[path].find(
 					a => a.annotationLevel === "failure",
 				)
-					? ":sarif.result.kind/fail"
+					? asKeyword("sarif.result.kind/fail")
 					: annotationsByPath[path].find(
 							a => a.annotationLevel === "warning",
 					  )
-					? ":sarif.result.kind/review"
-					: ":sarif.result.kind/open",
+					? asKeyword("sarif.result.kind/review")
+					: asKeyword("sarif.result.kind/open"),
 				"sarif.result.message/text": message,
 				"locations": {
 					set: entityRefs(locationEntities),
