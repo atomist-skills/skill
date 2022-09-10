@@ -24,21 +24,13 @@ import { error } from "../lib/log";
 
 // tslint:disable-next-line:no-unused-expression
 void yargs
-	.command<{ skill: string }>(
+	.command(
 		"run",
 		"Start container skill",
-		args =>
-			args.options({
-				skill: {
-					type: "string",
-					description: "Name of skill to load",
-					demandOption: false,
-				},
-			}),
+		args => args.options({}),
 		async argv => {
 			return (await import("../lib/script/skill_run")).runSkill(
 				undefined,
-				argv.skill,
 			);
 		},
 	)
@@ -77,66 +69,6 @@ void yargs
 			}
 		},
 	)
-	.command<{
-		cwd: string;
-		minify: boolean;
-		sourceMap: boolean;
-		file: string;
-		verbose: boolean;
-	}>(
-		["bundle"],
-		"Bundle skill and dependencies",
-		args =>
-			args.option({
-				cwd: {
-					type: "string",
-					description: "Set working directory",
-					default: process.cwd(),
-					demandOption: false,
-				},
-				minify: {
-					type: "boolean",
-					description: "Minify bundled sources",
-					default: false,
-					demandOption: false,
-				},
-				sourceMap: {
-					type: "boolean",
-					description: "Create source map",
-					default: false,
-					demandOption: false,
-				},
-				file: {
-					type: "string",
-					description: "Name of entryPoint file",
-					default: "skill.bundle.js",
-					demandOption: false,
-				},
-				verbose: {
-					type: "boolean",
-					description: "Enable verbose logging",
-					default: false,
-					demandOption: false,
-				},
-			}),
-		async argv => {
-			try {
-				await (
-					await import("../lib/script/skill_bundle")
-				).bundleSkill(
-					argv.cwd,
-					argv.minify,
-					argv.sourceMap,
-					argv.verbose,
-					argv.file,
-				);
-				process.exit(0);
-			} catch (e) {
-				error(e.message);
-				process.exit(1);
-			}
-		},
-	)
 	.command<{ cwd: string; verbose: boolean }>(
 		["package", "pkg"],
 		"Package skill archive",
@@ -167,64 +99,6 @@ void yargs
 			}
 		},
 	)
-	.command<{ cwd: string; workspace: string }>(
-		["upload", "up"],
-		"Upload skill metadata",
-		args =>
-			args.option({
-				cwd: {
-					type: "string",
-					description: "Set working directory",
-					default: process.cwd(),
-					demandOption: false,
-				},
-				workspace: {
-					type: "string",
-					description: "Id of workspace to register",
-					demandOption: false,
-				},
-			}),
-		async argv => {
-			try {
-				await (
-					await import("../lib/script/skill_upload")
-				).uploadSkill(argv.cwd, argv.workspace);
-				process.exit(0);
-			} catch (e) {
-				error(e.message);
-				process.exit(1);
-			}
-		},
-	)
-	.command<{ cwd: string; workspace: string }>(
-		["download", "down"],
-		"Download skill metadata",
-		args =>
-			args.option({
-				cwd: {
-					type: "string",
-					description: "Set working directory",
-					default: process.cwd(),
-					demandOption: false,
-				},
-				workspace: {
-					type: "string",
-					description: "Id of workspace to register",
-					demandOption: false,
-				},
-			}),
-		async argv => {
-			try {
-				await (
-					await import("../lib/script/skill_download")
-				).downloadSkill(argv.cwd, argv.workspace);
-				process.exit(0);
-			} catch (e) {
-				error(e.message);
-				process.exit(1);
-			}
-		},
-	)
 	.command<{ cwd: string; verbose: boolean }>(
 		["clean"],
 		"Clean skill archive",
@@ -248,115 +122,6 @@ void yargs
 				await (
 					await import("../lib/script/skill_clean")
 				).cleanSkill(argv.cwd);
-				process.exit(0);
-			} catch (e) {
-				error(e.message);
-				process.exit(1);
-			}
-		},
-	)
-	.command<{
-		cwd: string;
-		workspace: string;
-		version: string;
-		verbose: boolean;
-	}>(
-		["register", "reg"],
-		"Register skill",
-		args =>
-			args.option({
-				cwd: {
-					type: "string",
-					description: "Set working directory",
-					default: process.cwd(),
-					demandOption: false,
-				},
-				workspace: {
-					type: "string",
-					description: "Id of workspace to register",
-					demandOption: false,
-				},
-				version: {
-					type: "string",
-					description: "Version of skill",
-					demandOption: false,
-				},
-				verbose: {
-					type: "boolean",
-					description: "Enable verbose logging",
-					default: false,
-					demandOption: false,
-				},
-			}),
-		async argv => {
-			try {
-				await (
-					await import("../lib/script/skill_register")
-				).registerSkill(
-					argv.cwd,
-					argv.workspace,
-					argv.version,
-					argv.verbose,
-				);
-				process.exit(0);
-			} catch (e) {
-				error(e.message);
-				process.exit(1);
-			}
-		},
-	)
-	.command<{ cwd: string; workspace: string }>(
-		["gql-fetch"],
-		"Fetch GraphQL schema",
-		args =>
-			args.option({
-				cwd: {
-					type: "string",
-					description: "Set working directory",
-					default: process.cwd(),
-					demandOption: false,
-				},
-				workspace: {
-					type: "string",
-					description: "Id of workspace to fetch schema for",
-					demandOption: false,
-				},
-			}),
-		async argv => {
-			try {
-				await (
-					await import("../lib/script/gql_fetch")
-				).fetchGql(argv.cwd, argv.workspace);
-				process.exit(0);
-			} catch (e) {
-				error(e.message);
-				process.exit(1);
-			}
-		},
-	)
-	.command<{ cwd: string; config: string }>(
-		["gql-generate"],
-		"Generate types from GraphQL",
-		args =>
-			args.option({
-				cwd: {
-					type: "string",
-					description: "Set working directory",
-					default: process.cwd(),
-					demandOption: false,
-				},
-				config: {
-					type: "string",
-					alias: "c",
-					description: "Path to codegen.yaml configuration file",
-					demandOption: false,
-				},
-			}),
-		async argv => {
-			try {
-				await (
-					await import("../lib/script/gql_generate")
-				).generateGql(argv);
 				process.exit(0);
 			} catch (e) {
 				error(e.message);

@@ -16,24 +16,19 @@
 
 import * as assert from "power-assert";
 
-import { failure, success } from "../lib/status";
+import { State } from "../lib/handler/handler";
+import { completed, failed } from "../lib/status";
 
 describe("status", () => {
 	it("should create success status", () => {
-		const status = success("This is a test");
-		assert.deepStrictEqual(status.code, 0);
+		const status = completed("This is a test");
+		assert.deepStrictEqual(status.state, State.Completed);
 		assert.deepStrictEqual(status.reason, "This is a test");
-		assert(!status.visibility);
-		status.hidden();
-		assert.deepStrictEqual(status.visibility, "hidden");
 	});
 
 	it("should create failure status", () => {
-		const status = failure("This is a test");
-		assert.deepStrictEqual(status.code, 1);
+		const status = failed("This is a test");
+		assert.deepStrictEqual(status.state, State.Failed);
 		assert.deepStrictEqual(status.reason, "This is a test");
-		assert(!status.visibility);
-		status.hidden();
-		assert.deepStrictEqual(status.visibility, "hidden");
 	});
 });

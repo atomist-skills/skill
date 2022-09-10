@@ -15,39 +15,10 @@
  */
 
 import { DatalogClient } from "../datalog/client";
-import { GraphQLClient } from "../graphql";
 import { HttpClient } from "../http";
-import { CommandMessageClient, MessageClient } from "../message";
-import {
-	CommandIncoming,
-	EventIncoming,
-	SubscriptionIncoming,
-	WebhookIncoming,
-} from "../payload";
+import { EventIncoming } from "../payload";
 import { ProjectLoader } from "../project/index";
-import {
-	ParameterPromptObject,
-	ParameterPromptOptions,
-} from "../prompt/prompt";
-import { CredentialProvider } from "../secret/provider";
-import { StorageProvider } from "../storage/provider";
-
-export interface Configuration<C extends Record<string, any>> {
-	name: string;
-	parameters: C & {
-		atomist?: {
-			skillUrl?: string;
-			configurationUrl?: string;
-			policy?: boolean;
-		};
-	};
-	resourceProviders: Record<
-		string,
-		{ typeName: string; selectedResourceProviders: Array<{ id: string }> }
-	>;
-
-	url: string;
-}
+import { StatusPublisher } from "./status";
 
 export const DefaultPriority = 100;
 
@@ -57,31 +28,7 @@ export type ContextClosable = {
 	callback: () => Promise<void>;
 };
 
-export interface Contextual<T, C> {
-	/** Name of the event subscription, command or webhook */
-	name: string;
-
-	/** Workspace Id of currently executing skill */
-	workspaceId: string;
-
-	/** Correlation Id of the currently executing skill */
-	correlationId: string;
-
-	/** Execution Id of the currently executing skill */
-	executionId: string;
-
-	/**
-	 * Resolver to obtain credentials from GraphQL
-	 * @deprecated use Datalog subscriptions
-	 */
-	credential: CredentialProvider;
-
-	/**
-	 * Client to query GraphQL data
-	 * @deprecated use Datalog to query and transact
-	 */
-	graphql: GraphQLClient;
-
+export interface Contextual {
 	/**
 	 * Datalog client to query and transact
 	 */
@@ -93,40 +40,14 @@ export interface Contextual<T, C> {
 	http: HttpClient;
 
 	/**
-	 * Client to send chat messages
-	 */
-	message: MessageClient;
-
-	/**
 	 * Clone and load GitHub repositories
 	 */
 	project: ProjectLoader;
 
 	/**
-	 * Access to store and retrieve files from a storage backend
-	 * @deprecated
+	 * Publish status messages
 	 */
-	storage: StorageProvider;
-
-	/**
-	 * Original trigger unprocessed payload
-	 */
-	trigger: T;
-
-	/**
-	 * Configuration of the currently executing skill
-	 */
-	configuration: C;
-
-	/**
-	 * Details about the currently executing skill
-	 */
-	skill: {
-		id: string;
-		name: string;
-		namespace: string;
-		version: string;
-	};
+	status: StatusPublisher;
 
 	/** Register a callback that gets executed when the skill execution is complete */
 	onComplete: (closable: ContextClosable) => void;
@@ -140,60 +61,26 @@ export interface ContextualLifecycle {
 	close: () => Promise<void>;
 }
 
-export interface EventContext<
-	E = any,
-	C = any,
-	P = EventIncoming | SubscriptionIncoming,
-> extends Contextual<P, Configuration<C>> {
-	/** Subscription data */
-	data: E;
+export interface EventContext<E = any, C = any> extends Contextual {
+	/**
+	 * Incoming event
+	 */
+	event: EventIncoming<E, C>;
 }
 
-export interface CommandContext<C = any>
-	extends Contextual<CommandIncoming, Array<Configuration<C>>> {
-	parameters: {
-		prompt<PARAMS = any>(
-			parameters: ParameterPromptObject<PARAMS>,
-			options?: ParameterPromptOptions,
-		): Promise<PARAMS>;
-	};
-
-	message: CommandMessageClient;
+export enum State {
+	Queued = "queued",
+	Running = "running",
+	Completed = "completed",
+	Retryable = "retryable",
+	Failed = "failed",
 }
 
-export interface WebhookContext<B = any, C = any>
-	extends Contextual<WebhookIncoming, Configuration<C>> {
-	/** HTTP headers */
-	headers: Record<string, string>;
-	/** Raw webhook payload */
-	body: string;
-	/** Parsed JS object if payload is application/json */
-	json: B;
-	/** URL that the webhook payload was sent to */
-	url: string;
-	/** Name of the webhook parameter */
-	name: string;
-}
-
-export interface HandlerStatus {
-	visibility?: "hidden" | "visible";
-	code?: number;
+export interface Status {
+	state: State;
 	reason?: string;
 }
 
-export type CommandHandler<C = any> = (
-	context: CommandContext<C>,
-) => Promise<void | HandlerStatus>;
-
 export type EventHandler<E = any, C = any> = (
 	context: EventContext<E, C>,
-) => Promise<void | HandlerStatus>;
-
-export type MappingEventHandler<E = any, R = any, C = any> = {
-	handle: EventHandler<E, C>;
-	map: (data: R[]) => E;
-};
-
-export type WebhookHandler<B = any, C = any> = (
-	context: WebhookContext<B, C>,
-) => Promise<void | HandlerStatus>;
+) => Promise<void | Status>;

@@ -15,11 +15,6 @@
  */
 
 export {
-	commitMatchesRepoFilter,
-	matchesRefFilter,
-	matchesRepoFilter,
-} from "./filter";
-export {
 	AuthenticatedRepositoryId,
 	fromCommit,
 	fromRepo,
@@ -27,4 +22,3 @@ export {
 	RepositoryId,
 	RepositoryProviderType,
 } from "./id";
-export { linkedRepositories, linkedRepository } from "./linked";

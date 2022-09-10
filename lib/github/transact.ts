@@ -41,7 +41,7 @@ export interface ResponseTransactor<I, O> {
 	transact: (
 		response: O,
 		options: { method: string; url: string } & I,
-		ctx: Contextual<any, any>,
+		ctx: Contextual,
 		gh: Octokit,
 	) => Promise<void>;
 }
@@ -185,7 +185,7 @@ const Transactors: ResponseTransactor<any, any>[] = [
 export async function transactResponse(
 	response: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
 	options: { method: string; url: string },
-	ctx: Contextual<any, any>,
+	ctx: Contextual,
 	gh: Octokit,
 ): Promise<void> {
 	for (const transactor of Transactors.filter(t =>

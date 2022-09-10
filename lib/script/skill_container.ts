@@ -23,7 +23,7 @@ import { packageJson } from "../definition/skill";
 import { namedDatalog } from "../definition/subscription/named";
 import { info } from "../log";
 import { globFiles, withGlobMatches } from "../project/util";
-import { AtomistSkillInput, AtomistSkillRuntime, content } from "./skill_input";
+import { AtomistSkillInput, AtomistSkillRuntime } from "./skill_input";
 import merge = require("lodash.merge");
 
 export async function defaults(
@@ -107,20 +107,6 @@ export async function createYamlSkillInput(
 		is = merge({}, is, doc.skill ? doc.skill : doc);
 	}
 
-	const rc = content(cwd);
-
-	const subscriptions = [];
-	for (const subscription of is.subscriptions || [
-		"file://**/graphql/subscription/*.graphql",
-	]) {
-		const subs = (await rc(subscription)).map(s =>
-			s
-				.replace(/\$\{namespace\}/g, is.namespace)
-				.replace(/\$\{name\}/g, is.name),
-		);
-		subscriptions.push(...subs);
-	}
-
 	const datalogSubscriptions = [];
 	datalogSubscriptions.push(
 		...(await withGlobMatches<{
@@ -178,7 +164,6 @@ export async function createYamlSkillInput(
 		readme: is.readme
 			? Buffer.from(is.readme).toString("base64")
 			: undefined,
-		subscriptions,
 		datalogSubscriptions,
 		schemata,
 	};
