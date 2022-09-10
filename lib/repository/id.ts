@@ -88,17 +88,21 @@ export function fromRepo(
 }
 
 export function fromCommit(
-	commit: OnPush["commit"],
+	commit: OnPush,
 ): AuthenticatedRepositoryId<GitHubAppCredential> {
-	const branch = commit.refs?.find(r => r.type === "branch")?.name;
+	const branch = commit["git.ref/refs"]?.find(
+		r => r["git.ref/type"]["db/ident"] === "git.ref.type/branch",
+	)?.["git.ref/name"];
 	return gitHubComRepository({
-		owner: commit.repo.org.name,
-		repo: commit.repo.name,
-		sourceId: commit.repo.sourceId,
-		sha: commit.sha,
+		owner: commit["git.commit/repo"]["git.repo/org"]["git.org/name"],
+		repo: commit["git.commit/repo"]["git.repo/name"],
+		sourceId: commit["git.commit/repo"]["git.repo/source-id"],
+		sha: commit["git.commit/sha"],
 		branch,
 		credential: {
-			token: commit.repo.org.installationToken,
+			token: commit["git.commit/repo"]["git.repo/org"][
+				"git.org/installation-token"
+			],
 			permissions: {},
 		},
 	}) as any;
