@@ -19,7 +19,7 @@ import * as path from "path";
 
 import { internalParameters } from "../definition/parameter/definition";
 import { Skill } from "../definition/skill";
-import { namedDatalog, namedGraphQl } from "../definition/subscription/named";
+import { namedDatalog } from "../definition/subscription/named";
 import { error, info } from "../log";
 import { withGlobMatches } from "../project/util";
 import { handleError, handlerLoader } from "../util";
@@ -321,20 +321,6 @@ export async function createJavaScriptSkillInput(
 		throw new Error(`Failed to load exported Skill constant from '${p}'`);
 	}
 
-	const rc = content(cwd);
-
-	const subscriptions = [];
-	for (const subscription of is.subscriptions || [
-		"file://**/graphql/subscription/*.graphql",
-	]) {
-		const subs = (await rc(subscription)).map(s =>
-			s
-				.replace(/\$\{namespace\}/g, is.namespace)
-				.replace(/\$\{name\}/g, is.name),
-		);
-		subscriptions.push(...subs);
-	}
-
 	const datalogSubscriptions = [];
 	datalogSubscriptions.push(
 		...(await withGlobMatches<{
@@ -413,6 +399,7 @@ export async function createJavaScriptSkillInput(
 	}
 
 	const y: Omit<AtomistSkillInput, "commitSha" | "branchId" | "repoId"> = {
+		apiVersion: is.apiVersion || "v2",
 		name: is.name,
 		namespace: is.namespace,
 		displayName: is.displayName,
@@ -462,7 +449,6 @@ export async function createJavaScriptSkillInput(
 			pattern: c.pattern.source,
 		})),
 
-		subscriptions,
 		datalogSubscriptions,
 		schemata,
 		capabilities: is.capabilities,
@@ -615,8 +601,6 @@ export function content(cwd: string): (key: string) => Promise<string[]> {
 			return withGlobMatches<string>(cwd, pattern, async file => {
 				return (await fs.readFile(path.join(cwd, file))).toString();
 			});
-		} else if (key.startsWith("@")) {
-			return [namedGraphQl(key)];
 		} else {
 			return [key];
 		}

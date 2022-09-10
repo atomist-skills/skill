@@ -17,164 +17,60 @@
 // tslint:disable-next-line:no-import-side-effect
 import "source-map-support/register";
 
-import { eventHandlerLoader } from "./action";
 import * as namespace from "./cls";
 import { ContextFactory, createContext, loggingCreateContext } from "./context";
 import {
-	CommandContext,
-	CommandHandler,
 	ContextualLifecycle,
 	EventContext,
 	EventHandler,
-	HandlerStatus,
-	WebhookContext,
-	WebhookHandler,
+	Status,
 } from "./handler/handler";
+import { prepareStatus } from "./handler/status";
 import { debug, error } from "./log";
-import { prepareStatus, StatusPublisher } from "./message";
-import {
-	CommandIncoming,
-	EventIncoming,
-	isCommandIncoming,
-	isEventIncoming,
-	isSubscriptionIncoming,
-	isWebhookIncoming,
-	SubscriptionIncoming,
-	WebhookIncoming,
-} from "./payload";
-import { resolvePayload } from "./payload_resolve";
-import { CommandListenerExecutionInterruptError } from "./prompt/prompt";
+import { EventIncoming, isEventIncoming } from "./payload";
+import { completed, running } from "./status";
 import { handlerLoader } from "./util";
 
-export interface PubSubMessage {
-	data: string;
-	attributes: any;
-}
-
-export const entryPoint = async (
-	pubSubEvent: PubSubMessage,
-	context: { eventId: string },
-): Promise<void> => {
+export const entryPoint = async (payload: EventIncoming): Promise<void> => {
 	await namespace.run(async () => {
-		const payload = await resolvePayload(pubSubEvent);
-		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-			await processEvent(payload, context);
-		} else if (isCommandIncoming(payload)) {
-			await processCommand(payload, context);
-		} else if (isWebhookIncoming(payload)) {
-			await processWebhook(payload, context);
+		if (isEventIncoming(payload)) {
+			await processEvent(payload);
 		}
 	});
 };
 
 export const configurableEntryPoint = async (
-	pubSubEvent: PubSubMessage,
-	context: { eventId: string },
+	payload: EventIncoming,
 	factory?: ContextFactory,
-	loader?: (
-		name: string,
-	) => Promise<EventHandler | CommandHandler | WebhookHandler>,
+	loader?: (name: string) => Promise<EventHandler>,
 ): Promise<void> => {
 	await namespace.run(async () => {
-		const payload = await resolvePayload(pubSubEvent);
-		if (isEventIncoming(payload) || isSubscriptionIncoming(payload)) {
-			await processEvent(payload, context, loader as any, factory);
-		} else if (isCommandIncoming(payload)) {
-			await processCommand(payload, context, loader as any, factory);
-		} else if (isWebhookIncoming(payload)) {
-			await processWebhook(payload, context, loader as any, factory);
+		if (isEventIncoming(payload)) {
+			await processEvent(payload, loader as any, factory);
 		}
 	});
 };
 
 export async function processEvent(
-	event: EventIncoming | SubscriptionIncoming,
-	ctx: { eventId: string },
-	loader: (name: string) => Promise<EventHandler> = eventHandlerLoader(
-		"events",
-	),
+	event: EventIncoming,
+	loader: (name: string) => Promise<EventHandler> = handlerLoader("events"),
 	factory: ContextFactory = loggingCreateContext(createContext),
 ): Promise<void> {
-	const context = factory(event, ctx) as EventContext<any> &
-		ContextualLifecycle;
+	const context = factory(event) as EventContext<any> & ContextualLifecycle;
+	const name =
+		context.event.context.subscription?.name ||
+		context.event.context.webhook?.name;
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () => debug(`Closing event handler '${context.name}'`),
+		callback: async () => debug(`Closing event handler '${name}'`),
 	});
-	if (isSubscriptionIncoming(event)) {
-		debug(
-			`Invoking event handler '${context.name}' for tx '${event.subscription["after-basis-t"]}'`,
-		);
-	} else {
-		debug(`Invoking event handler '${context.name}'`);
-	}
+	debug(`Invoking event handler '${name}'`);
 	try {
+		await context.status.publish(running());
 		const result = await invokeHandler(loader, context);
-		await (context.message as any as StatusPublisher).publish(
-			prepareStatus(result || { code: 0 }, context),
-		);
-	} catch (e) {
-		await publishError(e, context);
-	} finally {
-		await context.close();
-	}
-}
-
-export async function processCommand(
-	event: CommandIncoming,
-	ctx: { eventId: string },
-	loader: (name: string) => Promise<CommandHandler> = handlerLoader(
-		"commands",
-	),
-	factory: ContextFactory = loggingCreateContext(createContext),
-): Promise<void> {
-	const context = factory(event, ctx) as CommandContext & ContextualLifecycle;
-	context.onComplete({
-		name: undefined,
-		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () =>
-			debug(`Closing command handler '${context.name}'`),
-	});
-	debug(`Invoking command handler '${context.name}'`);
-	try {
-		const result = await invokeHandler(loader, context);
-		await (context.message as any as StatusPublisher).publish(
-			prepareStatus(result || { code: 0 }, context),
-		);
-	} catch (e) {
-		if (e instanceof CommandListenerExecutionInterruptError) {
-			await (context.message as any as StatusPublisher).publish(
-				prepareStatus({ code: 0 }, context),
-			);
-		} else {
-			await publishError(e, context);
-		}
-	} finally {
-		await context.close();
-	}
-}
-
-export async function processWebhook(
-	event: WebhookIncoming,
-	ctx: { eventId: string },
-	loader: (name: string) => Promise<WebhookHandler> = handlerLoader(
-		"webhooks",
-	),
-	factory: ContextFactory = loggingCreateContext(createContext),
-): Promise<void> {
-	const context = factory(event, ctx) as WebhookContext & ContextualLifecycle;
-	context.onComplete({
-		name: undefined,
-		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () =>
-			debug(`Closing webhook handler '${context.name}'`),
-	});
-	debug(`Invoking webhook handler '${context.name}'`);
-	try {
-		const result = await invokeHandler(loader, context);
-		await (context.message as any as StatusPublisher).publish(
-			prepareStatus(result || { code: 0 }, context),
+		await context.status.publish(
+			prepareStatus(result || completed(), context),
 		);
 	} catch (e) {
 		await publishError(e, context);
@@ -185,22 +81,16 @@ export async function processWebhook(
 
 async function invokeHandler(
 	loader: (name: string) => Promise<any>,
-	context: (EventContext | CommandContext | WebhookContext) &
-		ContextualLifecycle,
-): Promise<HandlerStatus> {
-	const result = (await (
-		await loader(context.name)
-	)(context)) as HandlerStatus;
+	context: EventContext & ContextualLifecycle,
+): Promise<Status> {
+	const name =
+		context.event.context.subscription?.name ||
+		context.event.context.webhook?.name;
+	const result = (await (await loader(name))(context)) as Status;
 	return result;
 }
 
-async function publishError(
-	e,
-	context: (EventContext | CommandContext | WebhookContext) &
-		ContextualLifecycle,
-) {
+async function publishError(e, context: EventContext & ContextualLifecycle) {
 	error(`Error occurred: ${e.stack}`);
-	await (context.message as any as StatusPublisher).publish(
-		prepareStatus(e, context),
-	);
+	await context.status.publish(prepareStatus(e, context));
 }

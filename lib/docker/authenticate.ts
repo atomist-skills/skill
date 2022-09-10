@@ -58,18 +58,13 @@ export async function doAuthed<T>(
 }
 
 export interface DefaultDockerCredentials {
-	dockerhub?: {
-		"username": string;
-		"api-key": string;
-		"global-username": string;
-		"global-api-key": string;
-	};
+	dockerhub?: { "username": string; "api-key": string };
 	github?: { "atomist-bot": { pat: string } };
 }
 
 export async function authenticate(
-	ctx: EventContext<any, any & DefaultDockerCredentials>,
-	registries: ExtendedDockerRegistry[],
+	ctx: EventContext<any, DefaultDockerCredentials>,
+	registries: DockerRegistry[],
 ): Promise<void> {
 	if (process.env.ATOMIST_SKIP_DOCKER_AUTH) {
 		return;
@@ -86,22 +81,26 @@ export async function authenticate(
 	} as any;
 	if (registries?.length > 0) {
 		for (const registry of registries.filter(r => !!r)) {
-			const url = registry.serverUrl.split("/");
-			switch (registry.type) {
+			const url = registry["docker.registry/server-url"].split("/");
+			switch (registry["docker.registry/type"]) {
 				case DockerRegistryType.Ecr:
 					dockerConfig.auths[url[0]] = {
 						auth: await getEcrAccessToken(
-							registry.arn,
-							registry.externalId,
-							registry.region,
+							registry["docker.registry.ecr/arn"],
+							registry["docker.registry.ecr/external-id"],
+							registry["docker.registry.ecr/region"],
 						),
 					};
 					break;
 				case DockerRegistryType.Gcr:
 				case DockerRegistryType.Gar:
-					if (registry.serviceAccount) {
+					if (
+						registry["docker.registry.gcr/service-account"] ||
+						registry["docker.registry.gar/service-account"]
+					) {
 						const token = await getGcrOAuthAccessToken(
-							registry.serviceAccount,
+							registry["docker.registry.gcr/service-account"] ||
+								registry["docker.registry.gar/service-account"],
 							ctx,
 						);
 						dockerConfig.auths[url[0]] = {
@@ -112,28 +111,33 @@ export async function authenticate(
 					} else {
 						dockerConfig.auths[url[0]] = {
 							auth: Buffer.from(
-								"_json_key:" + registry.secret,
+								"_json_key:" +
+									registry["docker.registry/secret"],
 							)?.toString("base64"),
 						};
 					}
 					break;
 				default:
 					if (
-						registry.serverUrl?.startsWith(
+						registry["docker.registry/server-url"]?.startsWith(
 							"registry.hub.docker.com",
 						) &&
-						registry.username &&
-						registry.secret
+						registry["docker.registry/username"] &&
+						registry["docker.registry/secret"]
 					) {
 						dockerConfig.auths["https://index.docker.io/v1/"] = {
 							auth: Buffer.from(
-								registry.username + ":" + registry.secret,
+								registry["docker.registry/username"] +
+									":" +
+									registry["docker.registry/secret"],
 							)?.toString("base64"),
 						};
 					} else {
 						dockerConfig.auths[url[0]] = {
 							auth: Buffer.from(
-								registry.username + ":" + registry.secret,
+								registry["docker.registry/username"] +
+									":" +
+									registry["docker.registry/secret"],
 							)?.toString("base64"),
 						};
 					}
@@ -143,31 +147,25 @@ export async function authenticate(
 	}
 	// Add default creds
 	if (
-		ctx.configuration.parameters?.dockerhub &&
+		ctx.event.skill.configuration?.dockerhub &&
 		!dockerConfig.auths["https://index.docker.io/v1/"]
 	) {
 		dockerConfig.auths["https://index.docker.io/v1/"] = {
 			auth: Buffer.from(
-				(ctx.configuration.parameters?.dockerhub.username ||
-					ctx.configuration.parameters?.dockerhub[
-						"global-username"
-					]) +
+				ctx.event.skill.configuration?.dockerhub.username +
 					":" +
-					(ctx.configuration.parameters?.dockerhub["api-key"] ||
-						ctx.configuration.parameters?.dockerhub[
-							"global-api-key"
-						]),
+					ctx.event.skill.configuration?.dockerhub["api-key"],
 			)?.toString("base64"),
 		};
 	}
 	if (
-		ctx.configuration.parameters?.github &&
+		ctx.event.skill.configuration?.github &&
 		!dockerConfig.auths["ghcr.io"]
 	) {
 		dockerConfig.auths["ghcr.io"] = {
 			auth: Buffer.from(
 				"atomist-bot:" +
-					ctx.configuration.parameters?.github["atomist-bot"].pat,
+					ctx.event.skill.configuration?.github["atomist-bot"].pat,
 			)?.toString("base64"),
 		};
 	}
@@ -180,7 +178,7 @@ export async function authenticate(
 
 export async function getGcrOAuthAccessToken(
 	serviceAccount: string,
-	ctx: Contextual<any, any>,
+	ctx: Contextual,
 ): Promise<string> {
 	// 1. Obtain token from metadata service
 	const accessToken = await (
