@@ -14,59 +14,54 @@
  * limitations under the License.
  */
 
-import { CommandContext, EventContext, HandlerStatus } from "./handler/handler";
+import { EventContext, State, Status } from "./handler/handler";
 import { info, warn } from "./log";
+import * as status from "./status";
 import { toArray } from "./util";
 
 /**
  * Single step in the Skill execution
  */
 export interface Step<
-	C extends EventContext | CommandContext,
+	C extends EventContext,
 	G extends Record<string, any> = any,
 > {
 	/** Name of the step */
 	name: string;
 	/** Function that gets called when the step should execute */
-	run: (context: C, parameters: G) => Promise<HandlerStatus>;
+	run: (context: C, parameters: G) => Promise<Status>;
 	/** Optional function to indicate if the step should runSkill */
 	runWhen?: (context: C, parameters: G) => Promise<boolean>;
 }
 
 export interface StepListener<
-	C extends EventContext | CommandContext,
+	C extends EventContext,
 	G extends Record<string, any> = any,
 > {
 	starting?(step: Step<C>, parameters: G): Promise<void>;
 
 	skipped?(step: Step<C>, parameters: G): Promise<void>;
 
-	completed?(
-		step: Step<C>,
-		parameters: G,
-		result: HandlerStatus,
-	): Promise<void>;
+	completed?(step: Step<C>, parameters: G, result: Status): Promise<void>;
 
 	failed?(step: Step<C>, parameters: G, error: Error): Promise<void>;
 
-	done?(parameters: G, result: HandlerStatus): Promise<HandlerStatus>;
+	done?(parameters: G, result: Status): Promise<Status>;
 }
 
 /**
  * Execute provided skill steps in the order they are provided or until one fails
  */
-export async function runSteps<
-	C extends EventContext | CommandContext,
->(options: {
+export async function runSteps<C extends EventContext>(options: {
 	context: C;
 	steps: Step<C> | Array<Step<C>>;
 	listeners?: StepListener<C> | Array<StepListener<C>>;
 	parameters?: Record<string, any>;
-}): Promise<HandlerStatus> {
+}): Promise<Status> {
 	const parameters: Record<string, any> = options.parameters || {};
 	const context = options.context;
 	const listeners = toArray(options.listeners) || [];
-	let result: HandlerStatus;
+	let result: Status;
 
 	for (const step of toArray(options.steps)) {
 		try {
@@ -80,14 +75,11 @@ export async function runSteps<
 				const sr = await step.run(context, parameters);
 				if (sr) {
 					result = {
-						code:
-							sr?.code !== undefined
-								? sr.code
-								: (result || {}).code,
+						state:
+							sr?.state !== undefined
+								? sr.state
+								: (result || {}).state,
 						reason: sr?.reason ? sr.reason : (result || {}).reason,
-						visibility: sr?.visibility
-							? sr.visibility
-							: (result || {}).visibility,
 					};
 				}
 				await invokeListeners(
@@ -98,7 +90,7 @@ export async function runSteps<
 				if ((sr as any)?._abort) {
 					info(`Completed '${step.name}' and exited`);
 					return sr;
-				} else if (sr?.code !== 0) {
+				} else if (sr?.state !== State.Completed) {
 					warn(`'${step.name}' errored with: ${sr.reason}`);
 					return sr;
 				} else if (sr?.reason) {
@@ -120,10 +112,7 @@ export async function runSteps<
 				listeners.filter(l => !!l.failed),
 				async l => l.failed(step, parameters, e),
 			);
-			return {
-				code: 1,
-				reason: `'${step.name}' errored`,
-			};
+			return status.failed(`'${step.name}' errored`);
 		}
 	}
 	return invokeDone(
@@ -150,8 +139,8 @@ async function invokeListeners(
 async function invokeDone(
 	listeners: Array<StepListener<any>>,
 	parameters: any,
-	inputResult: HandlerStatus,
-): Promise<HandlerStatus> {
+	inputResult: Status,
+): Promise<Status> {
 	let result = inputResult;
 	for (const listener of listeners) {
 		try {

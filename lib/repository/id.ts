@@ -74,14 +74,14 @@ export function gitHubComRepository(details: {
 }
 
 export function fromRepo(
-	repo: OnPush["commit"]["repo"],
+	repo: OnPush["git.commit/repo"],
 ): AuthenticatedRepositoryId<GitHubAppCredential> {
 	return gitHubComRepository({
-		owner: repo.org.name,
-		repo: repo.name,
-		sourceId: repo.sourceId,
+		owner: repo["git.repo/org"]["git.org/name"],
+		repo: repo["git.repo/name"],
+		sourceId: repo["git.repo/source-id"],
 		credential: {
-			token: repo.org.installationToken,
+			token: repo["git.repo/org"]["git.org/installation-token"],
 			permissions: {},
 		},
 	}) as any;

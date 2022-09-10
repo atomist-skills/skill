@@ -192,6 +192,7 @@ export interface Named {
 }
 
 export interface Metadata extends Required<Named> {
+	apiVersion: "v2";
 	version?: string;
 
 	author: string;
@@ -366,6 +367,7 @@ export async function skill<PARAMS extends ParametersType>(
 	}
 
 	return {
+		apiVersion: "v2",
 		...packageJson(path.join(cwd, "package.json")),
 		...(skillYaml || {}),
 		...(await skill),

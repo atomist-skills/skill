@@ -16,7 +16,7 @@
 
 import * as fs from "fs-extra";
 
-import { Contextual } from "../handler/handler";
+import { EventContext } from "../handler/handler";
 import { debug } from "../log/console";
 import { url } from "../log/util";
 import { AuthenticatedRepositoryId } from "../repository/id";
@@ -29,7 +29,7 @@ import { api } from "./operation";
  * Alternatively provide a path to a valid Sarif file.
  */
 export async function uploadCodeScanningResults(
-	ctx: Contextual<any, any>,
+	ctx: EventContext,
 	id: AuthenticatedRepositoryId<GitHubCredential | GitHubAppCredential>,
 	results: Array<Annotation & { snippet?: string }> | string,
 ): Promise<void> {
@@ -42,10 +42,10 @@ export async function uploadCodeScanningResults(
 				{
 					tool: {
 						driver: {
-							name: `${ctx.skill.namespace}/${ctx.skill.name}`,
-							version: ctx.skill.version,
+							name: `${ctx.event.skill.namespace}/${ctx.event.skill.name}`,
+							version: ctx.event.skill.version,
 							informationUri: url(ctx),
-							semanticVersion: ctx.skill.version,
+							semanticVersion: ctx.event.skill.version,
 						},
 					},
 					invocations: [
@@ -96,7 +96,7 @@ export async function uploadCodeScanningResults(
 			commit_sha: id.sha,
 			ref: `refs/heads/${id.branch}`,
 			sarif: zipped,
-			tool_name: `${ctx.skill.namespace}/${ctx.skill.name}`,
+			tool_name: `${ctx.event.skill.namespace}/${ctx.event.skill.name}`,
 		});
 	} catch (e) {
 		debug(`Uploading code scanning results failed: ${e.message}`);

@@ -19,7 +19,6 @@ export * as datalog from "./lib/datalog";
 // lib/definition
 export * as env from "./lib/definition/env";
 export * as parameter from "./lib/definition/parameter";
-export * as resourceProvider from "./lib/definition/resource_provider";
 export {
 	BooleanParameter,
 	CapabilityScope,
@@ -61,63 +60,32 @@ export * as log from "./lib/log";
 export * as policy from "./lib/policy";
 // lib/project
 export * as project from "./lib/project";
-// lib/prompt
-export * as prompt from "./lib/prompt";
 // lib/repository
 export * as repository from "./lib/repository";
 // lib/script
 export { start } from "./lib/script/skill_run";
-// lib/secret
-export * as secret from "./lib/secret";
-// lib/slack
-export * as slack from "./lib/slack";
-// lib/storage
-export * as cache from "./lib/storage/cache";
-export { StorageProvider } from "./lib/storage/provider";
 // lib/test
 export * as test from "./lib/test/assert";
 // lib
 export {} from "./lib/bundle";
 export * as childProcess from "./lib/child_process";
 export {} from "./lib/context";
-export { entryPoint } from "./lib/entry_point";
 export {} from "./lib/function";
-export { GraphQLClient, Location, QueryOrLocation } from "./lib/graphql";
 export {
-	CommandContext,
-	CommandHandler,
-	Configuration,
 	Contextual,
 	EventContext,
 	EventHandler,
-	HandlerStatus,
-	MappingEventHandler,
-	WebhookContext,
-	WebhookHandler,
+	State,
+	Status,
 } from "./lib/handler/handler";
 export { HttpClient } from "./lib/http";
-export {
-	AttachmentTarget,
-	CommandMessageClient,
-	Destinations,
-	MessageClient,
-	MessageOptions,
-	RequiredMessageOptions,
-	SlackFileMessage,
-} from "./lib/message";
 export {} from "./lib/payload";
-export {
-	PayloadResolver,
-	resolvePayload,
-	setPayloadResolvers,
-} from "./lib/payload_resolve";
 export {
 	createPubSubPublisher,
 	PubSubMessage,
 	PubSubPublisher,
 } from "./lib/pubsub";
 export { retry, RetryOptions } from "./lib/retry";
-export * as state from "./lib/state";
 export * as status from "./lib/status";
 export { runSteps, Step, StepListener } from "./lib/steps";
 export * as template from "./lib/template";

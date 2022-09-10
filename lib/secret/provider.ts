@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 
-import { GraphQLClient } from "../graphql";
-import {
-	CommandIncoming,
-	EventIncoming,
-	SubscriptionIncoming,
-	WebhookIncoming,
-} from "../payload";
-
-export type CredentialResolver<T> = (
-	graphClient: GraphQLClient,
-	payload:
-		| CommandIncoming
-		| EventIncoming
-		| WebhookIncoming
-		| SubscriptionIncoming,
-) => Promise<T>;
-
 export interface GitHubCredential {
 	token: string;
 	scopes: string[];
@@ -49,30 +32,4 @@ export function isGitHubCredential(spec: any): spec is GitHubCredential {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isGitHubAppCredential(spec: any): spec is GitHubAppCredential {
 	return !!spec.token && !!spec.permissions;
-}
-
-export interface CredentialProvider {
-	resolve<T>(spec: CredentialResolver<T>): Promise<T | undefined>;
-
-	apiKey: string;
-}
-
-export class DefaultCredentialProvider implements CredentialProvider {
-	constructor(
-		private readonly _apiKey: string,
-		private readonly graphClient: GraphQLClient,
-		private readonly payload:
-			| CommandIncoming
-			| EventIncoming
-			| WebhookIncoming
-			| SubscriptionIncoming,
-	) {}
-
-	public async resolve<T>(spec: CredentialResolver<T>): Promise<T> {
-		return spec(this.graphClient, this.payload);
-	}
-
-	get apiKey(): string {
-		return this._apiKey;
-	}
 }

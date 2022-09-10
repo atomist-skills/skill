@@ -36,15 +36,13 @@ export interface ProjectLoader {
 }
 
 export function createProjectLoader(
-	ctx?: Pick<Contextual<any, any>, "onComplete">,
+	ctx?: Pick<Contextual, "onComplete">,
 ): ProjectLoader {
 	return new DefaultProjectLoader(ctx);
 }
 
 export class DefaultProjectLoader implements ProjectLoader {
-	constructor(
-		private readonly ctx?: Pick<Contextual<any, any>, "onComplete">,
-	) {}
+	constructor(private readonly ctx?: Pick<Contextual, "onComplete">) {}
 
 	public async load(
 		id: AuthenticatedRepositoryId<any>,
