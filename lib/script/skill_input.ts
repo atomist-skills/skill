@@ -300,7 +300,7 @@ export async function createJavaScriptSkillInput(
 	const p = path.join(cwd, name);
 	info(`Generating skill metadata...`);
 
-	const is: Skill = merge(
+	const is: Skill<any> = merge(
 		{},
 		await defaults(cwd),
 		{
@@ -308,7 +308,7 @@ export async function createJavaScriptSkillInput(
 				...internalParameters(),
 			},
 		},
-		await handleError<Skill>(
+		await handleError<Skill<any>>(
 			async () => await (await import(p)).Skill,
 			() => {
 				error(`Error loading '${p}'`);

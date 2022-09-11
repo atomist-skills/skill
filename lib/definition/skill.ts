@@ -306,7 +306,9 @@ export interface Operations {
 	};
 }
 
-export type Skill<PARAMS = any> = Metadata & Configuration<PARAMS> & Operations;
+export type Skill<PARAMS extends ParametersType> = Metadata &
+	Configuration<PARAMS> &
+	Operations;
 
 export function packageJson(path = "package.json"): Partial<Metadata> {
 	try {
@@ -336,7 +338,7 @@ export function packageJson(path = "package.json"): Partial<Metadata> {
 	}
 }
 
-export type SkillInput<PARAMS = any> = Partial<Metadata> &
+export type SkillInput<PARAMS extends ParametersType> = Partial<Metadata> &
 	Configuration<PARAMS> &
 	Operations;
 
