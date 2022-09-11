@@ -342,7 +342,7 @@ export type SkillInput<PARAMS extends ParametersType> = Partial<Metadata> &
 	Configuration<PARAMS> &
 	Operations;
 
-export async function skill<PARAMS = any>(
+export async function skill<PARAMS extends ParametersType>(
 	skill: SkillInput<PARAMS> | Promise<SkillInput<PARAMS>>,
 ): Promise<Skill<PARAMS>> {
 	// Get the directory of the calling script
