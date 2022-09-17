@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-// tslint:disable-next-line:no-import-side-effect
-import "source-map-support/register";
-
-import * as namespace from "./cls";
-import { ContextFactory, createContext, loggingCreateContext } from "./context";
+import { ContextFactory, createContext } from "./context";
 import {
 	ContextualLifecycle,
 	EventContext,
@@ -29,32 +25,21 @@ import { prepareStatus } from "./handler/status";
 import { debug, error } from "./log";
 import { EventIncoming, isEventIncoming } from "./payload";
 import { completed, running } from "./status";
-import { handlerLoader } from "./util";
-
-export const entryPoint = async (payload: EventIncoming): Promise<void> => {
-	await namespace.run(async () => {
-		if (isEventIncoming(payload)) {
-			await processEvent(payload);
-		}
-	});
-};
 
 export const configurableEntryPoint = async (
 	payload: EventIncoming,
 	factory?: ContextFactory,
 	loader?: (name: string) => Promise<EventHandler>,
 ): Promise<void> => {
-	await namespace.run(async () => {
-		if (isEventIncoming(payload)) {
-			await processEvent(payload, loader as any, factory);
-		}
-	});
+	if (isEventIncoming(payload)) {
+		await processEvent(payload, loader as any, factory);
+	}
 };
 
 export async function processEvent(
 	event: EventIncoming,
-	loader: (name: string) => Promise<EventHandler> = handlerLoader("events"),
-	factory: ContextFactory = loggingCreateContext(createContext),
+	loader: (name: string) => Promise<EventHandler>,
+	factory: ContextFactory = createContext,
 ): Promise<void> {
 	const context = factory(event) as EventContext<any> & ContextualLifecycle;
 	const name =

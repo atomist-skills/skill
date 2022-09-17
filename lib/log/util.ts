@@ -14,28 +14,7 @@
  * limitations under the License.
  */
 
-import * as dt from "luxon";
-
-import { ContextClosable, EventContext } from "../handler/handler";
-import { EventIncoming, isEventIncoming } from "../payload";
-import { handleErrorSync, isStaging, replacer } from "../util";
-import { debug, setLogger } from "./console";
-import { createLogger } from "./logger";
-
-export function initLogging(
-	payload: EventIncoming,
-	onComplete: (closable: ContextClosable) => void,
-): void {
-	const logger = createLogger(payload);
-	setLogger(logger);
-	onComplete({
-		name: "logger",
-		priority: Number.MAX_SAFE_INTEGER,
-		callback: async () => {
-			await logger.close();
-		},
-	});
-}
+import { EventContext } from "../handler/handler";
 
 enum Level {
 	error = 0,
@@ -50,68 +29,9 @@ export function enabled(level: string): boolean {
 }
 
 export function dsoUrl(ctx: EventContext): string {
-	return `https://dso.docker.${isStaging() ? "services" : "com"}/${
-		ctx.event["workspace-id"]
-	}/overview?correlation_id=${ctx.event["execution-id"]}`;
+	return `https://dso.docker.com"}/${ctx.event["workspace-id"]}/overview?correlation_id=${ctx.event["execution-id"]}`;
 }
 
 export function url(ctx: EventContext): string {
-	return `https://go.atomist.${isStaging() ? "services" : "com"}/log/${
-		ctx.event["workspace-id"]
-	}/${ctx.event["execution-id"]}`;
-}
-
-export function runtime(): {
-	node: {
-		version: string;
-	};
-	skill: {
-		version: string;
-		sha: string;
-		date: string;
-	};
-	host: {
-		sha: string;
-		date: string;
-	};
-	uptime: string;
-} {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const gitInfo = require("../../git-info.json");
-	const nodeVersion = process.version;
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const packageJson = require("../../package.json");
-	const hostGitInfo =
-		handleErrorSync(
-			() => require("../../../../../git-info.json"),
-			() => {
-				// intentionally left empty
-			},
-		) || {};
-	return {
-		node: {
-			version: nodeVersion.replace(/v/g, ""),
-		},
-		skill: {
-			version: packageJson.version,
-			sha: gitInfo.sha,
-			date: gitInfo.date,
-		},
-		host: {
-			sha: hostGitInfo.sha,
-			date: hostGitInfo.date,
-		},
-		uptime: dt.Duration.fromObject({
-			seconds: process.uptime(),
-		}).toFormat("hh:mm:ss"),
-	};
-}
-
-export function logPayload(payload: EventIncoming): void {
-	let label;
-	if (isEventIncoming(payload)) {
-		label = "event";
-	}
-
-	debug(`Incoming ${label} message: ${JSON.stringify(payload, replacer)}`);
+	return `https://skills.dso.docker.com"}/log/${ctx.event["workspace-id"]}/${ctx.event["execution-id"]}`;
 }

@@ -19,7 +19,7 @@ import Pusher from "pusher-js/with-encryption";
 
 import { createContext } from "./context";
 import { configurableEntryPoint } from "./function";
-import { EventHandler } from "./handler/index";
+import { EventHandler } from "./handler";
 import { createHttpClient } from "./http";
 import { EventIncoming } from "./payload";
 
