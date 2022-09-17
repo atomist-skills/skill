@@ -15,7 +15,6 @@
  */
 
 import * as Queue from "better-queue";
-import * as util from "util";
 
 import { toEdnString } from "../datalog/transact";
 import { asKeyword, EntityKeyword } from "../datalog/util";
@@ -103,18 +102,18 @@ export function createLogger(payload: EventIncoming): Logger {
 
 	const queueLog = (msg: string, severity: string, ...parameters: any[]) => {
 		started = true;
-		const fmsg = util.format(msg, ...parameters);
+		// const fmsg = util.format(msg, ...parameters);
 		logQueue.push({
 			timestamp: new Date().toISOString(),
 			level: asKeyword(severity.toLowerCase()),
-			text: fmsg,
+			text: msg,
 		});
 		// tslint:disable-next-line:no-console
 		let prefix = `[${severity.toLowerCase()}]`;
 		while (prefix.length < 7) {
 			prefix = ` ${prefix}`;
 		}
-		console[severity.toLowerCase()]?.(`${prefix} ${fmsg}`);
+		console[severity.toLowerCase()]?.(`${prefix} ${msg}`);
 	};
 
 	return {
