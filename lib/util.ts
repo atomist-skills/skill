@@ -15,19 +15,19 @@
  */
 
 import * as crypto from "crypto";
-import * as fs from "fs-extra";
-import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 
 import { error } from "./log/console";
-import sortBy = require("lodash.sortby");
-import * as dt from "luxon";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function hash(obj: any): string {
 	const hash = crypto.createHash("sha256");
 	hash.update(typeof obj === "string" ? obj : JSON.stringify(obj));
 	return hash.digest("hex");
+}
+
+export function guid(): string {
+	return uuidv4();
 }
 
 export function truncate(
@@ -70,47 +70,6 @@ export function toArray<T>(value: T | T[]): T[] {
 	} else {
 		return undefined;
 	}
-}
-
-export function handlerLoader<T>(type: string) {
-	return async (name: string, cwd?: string): Promise<T> => {
-		const path = await requirePath(type, name, cwd);
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const f = require(path);
-		if (f[name]) {
-			return f[name] as T;
-		} else if (f.handler) {
-			return f.handler as T;
-		} else {
-			throw new Error(`No ${type} handler found for '${name}'`);
-		}
-	};
-}
-
-export async function requirePath(
-	type: string,
-	file: string,
-	cwd?: string,
-): Promise<string> {
-	const p = cwd || __dirname.split("/node_modules/")[0];
-	const rp = path.join(p, type, file);
-	const lp = path.join(p, "lib", type, file);
-	if (await fs.pathExists(rp + ".js")) {
-		return rp;
-	} else if (await fs.pathExists(lp + ".js")) {
-		return lp;
-	}
-
-	// Test the fallback
-	const f = path.join(p, type);
-	const fl = path.join(p, "lib", type);
-	if (await fs.pathExists(f + ".js")) {
-		return f;
-	} else if (await fs.pathExists(fl + ".js")) {
-		return fl;
-	}
-
-	throw new Error(`'${file}' not found in '${p}' or '${p}/lib'`);
 }
 
 function keyToHide(key: string): boolean {
@@ -162,31 +121,6 @@ export function hideString(value: any): any {
 	return value;
 }
 
-export function guid(): string {
-	return uuidv4();
-}
-
-const units = ["b", "kb", "mb", "gb", "tb", "pb"];
-
-export function bytes(x: string): string {
-	if (x === undefined || isNaN(+x)) {
-		return x;
-	}
-	let n = parseInt(x, 10) || 0;
-	let isNegative = false;
-	if (n < 0) {
-		isNegative = true;
-		n = n * -1;
-	}
-	let l = 0;
-	while (n >= 1024 && ++l) {
-		n = n / 1024;
-	}
-	return `${isNegative ? "-" : ""}${n.toFixed(n < 10 && l > 0 ? 1 : 0)}${
-		units[l]
-	}`;
-}
-
 export async function handleError<T>(
 	f: () => Promise<T>,
 	cb?: (err: Error) => Promise<T | undefined>,
@@ -229,71 +163,9 @@ export function loggingErrorHandler(
 	};
 }
 
-export function isStaging(): boolean {
-	return (
-		process.env.ATOMIST_GRAPHQL_ENDPOINT ||
-		"https://automation.atomist.com/graphql"
-	).includes(".services");
-}
-
-export function pluralize(
-	text: string,
-	count: number | any[],
-	options: { include?: boolean; includeOne?: boolean } = {
-		include: true,
-		includeOne: false,
-	},
-): string {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const plu = require("pluralize");
-	const countNumber = typeof count === "number" ? count : count?.length || 0;
-	return plu(
-		text,
-		countNumber,
-		countNumber === 1 ? options.includeOne : options.include,
-	);
-}
-
-export function levenshteinSort(word: string, elements: string[]): string[] {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const { distance } = require("fastest-levenshtein");
-	return sortBy([...elements], o => distance(word, o));
-}
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isPrimitive(test: any): boolean {
 	return test !== Object(test);
-}
-
-export function sourceLocationFromOffset(
-	match: string,
-	offset: number,
-	content: string,
-): {
-	startLine: number;
-	startOffset: number;
-	endLine: number;
-	endOffset: number;
-} {
-	const startLine = (content.slice(0, offset).match(/\n/gm) || []).length + 1;
-	const endLine =
-		startLine +
-		(content.slice(offset, offset + match.length).match(/\n/gm) || [])
-			.length;
-
-	let startOffset: number;
-	let endOffset: number;
-
-	if (startLine === endLine) {
-		startOffset = offset - content.slice(0, offset).lastIndexOf("\n");
-		endOffset = startOffset + match.length;
-	}
-	return {
-		startLine,
-		startOffset,
-		endLine,
-		endOffset,
-	};
 }
 
 export function before<
@@ -319,37 +191,6 @@ export function after<
 		}
 		return result;
 	}) as any;
-}
-
-export function formatDate(
-	date: Date,
-	format: dt.LocaleOptions & dt.DateTimeFormatOptions = {
-		...dt.DateTime.DATETIME_MED,
-		hour12: false,
-	},
-): string {
-	const dateTime = dt.DateTime.fromJSDate(date);
-	return dateTime.toLocaleString({ ...format, timeZone: "UTC" });
-}
-
-export function formatDuration(
-	date: Date,
-	format = "d [day] h [hour] m [minute] s [second] S [ms]",
-): string {
-	const duration = Date.now() - date.getTime();
-	if (duration < 1000 * 60) {
-		return "now";
-	}
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const moment = require("moment");
-	// The following require is needed to initialize the format function
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const momentDurationFormatSetup = require("moment-duration-format");
-	momentDurationFormatSetup(moment);
-
-	return moment
-		.duration(duration, "millisecond")
-		.format(format, { trim: "both", largest: 1 });
 }
 
 export async function forEach<T>(
