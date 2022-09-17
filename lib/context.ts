@@ -17,7 +17,6 @@
 import { createDatalogClient } from "./datalog/client";
 import {
 	ContextClosable,
-	Contextual,
 	ContextualLifecycle,
 	DefaultPriority,
 	EventContext,
@@ -25,54 +24,13 @@ import {
 import { createStatusPublisher } from "./handler/status";
 import { createHttpClient } from "./http";
 import { debug } from "./log/console";
-import { initLogging, logPayload, runtime } from "./log/util";
 import { EventIncoming, isEventIncoming } from "./payload";
-import { createProjectLoader } from "./project/loader";
 import { handleError } from "./util";
 import camelCase = require("lodash.camelcase");
 import sortBy = require("lodash.sortby");
 export type ContextFactory = (
 	payload: EventIncoming,
 ) => (EventContext & ContextualLifecycle) | undefined;
-
-export function loggingCreateContext(
-	delegate: ContextFactory,
-	options: {
-		payload: boolean;
-		before?: (ctx: Contextual) => void;
-		after?: ContextClosable;
-	} = { payload: true },
-): ContextFactory {
-	return payload => {
-		const context = delegate(payload);
-		if (context) {
-			initLogging(payload, context.onComplete);
-			options?.before?.(context);
-			if (options?.after) {
-				context.onComplete(options.after);
-			}
-
-			const rt = runtime();
-			debug(
-				"Starting %s/%s:%s '%s' %satomist/skill:%s (%s) nodejs:%s '%s'",
-				payload.skill.namespace,
-				payload.skill.name,
-				payload.skill.version,
-				context.event.context.subscription?.name ||
-					context.event.context.webhook?.name,
-				rt.host?.sha ? `(${rt.host.sha.slice(0, 7)}) ` : "",
-				rt.skill.version,
-				rt.skill.sha.slice(0, 7),
-				rt.node.version,
-				rt.uptime,
-			);
-			if (options?.payload) {
-				logPayload(payload);
-			}
-		}
-		return context;
-	};
-}
 
 export function createContext(
 	payload: EventIncoming,
@@ -104,7 +62,6 @@ export function createContext(
 			event: payload,
 			http,
 			datalog: createDatalogClient(payload, http),
-			project: createProjectLoader({ onComplete }),
 			status: createStatusPublisher(payload, http),
 			close,
 			onComplete,
