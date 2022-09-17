@@ -70,7 +70,7 @@ export interface EventIncoming<E = any, C = any> {
 			};
 		};
 	};
-	"compact?": boolean;
+	"compact?"?: boolean;
 	"urls": {
 		execution: string;
 		transactions: string;
