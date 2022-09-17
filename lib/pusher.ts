@@ -15,11 +15,10 @@
  */
 
 import { parseEDNString } from "edn-data";
-import Pusher from "pusher-js/with-encryption";
 
 import { createContext } from "./context";
 import { configurableEntryPoint } from "./function";
-import { EventHandler } from "./handler/index";
+import { EventHandler } from "./handler";
 import { createHttpClient } from "./http";
 import { EventIncoming } from "./payload";
 
@@ -33,6 +32,7 @@ export async function subscribe(
 		debug?: boolean;
 	},
 	handlers: Record<string, EventHandler>,
+	transport: any,
 ): Promise<void> {
 	// activate skill if it isn't configured in workspace
 	const http = createHttpClient();
@@ -43,37 +43,44 @@ export async function subscribe(
 	const configuredSkill = await (
 		await http.post<{ data: { activeSkill: { id: string } } }>(url, {
 			...graphql,
-			body: `query configuredSkill {
-  activeSkill(namespace:"${options.namespace}", name:"${options.name}") {
+			body: JSON.stringify({
+				query: `query ext_configuredSkill($namespace: String!, $name: String!) {
+  activeSkill(namespace: $namespace, name: $name) {
     id
   }
 }`,
+				variables: {
+					namespace: options.namespace,
+					name: options.name,
+				},
+			}),
 		})
 	).json();
 
 	if (!configuredSkill?.data?.activeSkill?.id) {
 		await http.post(url, {
 			...graphql,
-			body: `mutation configureSkill {
-  saveSkillConfiguration(namespace: "${options.namespace}", name: "${
-				options.name
-			}", version: ${
-				options.version ? `"${options.version}"` : "null"
-			}, configuration: {displayName: "Docker Desktop Extension", name: "auto_configured_extension", enabled: true}) {
+			body: JSON.stringify({
+				query: `mutation ext_configureSkill($namespace: String!, $name: String!, $version: String) {
+  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "auto_configured_extension", enabled: true}) {
     configured {
       skills {
         id
       }
     }
   }
-}
-`,
+}`,
+				variables: {
+					namespace: options.namespace,
+					name: options.name,
+					version: options.version,
+				},
+			}),
 		});
 	}
 
-	Pusher.logToConsole = options.debug;
-
-	const pusher = new Pusher("e7f313cb5f6445399f58", {
+	transport.logToConsole = options.debug;
+	const pusher = new transport("e7f313cb5f6445399f58", {
 		cluster: "mt1",
 		channelAuthorization: {
 			endpoint: "https://api.atomist.com/pusher/channel/auth",
