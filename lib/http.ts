@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-import * as http from "http";
-import * as https from "https";
 import { RequestInit, Response } from "node-fetch";
 import forOwn = require("lodash.forown");
-
-const httpAgent = new http.Agent({
-	keepAlive: true,
-});
-const httpsAgent = new https.Agent({
-	keepAlive: true,
-});
 
 export type HttpClientOptions = RequestInit & {
 	parameters?: Record<string, number | string | boolean>;
@@ -56,16 +47,6 @@ export class NodeFetchHttpClient implements HttpClient {
 		url: string,
 		options: HttpClientOptions,
 	): Promise<Response & { json(): Promise<T> }> {
-		if (options.agent === undefined) {
-			options.agent = parsedUrl => {
-				if (parsedUrl.protocol == "http:") {
-					return httpAgent;
-				} else {
-					return httpsAgent;
-				}
-			};
-		}
-
 		const f = (await import("node-fetch")).default;
 		return f(prepareUrl(url, options.parameters), options);
 	}

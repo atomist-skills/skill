@@ -17,7 +17,6 @@
 import { DatalogClient } from "../datalog/client";
 import { HttpClient } from "../http";
 import { EventIncoming } from "../payload";
-import { ProjectLoader } from "../project/index";
 import { StatusPublisher } from "./status";
 
 export const DefaultPriority = 100;
@@ -38,11 +37,6 @@ export interface Contextual {
 	 * Pre-configured HTTP client
 	 */
 	http: HttpClient;
-
-	/**
-	 * Clone and load GitHub repositories
-	 */
-	project: ProjectLoader;
 
 	/**
 	 * Publish status messages

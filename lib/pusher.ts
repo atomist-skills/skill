@@ -15,11 +15,10 @@
  */
 
 import { parseEDNString } from "edn-data";
-import Pusher from "pusher-js/with-encryption";
 
 import { createContext } from "./context";
 import { configurableEntryPoint } from "./function";
-import { EventHandler } from "./handler/index";
+import { EventHandler } from "./handler";
 import { createHttpClient } from "./http";
 import { EventIncoming } from "./payload";
 
@@ -33,6 +32,7 @@ export async function subscribe(
 		debug?: boolean;
 	},
 	handlers: Record<string, EventHandler>,
+	transport: any,
 ): Promise<void> {
 	// activate skill if it isn't configured in workspace
 	const http = createHttpClient();
@@ -71,9 +71,8 @@ export async function subscribe(
 		});
 	}
 
-	Pusher.logToConsole = options.debug;
-
-	const pusher = new Pusher("e7f313cb5f6445399f58", {
+	transport.logToConsole = options.debug;
+	const pusher = new transport("e7f313cb5f6445399f58", {
 		cluster: "mt1",
 		channelAuthorization: {
 			endpoint: "https://api.atomist.com/pusher/channel/auth",

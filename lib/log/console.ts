@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-import * as util from "util";
-
-import * as namespace from "../cls";
-import { Logger } from "./logger";
-import { redact } from "./redact";
 import { enabled } from "./util";
 
 /**
@@ -61,26 +56,13 @@ export function error(message: string, ...optionalParams: any[]): void {
 	log("error", message, ...optionalParams);
 }
 
-export function setLogger(logger: Logger): void {
-	return namespace.set<Logger>("logger", logger);
-}
-
-function getLogger(): Logger {
-	return namespace.get<Logger>("logger");
-}
-
 function log(level: string, message: string, ...optionalParams: any[]): void {
 	if (enabled(level)) {
-		const fmsg = redact(util.format(message, ...optionalParams));
-		if (getLogger()) {
-			getLogger()[level](fmsg);
-		} else {
-			// tslint:disable-next-line:no-console
-			let prefix = `[${level}]`;
-			while (prefix.length < 7) {
-				prefix = ` ${prefix}`;
-			}
-			console[level](`${prefix} ${fmsg}`);
+		// tslint:disable-next-line:no-console
+		let prefix = `[${level}]`;
+		while (prefix.length < 7) {
+			prefix = ` ${prefix}`;
 		}
+		console[level](`${prefix} ${message}`, ...optionalParams);
 	}
 }
