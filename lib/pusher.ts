@@ -122,7 +122,6 @@ async function handlePusherEvent(data, handlers: Record<string, EventHandler>) {
 			...event,
 			...context,
 		};
-		event["execution-id"] = (event as any).id;
 	}
 
 	await configurableEntryPoint(event, createContext, async name => {
