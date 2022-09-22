@@ -18,6 +18,9 @@
 // tslint:disable-next-line:no-import-side-effect
 import "source-map-support/register";
 
+import nodeWindowPolyfill from "node-window-polyfill";
+nodeWindowPolyfill.register();
+
 import * as yargs from "yargs";
 
 import { error } from "../lib/log";
@@ -298,6 +301,51 @@ void yargs
 					argv.version,
 					argv.verbose,
 				);
+				process.exit(0);
+			} catch (e) {
+				error(e.message);
+				process.exit(1);
+			}
+		},
+	)
+	.command<{
+		cwd: string;
+		workspace: string;
+		apiKey: string;
+		url: string;
+	}>(
+		["start"],
+		"Start a local skill",
+		args =>
+			args.option({
+				cwd: {
+					type: "string",
+					description: "Set working directory",
+					default: process.cwd(),
+					demandOption: false,
+				},
+				workspace: {
+					type: "string",
+					description: "Id of workspace",
+					demandOption: true,
+				},
+				apiKey: {
+					type: "string",
+					description: "API key",
+					demandOption: false,
+				},
+				url: {
+					type: "string",
+					description: "URL of local skill",
+					default: "http://localhost:8080",
+					demandOption: false,
+				},
+			}),
+		async argv => {
+			try {
+				await (
+					await import("../lib/script/skill_local_run")
+				).skillLocalRun(argv);
 				process.exit(0);
 			} catch (e) {
 				error(e.message);
