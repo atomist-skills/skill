@@ -104,7 +104,7 @@ export async function skillLocalRun(options: {
 	}
 
 	info(
-		`Listening for subscriptions`,
+		`Listening for subscriptions %s/%s %s`,
 		skill.namespace,
 		skill.name,
 		options.workspace,
