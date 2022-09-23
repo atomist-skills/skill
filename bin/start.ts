@@ -313,6 +313,7 @@ void yargs
 		workspace: string;
 		apiKey: string;
 		url: string;
+		version: boolean;
 	}>(
 		["start"],
 		"Start a local skill",
@@ -338,6 +339,12 @@ void yargs
 					type: "string",
 					description: "URL of local skill",
 					default: "http://localhost:8080",
+					demandOption: false,
+				},
+				verbose: {
+					type: "boolean",
+					description: "Enable verbose logging",
+					default: false,
 					demandOption: false,
 				},
 			}),

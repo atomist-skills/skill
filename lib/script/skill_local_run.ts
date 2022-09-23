@@ -54,6 +54,9 @@ export async function skillLocalRun(options: {
 
 	info(`Registering skill %s/%s`, skill.namespace, skill.name);
 
+	const parameterValues = skill.parameterValues;
+	delete skill.parameterValues;
+
 	// eslint-disable-next-line deprecation/deprecation
 	const gc = createGraphQLClient(key, options.workspace);
 	await gc.mutate(
@@ -75,33 +78,60 @@ export async function skillLocalRun(options: {
 		skill.name,
 		options.workspace,
 	);
-	const configuredSkill = await gc.query(
+	let configuredSkill = await gc.query(
 		`query ext_configuredSkill($namespace: String!, $name: String!) {
   activeSkill(namespace: $namespace, name: $name) {
     id
-  }
-}`,
-		{ namespace: skill.namespace, name: skill.name },
-	);
-
-	if (!configuredSkill?.activeSkill?.id) {
-		await gc.mutate(
-			`mutation ext_configureSkill($namespace: String!, $name: String!, $version: String) {
-  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "local_configured_skill", enabled: true}, upgradePolicy: unstable) {
-    configured {
-      skills {
+    configuration {
+      instances {
         id
       }
     }
   }
 }`,
-			{
-				namespace: skill.namespace,
-				name: skill.name,
-				version: skill.version,
-			},
-		);
-	}
+		{ namespace: skill.namespace, name: skill.name },
+	);
+
+	const id = configuredSkill?.activeSkill?.configuration?.instances?.[0]?.id;
+	configuredSkill = await gc.mutate(
+		`mutation ext_configureSkill($namespace: String!, $name: String!, $version: String, $parameters: [AtomistSkillParameterInput!]) {
+  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "${
+		os.userInfo().username
+  }@${os.hostname()}", name: "local_configured_skill", enabled: true, parameters: $parameters ${
+			id ? `, id: "${id}"` : ""
+		}}, upgradePolicy: unstable) {
+    configured(query: {namespace: $namespace, name: $name}) {
+      skills {
+        id
+        configuration {
+          instances {
+            parameters {
+              name
+              ...on AtomistSkillWebhookParameterValue {
+                value {
+                  url
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`,
+		{
+			namespace: skill.namespace,
+			name: skill.name,
+			version: skill.version,
+			parameters: parameterValues,
+			id,
+		},
+	);
+
+	const url =
+		configuredSkill?.saveSkillConfiguration?.configured?.skills?.[0]
+			?.configuration.instances?.[0]?.parameters?.[0]?.value?.[0]?.url;
+	info(`Webhook url %s`, url);
 
 	info(
 		`Listening for subscriptions %s/%s %s`,
@@ -109,6 +139,7 @@ export async function skillLocalRun(options: {
 		skill.name,
 		options.workspace,
 	);
+
 	const pusher = new (Pusher as any)("e7f313cb5f6445399f58", {
 		cluster: "mt1",
 		channelAuthorization: {
