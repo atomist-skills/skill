@@ -87,7 +87,7 @@ export async function skillLocalRun(options: {
 	if (!configuredSkill?.activeSkill?.id) {
 		await gc.mutate(
 			`mutation ext_configureSkill($namespace: String!, $name: String!, $version: String) {
-  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "local_configured_skill", enabled: true}) {
+  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "local_configured_skill", enabled: true}, upgradePolicy: unstable) {
     configured {
       skills {
         id
