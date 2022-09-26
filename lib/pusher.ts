@@ -26,7 +26,6 @@ export async function subscribe(
 	options: {
 		namespace: string;
 		name: string;
-		version?: string;
 		workspaceId: string;
 		apiKey: string;
 		debug?: boolean;
@@ -34,51 +33,6 @@ export async function subscribe(
 	handlers: Record<string, EventHandler>,
 	transport: any,
 ): Promise<void> {
-	// activate skill if it isn't configured in workspace
-	const http = createHttpClient();
-	const url = `https://automation.atomist.com/graphql/team/${options.workspaceId}`;
-	const graphql = {
-		headers: { Authorization: `Bearer ${options.apiKey}` },
-	};
-	const configuredSkill = await (
-		await http.post<{ data: { activeSkill: { id: string } } }>(url, {
-			...graphql,
-			body: JSON.stringify({
-				query: `query ext_configuredSkill($namespace: String!, $name: String!) {
-  activeSkill(namespace: $namespace, name: $name) {
-    id
-  }
-}`,
-				variables: {
-					namespace: options.namespace,
-					name: options.name,
-				},
-			}),
-		})
-	).json();
-
-	if (!configuredSkill?.data?.activeSkill?.id) {
-		await http.post(url, {
-			...graphql,
-			body: JSON.stringify({
-				query: `mutation ext_configureSkill($namespace: String!, $name: String!, $version: String) {
-  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "auto_configured_extension", enabled: true}, upgradePolicy: unstable) {
-    configured {
-      skills {
-        id
-      }
-    }
-  }
-}`,
-				variables: {
-					namespace: options.namespace,
-					name: options.name,
-					version: options.version,
-				},
-			}),
-		});
-	}
-
 	transport.logToConsole = options.debug;
 	const pusher = new transport("e7f313cb5f6445399f58", {
 		cluster: "mt1",
