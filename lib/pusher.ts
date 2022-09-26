@@ -102,7 +102,7 @@ async function handlePusherEvent(data, handlers: Record<string, EventHandler>) {
 
 	if (event["compact?"]) {
 		const response = await (
-			await createHttpClient().get(event.urls.execution, {
+			await createHttpClient().get(event.urls.trigger, {
 				headers: { Authorization: `Bearer ${event.token}` },
 			})
 		).text();
@@ -115,7 +115,6 @@ async function handlePusherEvent(data, handlers: Record<string, EventHandler>) {
 			...event,
 			...context,
 		};
-		event["execution-id"] = (event as any).id;
 	}
 
 	await configurableEntryPoint(event, createContext, async name => {

@@ -76,6 +76,7 @@ export interface EventIncoming<E = any, C = any> {
 		transactions: string;
 		logs: string;
 		query: string;
+		trigger?: string;
 	};
 	"token": string;
 }
