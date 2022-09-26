@@ -62,7 +62,7 @@ export async function subscribe(
 			...graphql,
 			body: JSON.stringify({
 				query: `mutation ext_configureSkill($namespace: String!, $name: String!, $version: String) {
-  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "auto_configured_extension", enabled: true}) {
+  saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "Docker Desktop Extension", name: "auto_configured_extension", enabled: true, upgradePolicy: unstable}) {
     configured {
       skills {
         id
