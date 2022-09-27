@@ -73,7 +73,7 @@ export function createLogger(payload: EventIncoming): Logger {
 		store: new Store(),
 		process: async (entries: Entry[], cb) => {
 			const filteredEntries = entries.filter(
-				e => e.level?._key !== "EXIT",
+				e => e.level?._key !== "exit",
 			);
 			await createHttpClient().post(payload.urls.logs, {
 				body: toEdnString({
