@@ -6,7 +6,7 @@ import * as os from "os";
 import * as path from "path";
 import * as Pusher from "pusher-js";
 
-import { createGraphQLClient } from "../graphql";
+import { createGraphQLClient, GraphQLClient } from "../graphql";
 import { createHttpClient } from "../http";
 import { info, warn } from "../log";
 import { Project, withGlobMatches } from "../project";
@@ -17,67 +17,17 @@ import { apiKey } from "./skill_register";
 
 import merge = require("lodash.merge");
 
-export async function skillLocalRun(options: {
-	workspace: string;
-	apiKey: string;
-	cwd: string;
-	url: string;
-	verbose?: boolean;
-}): Promise<any> {
-	if (!options.verbose) {
-		process.env.ATOMIST_LOG_LEVEL = "info";
-	} else {
-		(Pusher as any).logToConsole = true;
-	}
+type AtomistSkillConfigYaml = Array<{
+	name: string;
+	enabled: boolean;
+	parameters: AtomistSkillInput["parameters"];
+}>;
 
-	const key = options.apiKey || (await apiKey());
-	const wd = options.cwd || process.cwd();
-
-	let skill: any = await defaults(wd);
-
-	const p = await createProjectLoader().load({} as any, wd);
-
-	// load skill.yaml from project (at this point it can be the container filesystem or repo contents)
-	const skillYaml = (await getYamlFile<AtomistYaml>(p, "skill.yaml")).doc
-		.skill;
-	skill = merge(skill, skillYaml, {});
-
-	skill.name = `${skill.name}-${os.userInfo().username}`;
-	skill.version = `0.0.1-${dt.DateTime.fromJSDate(new Date()).toFormat(
-		"yyyyLLddHHmmss",
-	)}`;
-	skill.apiVersion = "v2";
-	skill.artifacts = {};
-	skill.commitSha = "unknown";
-	skill.repoId = "unknown";
-	await inlineDatalogResources(p, skill);
-
-	info(`Registering skill %s/%s`, skill.namespace, skill.name);
-
-	const parameterValues = skill.parameterValues;
-	delete skill.parameterValues;
-
-	// eslint-disable-next-line deprecation/deprecation
-	const gc = createGraphQLClient(key, options.workspace);
-	await gc.mutate(
-		`mutation RegisterSkill($skill: AtomistSkillInput!) {
-  registerSkill(skill: $skill) {
-    name
-    namespace
-    version
-  }
-}`,
-		{
-			skill,
-		},
-	);
-
-	info(
-		`Enabling skill %s/%s in %s`,
-		skill.namespace,
-		skill.name,
-		options.workspace,
-	);
+async function configureSkill(
+	skill: AtomistSkillInput,
+	skillConfigYaml: AtomistSkillConfigYaml,
+	gc: GraphQLClient,
+) {
 	let configuredSkill = await gc.query(
 		`query ext_configuredSkill($namespace: String!, $name: String!) {
   activeSkill(namespace: $namespace, name: $name) {
@@ -91,13 +41,15 @@ export async function skillLocalRun(options: {
 }`,
 		{ namespace: skill.namespace, name: skill.name },
 	);
-
 	const id = configuredSkill?.activeSkill?.configuration?.instances?.[0]?.id;
+
 	configuredSkill = await gc.mutate(
 		`mutation ext_configureSkill($namespace: String!, $name: String!, $version: String, $parameters: [AtomistSkillParameterInput!]) {
   saveSkillConfiguration(namespace: $namespace, name: $name, version: $version, configuration: {displayName: "${
 		os.userInfo().username
-  }@${os.hostname()}", name: "local_configured_skill", enabled: true, parameters: $parameters ${
+  }@${os.hostname()}${
+			" - " + skillConfigYaml?.[0]?.name || ""
+		}", name: "local_configured_skill", enabled: true, parameters: $parameters ${
 			id ? `, id: "${id}"` : ""
 		}}, upgradePolicy: unstable) {
     configured(query: {namespace: $namespace, name: $name}) {
@@ -123,15 +75,147 @@ export async function skillLocalRun(options: {
 			namespace: skill.namespace,
 			name: skill.name,
 			version: skill.version,
-			parameters: parameterValues,
+			parameters: skillConfigYaml?.[0]?.parameters || [],
 			id,
 		},
 	);
 
-	const url =
+	const parameters =
 		configuredSkill?.saveSkillConfiguration?.configured?.skills?.[0]
-			?.configuration.instances?.[0]?.parameters?.[0]?.value?.[0]?.url;
-	info(`Webhook url %s`, url);
+			?.configuration.instances?.[0]?.parameters;
+	for (const param of parameters) {
+		const url = param?.value?.[0]?.url;
+		if (url) {
+			info(`Webhook url %s`, url);
+		}
+	}
+}
+
+async function registerSkill(
+	wd: string,
+	key: string,
+	options: {
+		workspace: string;
+		apiKey: string;
+		cwd: string;
+		url: string;
+		verbose?: boolean;
+	},
+	gc: GraphQLClient,
+) {
+	let skill: any = await defaults(wd);
+
+	const p = await createProjectLoader().load({} as any, wd);
+
+	const skillConfigYaml = (
+		await getYamlFile<AtomistSkillConfigYaml>(p, "skill.config.yaml")
+	)?.doc;
+
+	// load skill.yaml from project (at this point it can be the container filesystem or repo contents)
+	const skillYaml = (await getYamlFile<AtomistYaml>(p, "skill.yaml")).doc
+		.skill;
+	skill = merge(skill, skillYaml, {});
+
+	skill.name = `${skill.name}-${os.userInfo().username}`;
+	skill.version = `0.0.1-${dt.DateTime.fromJSDate(new Date()).toFormat(
+		"yyyyLLddHHmmss",
+	)}`;
+	skill.apiVersion = "v2";
+	skill.artifacts = {};
+	skill.commitSha = "unknown";
+	skill.repoId = "unknown";
+	await inlineDatalogResources(p, skill);
+
+	info(`Registering skill %s/%s`, skill.namespace, skill.name);
+
+	await gc.mutate(
+		`mutation RegisterSkill($skill: AtomistSkillInput!) {
+  registerSkill(skill: $skill) {
+    name
+    namespace
+    version
+  }
+}`,
+		{
+			skill,
+		},
+	);
+
+	info(
+		`Enabling skill %s/%s in %s`,
+		skill.namespace,
+		skill.name,
+		options.workspace,
+	);
+
+	return { skill, skillConfigYaml };
+}
+
+export async function skillLocalRun(options: {
+	workspace: string;
+	apiKey: string;
+	cwd: string;
+	url: string;
+	verbose?: boolean;
+}): Promise<any> {
+	const lock: { locked: boolean; timestamp?: number } = { locked: false };
+
+	if (!options.verbose) {
+		process.env.ATOMIST_LOG_LEVEL = "info";
+	} else {
+		(Pusher as any).logToConsole = true;
+	}
+
+	const key = options.apiKey || (await apiKey());
+	const wd = options.cwd || process.cwd();
+	// eslint-disable-next-line deprecation/deprecation
+	const gc = createGraphQLClient(key, options.workspace);
+
+	const { skill, skillConfigYaml } = await registerSkill(
+		wd,
+		key,
+		options,
+		gc,
+	);
+
+	await configureSkill(skill, skillConfigYaml, gc);
+
+	//const watcher =
+	fs.watch(wd, { recursive: true }, async (event, filename) => {
+		if (
+			(["skill.yaml", "skill.config.yaml"].includes(filename) ||
+				filename.startsWith("datalog/")) &&
+			!filename.endsWith("~")
+		) {
+			info("Change to %s detected", filename);
+			lock.timestamp = Date.now();
+		}
+	});
+	//watcher.close();
+
+	setInterval(async () => {
+		const ts = lock.timestamp;
+		if (ts < Date.now() - 5 * 1000 && !lock.locked) {
+			lock.locked = true;
+			info("Updating skill registration");
+			try {
+				const { skill, skillConfigYaml } = await registerSkill(
+					wd,
+					key,
+					options,
+					gc,
+				);
+				await configureSkill(skill, skillConfigYaml, gc);
+			} catch (e) {
+				warn("Error updating skill");
+			} finally {
+				if (lock.timestamp === ts) {
+					lock.timestamp = undefined;
+				}
+				lock.locked = false;
+			}
+		}
+	}, 500).unref();
 
 	info(
 		`Listening for subscriptions %s/%s %s`,
@@ -255,12 +339,15 @@ async function handlePusherEvent(data: string, url: string) {
 				headers: { Authorization: `Bearer ${event.token}` },
 			})
 		).text();
-		data = `${data.slice(0, -1)} ${response.slice(1)}`;
+		data = `${response.slice(0, -1)} :token "${event.token}"}`;
 	}
 
 	info(`Incoming subscription: %s`, data);
 	try {
-		const response = await http.post(url, { body: data });
+		const response = await http.post(url, {
+			body: data,
+			headers: { "Content-Type": "application/edn" },
+		});
 		if (response.status !== 201) {
 			warn("Issue handling subscription");
 		}
