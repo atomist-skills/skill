@@ -85,7 +85,6 @@ export {
 	PubSubMessage,
 	PubSubPublisher,
 } from "./lib/pubsub";
-export { subscribe } from "./lib/pusher";
 export { retry, RetryOptions } from "./lib/retry";
 export * as status from "./lib/status";
 export { runSteps, Step, StepListener } from "./lib/steps";
