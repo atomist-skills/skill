@@ -209,7 +209,7 @@ export async function spawnPromise(
 		}
 		childProcess.on("exit", (code, signal) => {
 			timer = clearTimer(timer);
-			debug(
+			commandLog(
 				`Child process exit with code ${code} and signal ${signal}: ${cmdString}`,
 			);
 		});
