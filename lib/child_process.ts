@@ -180,7 +180,7 @@ export async function spawnPromise(
 			}
 		}
 
-		debug(`Spawning: ${cmdString}`);
+		// debug(`Spawning: ${cmdString}`);
 		const childProcess = spawn(cmd, args, optsToUse);
 		commandLog(`Spawned: ${cmdString} (PID ${childProcess.pid})`);
 
