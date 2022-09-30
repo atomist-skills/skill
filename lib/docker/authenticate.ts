@@ -58,7 +58,6 @@ export async function doAuthed<T>(
 }
 
 export interface DefaultDockerCredentials {
-	dockerhub?: { "username": string; "api-key": string };
 	github?: { "atomist-bot": { pat: string } };
 }
 
@@ -146,20 +145,8 @@ export async function authenticate(
 		}
 	}
 	// Add default creds
-	if (
-		ctx.event.skill.configuration?.dockerhub &&
-		!dockerConfig.auths["https://index.docker.io/v1/"]
-	) {
-		dockerConfig.auths["https://index.docker.io/v1/"] = {
-			auth: Buffer.from(
-				ctx.event.skill.configuration?.dockerhub.username +
-					":" +
-					ctx.event.skill.configuration?.dockerhub["api-key"],
-			)?.toString("base64"),
-		};
-	}
-	if (
-		ctx.event.skill.configuration?.github &&
+	/*if (
+		ctx.configuration.parameters?.github &&
 		!dockerConfig.auths["ghcr.io"]
 	) {
 		dockerConfig.auths["ghcr.io"] = {
@@ -168,7 +155,7 @@ export async function authenticate(
 					ctx.event.skill.configuration?.github["atomist-bot"].pat,
 			)?.toString("base64"),
 		};
-	}
+	}*/
 	const dockerConfigPath = path.join(os.homedir(), ".docker", "config.json");
 	await createFile(ctx, {
 		path: dockerConfigPath,
