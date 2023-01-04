@@ -260,7 +260,7 @@ export function isStaging(): boolean {
 	return (
 		process.env.ATOMIST_GRAPHQL_ENDPOINT ||
 		"https://automation.atomist.com/graphql"
-	).includes(".services");
+	).includes(".stage");
 }
 
 export function pluralize(
