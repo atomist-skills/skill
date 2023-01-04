@@ -33,13 +33,14 @@ describe("datalog.util", () => {
 
 	it("should create entity with id", () => {
 		const data = {
-			urlName:
+			"urlName":
 				"pkg:deb/debian/python3.9@3.9.2-1?arch=amd64&os_distro=bullseye&os_name=debian&os_version=11",
-			scheme: "pkg",
-			type: "deb",
-			namespace: "debian",
-			name: "python3.9",
-			version: "3.9.2-1",
+			"scheme": "pkg",
+			"type": "deb",
+			"namespace": "debian",
+			"name": "python3.9",
+			"version": "3.9.2-1",
+			":foo": "test",
 		};
 		const entity = entityWithId(["urlName", "scheme", "bar"], {
 			foo: "bar",
@@ -59,6 +60,7 @@ describe("datalog.util", () => {
 				"pkg:deb/debian/python3.9@3.9.2-1?arch=amd64&os_distro=bullseye&os_name=debian&os_version=11",
 			"package/version": "3.9.2-1",
 			"schema/entity-type": { _key: "package" },
+			"foo": "test",
 		});
 	});
 	it("should correctly find entities", () => {
