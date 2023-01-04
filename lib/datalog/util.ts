@@ -104,7 +104,7 @@ export function entity<
 }
 
 function attributeName(attribute: string, prefix: string): string {
-	if (attribute.includes("/")) {
+	if (attribute.includes("/") || attribute.startsWith(":")) {
 		return attribute;
 	} else {
 		return `${prefix}/${kebabcase(attribute)}`;
