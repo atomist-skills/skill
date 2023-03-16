@@ -184,6 +184,7 @@ export function createRef<D, C>(
 		const repositoryId: AuthenticatedRepositoryId<any> =
 			typeof id === "function" ? id(ctx) : (id as any);
 		if (!repositoryId.credential) {
+			// eslint-disable-next-line deprecation/deprecation
 			const credential = await ctx.credential.resolve(
 				gitHubAppToken(repositoryId),
 			);
@@ -311,7 +312,7 @@ export function dedupe<E, C>(): EventHandler<E, C> {
 		const name = isStaging()
 			? "atm-staging-cloud-run-dedupe"
 			: "atm-prod-cloud-run-dedupe";
-		const key = `correlation_ids/${correlationId}`;
+		const key = `correlation_ids/${ctx.skill.namespace}/${ctx.skill.name}/${ctx.name}/${correlationId}`;
 		const storage = createStorageProvider(workspaceId, name);
 
 		try {
