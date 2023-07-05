@@ -21,7 +21,7 @@ import {
 	DockerRegistry,
 	DockerRegistryType,
 } from "../definition/subscription/common_types";
-import { Contextual, EventContext } from "../handler/handler";
+import { Contextual } from "../handler/handler";
 import { debug, warn } from "../log/index";
 import { createFile } from "../tmp_fs";
 import { replacer, toArray } from "../util";
@@ -34,7 +34,7 @@ export type ExtendedDockerRegistry = DockerRegistry & {
 };
 
 export async function doAuthed<T>(
-	ctx: EventContext<any, any>,
+	ctx: Contextual<any, any>,
 	registries: Array<ExtendedDockerRegistry | ExtendedDockerRegistry[]>,
 	cb: (
 		registry: ExtendedDockerRegistry | ExtendedDockerRegistry[],
@@ -62,7 +62,7 @@ export interface DefaultDockerCredentials {
 }
 
 export async function authenticate(
-	ctx: EventContext<any, any & DefaultDockerCredentials>,
+	ctx: Contextual<any, any & DefaultDockerCredentials>,
 	registries: ExtendedDockerRegistry[],
 ): Promise<void> {
 	if (process.env.ATOMIST_SKIP_DOCKER_AUTH) {
