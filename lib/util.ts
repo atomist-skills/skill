@@ -75,7 +75,7 @@ export function toArray<T>(value: T | T[]): T[] {
 
 export function handlerLoader<T>(type: string) {
 	return async (name: string, cwd?: string): Promise<T> => {
-		const path = await requirePath(type, name, cwd);
+		const path = await requirePath(type, name || "handler", cwd);
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const f = require(path);
 		if (f[name]) {
