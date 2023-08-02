@@ -287,7 +287,7 @@ export function createContext(
 			workspaceId: payload.team_id,
 		});
 		context = {
-			name: payload.webhook.parameter_name,
+			name: payload.webhook.parameter_name || "default",
 			body: payload.webhook.body,
 			get json() {
 				return JSON.parse((payload as any).webhook.body);
