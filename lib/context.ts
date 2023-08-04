@@ -290,7 +290,11 @@ export function createContext(
 			name: payload.webhook.parameter_name || "default",
 			body: payload.webhook.body,
 			get json() {
-				return JSON.parse((payload as any).webhook.body);
+				try {
+					return JSON.parse((payload as any).webhook.body);
+				} catch (e) {
+					return undefined;
+				}
 			},
 			headers: payload.webhook.headers,
 			url: payload.webhook.url,
