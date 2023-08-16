@@ -71,7 +71,7 @@ export interface EventIncoming<E = any, C = any> {
 		};
 	};
 	"compact?"?: boolean;
-	"organization": string;
+	"organization"?: string;
 	"urls": {
 		execution: string;
 		transactions: string;
