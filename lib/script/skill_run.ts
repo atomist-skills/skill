@@ -51,7 +51,7 @@ export async function runSkill(
 		}) as any;
 
 		try {
-			await configurableEntryPoint(
+			const r = await configurableEntryPoint(
 				event,
 				loggingCreateContext(createContext, {
 					payload: true,
@@ -71,6 +71,9 @@ export async function runSkill(
 					  }
 					: undefined,
 			);
+			if (r) {
+				res.send({ result: r });
+			}
 		} catch (e) {
 			// Ignore
 		} finally {

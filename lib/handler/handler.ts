@@ -79,6 +79,7 @@ export enum State {
 export interface Status {
 	state: State;
 	reason?: string;
+	result?: any;
 }
 
 export type EventHandler<E = any, C = any> = (

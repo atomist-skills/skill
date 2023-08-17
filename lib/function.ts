@@ -31,31 +31,33 @@ import { EventIncoming, isEventIncoming } from "./payload";
 import { completed, running } from "./status";
 import { handlerLoader } from "./util";
 
-export const entryPoint = async (payload: EventIncoming): Promise<void> => {
+export const entryPoint = async (payload: EventIncoming): Promise<any> => {
 	await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
-			await processEvent(payload);
+			return await processEvent(payload);
 		}
 	});
+	return undefined;
 };
 
 export const configurableEntryPoint = async (
 	payload: EventIncoming,
 	factory?: ContextFactory,
 	loader?: (name: string) => Promise<EventHandler>,
-): Promise<void> => {
+): Promise<any> => {
 	await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
-			await processEvent(payload, loader as any, factory);
+			return await processEvent(payload, loader as any, factory);
 		}
 	});
+	return undefined;
 };
 
 export async function processEvent(
 	event: EventIncoming,
 	loader: (name: string) => Promise<EventHandler> = handlerLoader("events"),
 	factory: ContextFactory = loggingCreateContext(createContext),
-): Promise<void> {
+): Promise<void | any> {
 	const context = factory(event) as EventContext<any> & ContextualLifecycle;
 	const name =
 		context.event.context.subscription?.name ||
@@ -67,17 +69,20 @@ export async function processEvent(
 		callback: async () => debug(`Closing event handler '${name}'`),
 	});
 	debug(`Invoking event handler '${name}'`);
+	let responseResult = undefined;
 	try {
 		await context.status.publish(running());
-		const result = await invokeHandler(loader, context);
+		const response = await invokeHandler(loader, context);
+		responseResult = response.result;
 		await context.status.publish(
-			prepareStatus(result || completed(), context),
+			prepareStatus(response || completed(), context),
 		);
 	} catch (e) {
 		await publishError(e, context);
 	} finally {
 		await context.close();
 	}
+	return responseResult;
 }
 
 async function invokeHandler(
@@ -86,9 +91,9 @@ async function invokeHandler(
 ): Promise<Status> {
 	const name =
 		context.event.context.subscription?.name ||
-		context.event.context.webhook?.name;
-	const result = (await (await loader(name))(context)) as Status;
-	return result;
+		context.event.context.webhook?.name ||
+		context.event.context["sync-request"]?.name;
+	return (await loader(name))(context);
 }
 
 async function publishError(e, context: EventContext & ContextualLifecycle) {
