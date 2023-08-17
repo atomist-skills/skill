@@ -20,6 +20,7 @@ class BuildableStatus implements Status {
 	constructor(
 		public state: State,
 		public reason?: string,
+		public result?: any,
 		public _abort?: boolean,
 	) {}
 
@@ -36,10 +37,14 @@ class BuildableStatus implements Status {
  * The return object exposes a hidden function that can be used to
  * set the status to visibility: hidden or abort the step processing early.
  */
-export function completed(reason?: string): Status & {
+export function completed(
+	reason?: string,
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+	result?: any,
+): Status & {
 	abort: () => BuildableStatus;
 } {
-	return new BuildableStatus(State.Completed, reason);
+	return new BuildableStatus(State.Completed, reason, result);
 }
 
 /**
