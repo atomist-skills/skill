@@ -77,6 +77,7 @@ export interface EventIncoming<E = any, C = any> {
 		transactions: string;
 		logs: string;
 		query: string;
+		graphql?: string;
 		trigger?: string;
 	};
 	"token": string;
