@@ -16,7 +16,11 @@
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isEventIncoming(event: any): event is EventIncoming {
-	return event.type === "subscription" || event.type === "webhook";
+	return (
+		event.type === "subscription" ||
+		event.type === "webhook" ||
+		event.type === "sync-request"
+	);
 }
 
 export interface Skill<C = any> {
@@ -49,7 +53,7 @@ export interface EventIncoming<E = any, C = any> {
 	"type": string;
 	"workspace-id": string;
 	"context": {
-		subscription?: {
+		"subscription"?: {
 			name: string;
 			configuration: Configuration;
 			result: E[];
@@ -59,7 +63,7 @@ export interface EventIncoming<E = any, C = any> {
 				"schedule-name": string;
 			};
 		};
-		webhook?: {
+		"webhook"?: {
 			name: string;
 			configuration: Configuration;
 			request: {
@@ -68,6 +72,11 @@ export interface EventIncoming<E = any, C = any> {
 				headers: Record<string, string>;
 				tags: Array<{ name: string; value: string }>;
 			};
+		};
+		"sync-request"?: {
+			name: string;
+			configuration: Configuration;
+			metadata: Record<string, any>;
 		};
 	};
 	"compact?"?: boolean;
