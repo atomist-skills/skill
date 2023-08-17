@@ -59,7 +59,8 @@ export async function processEvent(
 	const context = factory(event) as EventContext<any> & ContextualLifecycle;
 	const name =
 		context.event.context.subscription?.name ||
-		context.event.context.webhook?.name;
+		context.event.context.webhook?.name ||
+		context.event.context["sync-request"]?.name;
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
