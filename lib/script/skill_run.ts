@@ -41,7 +41,7 @@ export async function runSkill(
 	const app = express();
 	app.use(bodyParser.raw({ limit: "50mb", type: "application/edn" }));
 
-	app.post("/", async (req, res) => {
+	app.post(["/", "/request", "/validate"], async (req, res) => {
 		const start = Date.now();
 		const message: Buffer = req.body;
 		const event: EventIncoming = parseEDNString(message.toString(), {
