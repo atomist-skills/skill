@@ -73,8 +73,9 @@ export async function runSkill(
 					: undefined,
 			);
 			if (r) {
-				const obj = { result: r };
-				res.status(201).send(toEdnString(obj));
+				const obj = toEdnString({ result: r });
+				debug("Skill result: %s", obj);
+				res.status(201).send(obj);
 			} else {
 				res.sendStatus(201);
 			}
