@@ -18,6 +18,7 @@ import { parseEDNString } from "edn-data";
 import * as path from "path";
 
 import { createContext, loggingCreateContext } from "../context";
+import { toEdnString } from "../datalog/transact";
 import { configurableEntryPoint } from "../function";
 import { EventHandler } from "../handler/handler";
 import { debug } from "../log/console";
@@ -72,7 +73,8 @@ export async function runSkill(
 					: undefined,
 			);
 			if (r) {
-				res.status(201).send({ result: r });
+				const obj = { result: r };
+				res.status(201).send(toEdnString(obj));
 			} else {
 				res.sendStatus(201);
 			}
