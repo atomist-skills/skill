@@ -59,7 +59,8 @@ export function loggingCreateContext(
 				payload.skill.name,
 				payload.skill.version,
 				context.event.context.subscription?.name ||
-					context.event.context.webhook?.name,
+					context.event.context.webhook?.name ||
+					context.event.context["sync-request"]?.name,
 				rt.host?.sha ? `(${rt.host.sha.slice(0, 7)}) ` : "",
 				rt.skill.version,
 				rt.skill.sha.slice(0, 7),
