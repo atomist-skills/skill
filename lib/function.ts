@@ -32,12 +32,11 @@ import { completed, running } from "./status";
 import { handlerLoader } from "./util";
 
 export const entryPoint = async (payload: EventIncoming): Promise<any> => {
-	await namespace.run(async () => {
+	return await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
 			return await processEvent(payload);
 		}
 	});
-	return undefined;
 };
 
 export const configurableEntryPoint = async (
@@ -45,12 +44,11 @@ export const configurableEntryPoint = async (
 	factory?: ContextFactory,
 	loader?: (name: string) => Promise<EventHandler>,
 ): Promise<any> => {
-	await namespace.run(async () => {
+	return await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
 			return await processEvent(payload, loader as any, factory);
 		}
 	});
-	return undefined;
 };
 
 export async function processEvent(
