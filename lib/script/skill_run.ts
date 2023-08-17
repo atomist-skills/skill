@@ -72,11 +72,12 @@ export async function runSkill(
 					: undefined,
 			);
 			if (r) {
-				res.send({ result: r });
+				res.status(201).send({ result: r });
+			} else {
+				res.sendStatus(201);
 			}
 		} catch (e) {
 			// Ignore
-		} finally {
 			res.sendStatus(201);
 		}
 	});
