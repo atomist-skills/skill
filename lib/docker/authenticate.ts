@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { ECRClient } from "@aws-sdk/client-ecr";
 import * as os from "os";
 import * as path from "path";
 
@@ -196,11 +197,11 @@ export async function getGcrOAuthAccessToken(
 	return oauthAccessToken.accessToken;
 }
 
-export async function getEcrAccessToken(
+export async function getEcrClient(
 	arn: string,
 	externalId: string,
 	region: string,
-): Promise<string> {
+): Promise<ECRClient> {
 	const awsCreds = await retrieveAwsCreds();
 
 	const stsClient = new (await import("@aws-sdk/client-sts")).STSClient({
@@ -228,8 +229,17 @@ export async function getEcrAccessToken(
 			sessionToken: stsResponse.Credentials.SessionToken,
 		},
 	});
+	return ecrClient;
+}
 
-	const ecrResponse = await ecrClient.send(
+export async function getEcrAccessToken(
+	arn: string,
+	externalId: string,
+	region: string,
+): Promise<string> {
+	const ecrResponse = await (
+		await getEcrClient(arn, externalId, region)
+	).send(
 		new (
 			await import("@aws-sdk/client-ecr")
 		).GetAuthorizationTokenCommand({}),
