@@ -111,7 +111,10 @@ export function createContext(
 			onComplete,
 		};
 		context.event.skill.configuration = extractConfigurationParameters(
-			payload.context?.subscription?.configuration?.parameters || [],
+			payload.context?.subscription?.configuration?.parameters ||
+				payload.context?.webhook?.configuration?.parameters ||
+				payload.context?.["sync-request"]?.configuration?.parameters ||
+				[],
 		);
 		return context;
 	}
