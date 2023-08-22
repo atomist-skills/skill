@@ -88,6 +88,7 @@ export interface EventIncoming<E = any, C = any> {
 		query: string;
 		graphql?: string;
 		trigger?: string;
+		entitlements?: string;
 	};
 	"token": string;
 }
