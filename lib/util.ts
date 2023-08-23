@@ -114,7 +114,7 @@ export async function requirePath(
 }
 
 function keyToHide(key: string): boolean {
-	return /token|password|jwt|url|secret|authorization|key|cert|pass|user|address|email|pat/i.test(
+	return /auth|token|password|jwt|url|secret|authorization|key|cert|pass|user|address|email|pat/i.test(
 		key,
 	);
 }
