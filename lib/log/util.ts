@@ -25,6 +25,7 @@ import { wrapLoggers } from "./wrap_loggers";
 
 export function initLogging(
 	payload: EventIncoming,
+	name: string,
 	onComplete: (closable: ContextClosable) => void,
 ): void {
 	const loggers = [createLogger(payload)];
@@ -36,10 +37,10 @@ export function initLogging(
 			{
 				correlationId: payload["execution-id"],
 				workspaceId: payload["workspace-id"],
-				skillId: payload.skill.id,
+				skillId: `${payload.skill.namespace}/${payload.skill.name}@${payload.skill.version}`,
 			},
 			{
-				name: context.name,
+				name,
 				skill_namespace: payload.skill.namespace,
 				skill_name: payload.skill.name,
 				skill_version: payload.skill.version,

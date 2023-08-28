@@ -46,7 +46,11 @@ export function loggingCreateContext(
 	return payload => {
 		const context = delegate(payload);
 		if (context) {
-			initLogging(payload, context.onComplete);
+			const name =
+				context.event.context.subscription?.name ||
+				context.event.context.webhook?.name ||
+				context.event.context["sync-request"]?.name;
+			initLogging(payload, name, context.onComplete);
 			options?.before?.(context);
 			if (options?.after) {
 				context.onComplete(options.after);
@@ -58,9 +62,7 @@ export function loggingCreateContext(
 				payload.skill.namespace,
 				payload.skill.name,
 				payload.skill.version,
-				context.event.context.subscription?.name ||
-					context.event.context.webhook?.name ||
-					context.event.context["sync-request"]?.name,
+				name,
 				rt.host?.sha ? `(${rt.host.sha.slice(0, 7)}) ` : "",
 				rt.skill.version,
 				rt.skill.sha.slice(0, 7),
