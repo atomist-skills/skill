@@ -21,12 +21,37 @@ import { EventIncoming, isEventIncoming } from "../payload";
 import { handleErrorSync, isStaging, replacer } from "../util";
 import { debug, setLogger } from "./console";
 import { createLogger } from "./logger";
+import { wrapLoggers } from "./wrap_loggers";
 
 export function initLogging(
 	payload: EventIncoming,
 	onComplete: (closable: ContextClosable) => void,
 ): void {
-	const logger = createLogger(payload);
+	const loggers = [createLogger(payload)];
+
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const gcpLogging = require("@atomist/skill-logging");
+		const gcpLogger = gcpLogging.createLogger(
+			{
+				correlationId: payload["execution-id"],
+				workspaceId: payload["workspace-id"],
+				skillId: payload.skill.id,
+			},
+			{
+				name: context.name,
+				skill_namespace: payload.skill.namespace,
+				skill_name: payload.skill.name,
+				skill_version: payload.skill.version,
+				organization: payload.organization,
+			},
+		);
+		loggers.push(gcpLogger);
+	} catch (e) {
+		// intentionally left empty
+	}
+
+	const logger = wrapLoggers(...loggers);
 	setLogger(logger);
 	onComplete({
 		name: "logger",
