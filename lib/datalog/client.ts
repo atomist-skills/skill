@@ -141,6 +141,9 @@ ${queries.join("\n\n")}
 							},
 						});
 						if (response.status !== 200) {
+							warn(
+								`Datalog query failed with: ${response.statusText}`,
+							);
 							throw new ResponseError(response);
 						}
 						return response;
@@ -209,6 +212,9 @@ ${queries.join("\n\n")}
 						},
 					});
 					if (response.status !== 200) {
+						warn(
+							`Datalog retract failed with: ${response.statusText}`,
+						);
 						throw new ResponseError(response);
 					}
 					return response;
