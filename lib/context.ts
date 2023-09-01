@@ -26,7 +26,7 @@ import { createStatusPublisher } from "./handler/status";
 import { createHttpClient } from "./http";
 import { debug } from "./log/console";
 import { initLogging, logPayload, runtime } from "./log/util";
-import { EventIncoming, isEventIncoming } from "./payload";
+import { EventIncoming, eventName, isEventIncoming } from "./payload";
 import { createProjectLoader } from "./project/loader";
 import { handleError } from "./util";
 import camelCase = require("lodash.camelcase");
@@ -46,10 +46,7 @@ export function loggingCreateContext(
 	return payload => {
 		const context = delegate(payload);
 		if (context) {
-			const name =
-				context.event.context.subscription?.name ||
-				context.event.context.webhook?.name ||
-				context.event.context["sync-request"]?.name;
+			const name = eventName(payload);
 			initLogging(payload, name, context.onComplete);
 			options?.before?.(context);
 			if (options?.after) {

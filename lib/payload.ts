@@ -19,7 +19,17 @@ export function isEventIncoming(event: any): event is EventIncoming {
 	return (
 		event.type === "subscription" ||
 		event.type === "webhook" ||
-		event.type === "sync-request"
+		event.type === "sync-request" ||
+		event.type === "validation"
+	);
+}
+
+export function eventName(event: EventIncoming): string {
+	return (
+		event.context.subscription?.name ||
+		event.context.webhook?.name ||
+		event.context["sync-request"]?.name ||
+		(event.type === "validation" ? "validation" : undefined)
 	);
 }
 
@@ -77,6 +87,10 @@ export interface EventIncoming<E = any, C = any> {
 			name: string;
 			configuration: Configuration;
 			metadata: Record<string, any>;
+		};
+		"validation"?: {
+			"configuration": Configuration["parameters"];
+			"existing-configuration": Configuration;
 		};
 	};
 	"compact?"?: boolean;

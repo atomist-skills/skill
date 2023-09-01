@@ -27,11 +27,11 @@ import {
 } from "./handler/handler";
 import { prepareStatus } from "./handler/status";
 import { debug, error } from "./log";
-import { EventIncoming, isEventIncoming } from "./payload";
+import { EventIncoming, eventName, isEventIncoming } from "./payload";
 import { completed, running } from "./status";
 import { handlerLoader } from "./util";
 
-export const entryPoint = async (payload: EventIncoming): Promise<any> => {
+export const entryPoint = async (payload: EventIncoming): Promise<Status> => {
 	return await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
 			return await processEvent(payload);
@@ -43,7 +43,7 @@ export const configurableEntryPoint = async (
 	payload: EventIncoming,
 	factory?: ContextFactory,
 	loader?: (name: string) => Promise<EventHandler>,
-): Promise<any> => {
+): Promise<Status> => {
 	return await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
 			return await processEvent(payload, loader as any, factory);
@@ -57,10 +57,7 @@ export async function processEvent(
 	factory: ContextFactory = loggingCreateContext(createContext),
 ): Promise<void | any> {
 	const context = factory(event) as EventContext<any> & ContextualLifecycle;
-	const name =
-		context.event.context.subscription?.name ||
-		context.event.context.webhook?.name ||
-		context.event.context["sync-request"]?.name;
+	const name = eventName(event);
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
@@ -71,7 +68,7 @@ export async function processEvent(
 	try {
 		await context.status.publish(running());
 		const response = await invokeHandler(loader, context);
-		responseResult = response.result;
+		responseResult = response;
 		await context.status.publish(
 			prepareStatus(response || completed(), context),
 		);
@@ -87,11 +84,7 @@ async function invokeHandler(
 	loader: (name: string) => Promise<any>,
 	context: EventContext & ContextualLifecycle,
 ): Promise<Status> {
-	const name =
-		context.event.context.subscription?.name ||
-		context.event.context.webhook?.name ||
-		context.event.context["sync-request"]?.name;
-	return (await loader(name))(context);
+	return (await loader(eventName(context.event)))(context);
 }
 
 async function publishError(e, context: EventContext & ContextualLifecycle) {
