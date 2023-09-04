@@ -89,7 +89,7 @@ export interface EventIncoming<E = any, C = any> {
 			metadata: Record<string, any>;
 		};
 		"validation"?: {
-			"configuration": Configuration["parameters"];
+			"configuration": Configuration;
 			"existing-configuration": Configuration;
 		};
 	};
