@@ -20,12 +20,17 @@ class BuildableStatus implements Status {
 	constructor(
 		public state: State,
 		public reason?: string,
-		public result?: any,
-		public _abort?: boolean,
+		public syncRequest?: any,
+		public validation?: Status["validation"],
 	) {}
 
-	public abort(): this {
-		this._abort = true;
+	public withSyncResult(result: any): BuildableStatus {
+		this.syncRequest = result;
+		return this;
+	}
+
+	public withValidation(validation: Status["validation"]): BuildableStatus {
+		this.validation = validation;
 		return this;
 	}
 }
@@ -37,14 +42,8 @@ class BuildableStatus implements Status {
  * The return object exposes a hidden function that can be used to
  * set the status to visibility: hidden or abort the step processing early.
  */
-export function completed(
-	reason?: string,
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	result?: any,
-): Status & {
-	abort: () => BuildableStatus;
-} {
-	return new BuildableStatus(State.Completed, reason, result);
+export function completed(reason?: string): BuildableStatus {
+	return new BuildableStatus(State.Completed, reason);
 }
 
 /**
@@ -54,9 +53,7 @@ export function completed(
  * The return object exposes a hidden function that can be used to
  * set the status to visibility: hidden or abort the step processing early.
  */
-export function failed(reason?: string): Status & {
-	abort: () => BuildableStatus;
-} {
+export function failed(reason?: string): BuildableStatus {
 	return new BuildableStatus(State.Failed, reason);
 }
 
@@ -67,8 +64,6 @@ export function failed(reason?: string): Status & {
  * The return object exposes a hidden function that can be used to
  * set the status to visibility: hidden or abort the step processing early.
  */
-export function running(reason?: string): Status & {
-	abort: () => BuildableStatus;
-} {
+export function running(reason?: string): BuildableStatus {
 	return new BuildableStatus(State.Running, reason);
 }
