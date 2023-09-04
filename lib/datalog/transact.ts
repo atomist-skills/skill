@@ -113,7 +113,7 @@ export function toEdnString(value: Record<string, any>): string {
 	}
 	const filteredValue: Record<string, any> = {};
 	Object.keys(value).forEach(k => {
-		if (value[k]) {
+		if (value[k] !== undefined) {
 			filteredValue[k] = value[k];
 		}
 	});

@@ -30,6 +30,10 @@ describe("datalog.util", () => {
 		const result = toEdnString({ foo: asKeyword(":bar"), bar: "foo" });
 		assert.deepStrictEqual(result, '{:foo :bar :bar "foo"}');
 	});
+	it("should probably encode falsy values", () => {
+		const result = toEdnString({ success: false });
+		assert.deepStrictEqual(result, "{:success false}");
+	});
 
 	it("should create entity with id", () => {
 		const data = {
