@@ -75,15 +75,17 @@ export function createLogger(payload: EventIncoming): Logger {
 			const filteredEntries = entries.filter(
 				e => e.level?._key !== "exit",
 			);
-			await createHttpClient().post(payload.urls.logs, {
-				body: toEdnString({
-					logs: filteredEntries,
-				}),
-				headers: {
-					"authorization": `Bearer ${payload.token}`,
-					"content-type": `application/edn`,
-				},
-			});
+			if (payload.urls?.logs) {
+				await createHttpClient().post(payload.urls.logs, {
+					body: toEdnString({
+						logs: filteredEntries,
+					}),
+					headers: {
+						"authorization": `Bearer ${payload.token}`,
+						"content-type": `application/edn`,
+					},
+				});
+			}
 			cb();
 		},
 		concurrent: 1,

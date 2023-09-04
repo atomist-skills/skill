@@ -31,6 +31,9 @@ export function createStatusPublisher(
 ): StatusPublisher {
 	return {
 		publish: async (status: Status) => {
+			if (!payload.urls?.execution) {
+				return;
+			}
 			const body = toEdnString({
 				status: {
 					state: asKeyword(status.state),

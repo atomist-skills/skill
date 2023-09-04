@@ -19,7 +19,7 @@ import { Response } from "node-fetch";
 import { HttpClient } from "../http";
 import { debug, warn } from "../log/console";
 import { mapSubscription } from "../map";
-import { EventIncoming } from "../payload";
+import { EventIncoming, eventName } from "../payload";
 import { retry } from "../retry";
 import { hash, toArray } from "../util";
 import { createTransact, DatalogTransact } from "./transact";
@@ -98,9 +98,7 @@ class NodeFetchDatalogClient implements DatalogClient {
 						"after-basis-t"
 					],
 				configurationName:
-					options?.configurationName ||
-					this.payload.context.subscription?.configuration?.name ||
-					this.payload.context.webhook?.configuration?.name,
+					options?.configurationName || eventName(this.payload),
 			};
 		}
 
