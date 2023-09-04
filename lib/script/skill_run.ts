@@ -74,12 +74,12 @@ export async function runSkill(
 			);
 			if (r) {
 				if (r.syncRequest) {
-					debug("Skill result: %s", r.syncRequest);
 					const obj = toEdnString({ result: r.syncRequest });
+					debug("Skill result: %s", obj);
 					res.status(201).send(obj);
 				} else if (r.validation) {
-					debug("Skill validation: %s", r.validation);
 					const obj = toEdnString(r.validation);
+					debug("Skill validation: %s", obj);
 					res.status(r.validation.success ? 200 : 418).send(obj);
 				} else {
 					res.sendStatus(201);
