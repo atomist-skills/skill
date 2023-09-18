@@ -105,7 +105,9 @@ async function registerSkill(
 ) {
 	let skill: any = await defaults(wd);
 
-	const p = await createProjectLoader().load({} as any, wd);
+	const p = await createProjectLoader().load({} as any, wd, {
+		userConfig: false,
+	});
 
 	const skillConfigYaml = (
 		await getYamlFile<AtomistSkillConfigYaml>(p, "skill.config.yaml")
