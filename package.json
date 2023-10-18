@@ -58,6 +58,7 @@
     "@aws-sdk/client-sts": "^3.395.0",
     "@google-cloud/functions-framework": "^1.10.0",
     "@google-cloud/secret-manager": "^3.12.0",
+    "@google-cloud/storage": "^7.3.0",
     "@octokit/plugin-rest-endpoint-methods": "^5.13.0",
     "@octokit/rest": "^18.12.0",
     "@types/body-parser": "^1.19.1",
