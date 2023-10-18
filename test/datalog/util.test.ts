@@ -31,8 +31,8 @@ describe("datalog.util", () => {
 		assert.deepStrictEqual(result, '{:foo :bar :bar "foo"}');
 	});
 	it("should probably encode falsy values", () => {
-		const result = toEdnString({ success: false });
-		assert.deepStrictEqual(result, "{:success false}");
+		const result = toEdnString({ success: false, count: 0 });
+		assert.deepStrictEqual(result, "{:success false :count 0}");
 	});
 
 	it("should create entity with id", () => {

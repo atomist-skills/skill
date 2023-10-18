@@ -24,7 +24,7 @@ class BuildableStatus implements Status {
 		public validation?: Status["validation"],
 	) {}
 
-	public withSyncResult(result: any): BuildableStatus {
+	public withSyncResult(result: Record<string, any>): BuildableStatus {
 		this.syncRequest = result;
 		return this;
 	}
