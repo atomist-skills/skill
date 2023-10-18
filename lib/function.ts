@@ -62,12 +62,7 @@ export async function processEvent(
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () =>
-			debug(
-				`Closing event handler '${name}' with ${JSON.stringify(
-					responseResult,
-				)}`,
-			),
+		callback: async () => debug(`Closing event handler '${name}'`),
 	});
 	debug(`Invoking event handler '${name}'`);
 	try {
