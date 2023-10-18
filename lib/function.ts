@@ -29,7 +29,7 @@ import { prepareStatus } from "./handler/status";
 import { debug, error } from "./log";
 import { EventIncoming, eventName, isEventIncoming } from "./payload";
 import { completed, running } from "./status";
-import { handlerLoader } from "./util";
+import { handlerLoader, replacer } from "./util";
 
 export const entryPoint = async (payload: EventIncoming): Promise<Status> => {
 	return await namespace.run(async () => {
@@ -58,17 +58,23 @@ export async function processEvent(
 ): Promise<void | any> {
 	const context = factory(event) as EventContext<any> & ContextualLifecycle;
 	const name = eventName(event);
+	let responseResult = undefined;
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () => debug(`Closing event handler '${name}'`),
+		callback: async () =>
+			debug(
+				`Closing event handler '${name}' with ${JSON.stringify(
+					responseResult,
+				)}`,
+			),
 	});
 	debug(`Invoking event handler '${name}'`);
-	let responseResult = undefined;
 	try {
 		await context.status.publish(running());
 		const response = await invokeHandler(loader, context);
 		responseResult = response;
+		debug(`Handler status: ${JSON.stringify(responseResult, replacer)} `);
 		await context.status.publish(
 			prepareStatus(response || completed(), context),
 		);
