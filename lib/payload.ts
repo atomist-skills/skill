@@ -103,6 +103,7 @@ export interface EventIncoming<E = any, C = any> {
 		graphql?: string;
 		trigger?: string;
 		entitlements?: string;
+		manifests?: string;
 	};
 	"token": string;
 }
