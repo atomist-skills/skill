@@ -15,6 +15,8 @@
  */
 
 import { ECRClient } from "@aws-sdk/client-ecr";
+import { ECRPUBLICClient } from "@aws-sdk/client-ecr-public";
+import { AssumeRoleCommandOutput } from "@aws-sdk/client-sts";
 import * as os from "os";
 import * as path from "path";
 
@@ -147,16 +149,16 @@ export async function authenticate(
 	}
 	// Add default creds
 	/*if (
-		ctx.configuration.parameters?.github &&
-		!dockerConfig.auths["ghcr.io"]
-	) {
-		dockerConfig.auths["ghcr.io"] = {
-			auth: Buffer.from(
-				"atomist-bot:" +
-					ctx.event.skill.configuration?.github["atomist-bot"].pat,
-			)?.toString("base64"),
-		};
-	}*/
+                          ctx.configuration.parameters?.github &&
+                          !dockerConfig.auths["ghcr.io"]
+                      ) {
+                          dockerConfig.auths["ghcr.io"] = {
+                              auth: Buffer.from(
+                                  "atomist-bot:" +
+                                      ctx.event.skill.configuration?.github["atomist-bot"].pat,
+                              )?.toString("base64"),
+                          };
+                      }*/
 	const dockerConfigPath = path.join(os.homedir(), ".docker", "config.json");
 	await createFile(ctx, {
 		path: dockerConfigPath,
@@ -202,24 +204,7 @@ export async function getEcrClient(
 	externalId: string,
 	region: string,
 ): Promise<ECRClient> {
-	const awsCreds = await retrieveAwsCreds();
-
-	const stsClient = new (await import("@aws-sdk/client-sts")).STSClient({
-		region,
-		credentials: {
-			accessKeyId: awsCreds.accessKeyId,
-			secretAccessKey: awsCreds.secretAccessKey,
-		},
-	});
-	const stsResponse = await stsClient.send(
-		new (
-			await import("@aws-sdk/client-sts")
-		).AssumeRoleCommand({
-			ExternalId: externalId,
-			RoleArn: arn,
-			RoleSessionName: "atomist",
-		}),
-	);
+	const stsResponse = await getStsToken(arn, externalId, region);
 
 	const ecrClient = new (await import("@aws-sdk/client-ecr")).ECRClient({
 		region,
@@ -230,6 +215,51 @@ export async function getEcrClient(
 		},
 	});
 	return ecrClient;
+}
+
+export async function getEcrPublicClient(
+	arn: string,
+	externalId: string,
+	region: string,
+): Promise<ECRPUBLICClient> {
+	const stsResponse = await getStsToken(arn, externalId, region);
+
+	const ecrClient = new (
+		await import("@aws-sdk/client-ecr-public")
+	).ECRPUBLICClient({
+		region,
+		credentials: {
+			accessKeyId: stsResponse.Credentials.AccessKeyId,
+			secretAccessKey: stsResponse.Credentials.SecretAccessKey,
+			sessionToken: stsResponse.Credentials.SessionToken,
+		},
+	});
+	return ecrClient;
+}
+
+async function getStsToken(
+	arn: string,
+	externalId: string,
+	region: string,
+): Promise<AssumeRoleCommandOutput> {
+	const awsCreds = await retrieveAwsCreds();
+
+	const stsClient = new (await import("@aws-sdk/client-sts")).STSClient({
+		region,
+		credentials: {
+			accessKeyId: awsCreds.accessKeyId,
+			secretAccessKey: awsCreds.secretAccessKey,
+		},
+	});
+	return await stsClient.send(
+		new (
+			await import("@aws-sdk/client-sts")
+		).AssumeRoleCommand({
+			ExternalId: externalId,
+			RoleArn: arn,
+			RoleSessionName: "atomist",
+		}),
+	);
 }
 
 export async function getEcrAccessToken(

@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ecr": "^3.395.0",
+    "@aws-sdk/client-ecr-public": "^3.431.0",
     "@aws-sdk/client-sts": "^3.395.0",
     "@google-cloud/functions-framework": "^1.10.0",
     "@google-cloud/secret-manager": "^3.12.0",
