@@ -23,6 +23,9 @@ import { error } from "./log/console";
 import sortBy = require("lodash.sortby");
 import * as dt from "luxon";
 
+import { EventHandler } from "./handler";
+import { EventType, HandlerRouting } from "./handler/routing";
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function hash(obj: any): string {
 	const hash = crypto.createHash("sha256");
@@ -72,15 +75,15 @@ export function toArray<T>(value: T | T[]): T[] {
 	}
 }
 
-export function handlerLoader<T>(type: string) {
-	return async (name: string, cwd?: string): Promise<T> => {
-		const path = await requirePath(type, name || "handler", cwd);
+export function handlerLoader(): HandlerRouting {
+	return async (type: EventType, name: string): Promise<EventHandler> => {
+		const path = await requirePath(type, name || "handler");
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const f = require(path);
 		if (f[name]) {
-			return f[name] as T;
+			return f[name];
 		} else if (f.handler) {
-			return f.handler as T;
+			return f.handler;
 		} else {
 			throw new Error(`No ${type} handler found for '${name}'`);
 		}
