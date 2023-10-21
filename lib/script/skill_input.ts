@@ -22,7 +22,7 @@ import { Skill } from "../definition/skill";
 import { namedDatalog } from "../definition/subscription/named";
 import { error, info } from "../log";
 import { withGlobMatches } from "../project/util";
-import { handleError, handlerLoader } from "../util";
+import { handleError } from "../util";
 import { createYamlSkillInput, defaults } from "./skill_container";
 import map = require("lodash.map");
 import merge = require("lodash.merge");
@@ -498,52 +498,6 @@ export async function validateSkillInput(
 			!Object.values(AtomistSkillTechnology).includes(technology as any)
 		) {
 			errors.push(`Technology '${technology}' invalid`);
-		}
-	}
-
-	if (options.validateHandlers) {
-		// Validate commands
-		for (const command of s.commands || []) {
-			await handleError(
-				async () => {
-					const p = await handlerLoader(`commands/${command.name}`);
-					if (!p) {
-						errors.push(
-							`Registered command '${command.name}' can't be found`,
-						);
-					}
-				},
-				async err => {
-					errors.push(
-						`Registered command '${command.name}' can't be found: ${err.message}`,
-					);
-				},
-			);
-		}
-
-		// Validate subscriptions
-		for (const subscription of s.subscriptions || []) {
-			const match = subscription.match(/subscription\s([^\s({]+)[\s({]/);
-			if (match) {
-				const operationName = match[1];
-				await handleError(
-					async () => {
-						const p = await handlerLoader(
-							`events/${operationName}`,
-						);
-						if (!p) {
-							errors.push(
-								`Registered event handler '${operationName}' can't be found`,
-							);
-						}
-					},
-					async err => {
-						errors.push(
-							`Registered event handler '${operationName}' can't be found: ${err.message}`,
-						);
-					},
-				);
-			}
 		}
 	}
 
