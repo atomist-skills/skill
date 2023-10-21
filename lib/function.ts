@@ -19,12 +19,8 @@ import "source-map-support/register";
 
 import * as namespace from "./cls";
 import { ContextFactory, createContext, loggingCreateContext } from "./context";
-import {
-	ContextualLifecycle,
-	EventContext,
-	EventHandler,
-	Status,
-} from "./handler/handler";
+import { ContextualLifecycle, EventContext, Status } from "./handler/handler";
+import { EventType, HandlerRouting } from "./handler/routing";
 import { prepareStatus } from "./handler/status";
 import { debug, error } from "./log";
 import { EventIncoming, eventName, isEventIncoming } from "./payload";
@@ -42,18 +38,18 @@ export const entryPoint = async (payload: EventIncoming): Promise<Status> => {
 export const configurableEntryPoint = async (
 	payload: EventIncoming,
 	factory?: ContextFactory,
-	loader?: (name: string) => Promise<EventHandler>,
+	routing?: HandlerRouting,
 ): Promise<Status> => {
 	return await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
-			return await processEvent(payload, loader as any, factory);
+			return await processEvent(payload, routing, factory);
 		}
 	});
 };
 
 export async function processEvent(
 	event: EventIncoming,
-	loader: (name: string) => Promise<EventHandler> = handlerLoader("events"),
+	routing: HandlerRouting = handlerLoader(),
 	factory: ContextFactory = loggingCreateContext(createContext),
 ): Promise<void | any> {
 	const context = factory(event) as EventContext<any> & ContextualLifecycle;
@@ -62,12 +58,12 @@ export async function processEvent(
 	context.onComplete({
 		name: undefined,
 		priority: Number.MAX_SAFE_INTEGER - 1,
-		callback: async () => debug(`Closing event handler '${name}'`),
+		callback: async () => debug(`Closing ${event.type} handler '${name}'`),
 	});
-	debug(`Invoking event handler '${name}'`);
+	debug(`Invoking ${event.type} handler '${name}'`);
 	try {
 		await context.status.publish(running());
-		const response = await invokeHandler(loader, context);
+		const response = await invokeHandler(routing, context);
 		responseResult = response;
 		debug(`Handler status: ${JSON.stringify(responseResult, replacer)} `);
 		await context.status.publish(
@@ -82,10 +78,16 @@ export async function processEvent(
 }
 
 async function invokeHandler(
-	loader: (name: string) => Promise<any>,
+	routing: HandlerRouting,
 	context: EventContext & ContextualLifecycle,
 ): Promise<Status> {
-	return (await loader(eventName(context.event)))(context);
+	return (
+		await routing(
+			EventType[context.event.type],
+			eventName(context.event),
+			context.event.skill,
+		)
+	)(context);
 }
 
 async function publishError(e, context: EventContext & ContextualLifecycle) {

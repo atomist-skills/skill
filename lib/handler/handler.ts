@@ -88,4 +88,4 @@ export interface Status {
 
 export type EventHandler<E = any, C = any> = (
 	context: EventContext<E, C>,
-) => Promise<void | Status>;
+) => Promise<Status>;
