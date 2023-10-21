@@ -20,16 +20,14 @@ import * as path from "path";
 import { createContext, loggingCreateContext } from "../context";
 import { toEdnString } from "../datalog/transact";
 import { configurableEntryPoint } from "../function";
-import { EventHandler } from "../handler/handler";
+import { HandlerRouting } from "../handler";
 import { debug } from "../log/console";
 import { runtime } from "../log/util";
 import { EventIncoming } from "../payload";
 
 export const start = runSkill;
 
-export async function runSkill(
-	handlers?: Record<string, EventHandler>,
-): Promise<void> {
+export async function runSkill(routing?: HandlerRouting): Promise<void> {
 	const nm = await (
 		await import("find-up")
 	)("node_modules", { cwd: __dirname, type: "directory" });
@@ -66,9 +64,9 @@ export async function runSkill(
 							),
 					},
 				}),
-				handlers
+				routing
 					? async name => {
-							return handlers[name];
+							return routing[name];
 					  }
 					: undefined,
 			);

@@ -20,6 +20,18 @@ import { EventIncoming } from "../payload";
 import { ProjectLoader } from "../project/index";
 import { StatusPublisher } from "./status";
 
+export enum EventType {
+	Webhoook = "webhook",
+	Subscription = "subscription",
+	SyncRequest = "sync-request",
+	Validation = "validation",
+}
+
+export type HandlerRouting = (
+	eventType: EventType,
+	name: string,
+) => Promise<EventHandler>;
+
 export const DefaultPriority = 100;
 
 export type ContextClosable = {
@@ -88,4 +100,4 @@ export interface Status {
 
 export type EventHandler<E = any, C = any> = (
 	context: EventContext<E, C>,
-) => Promise<void | Status>;
+) => Promise<Status>;

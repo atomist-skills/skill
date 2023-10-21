@@ -34,7 +34,7 @@ export function eventName(event: EventIncoming): string {
 }
 
 export interface Skill<C = any> {
-	id: string;
+	id?: string;
 	name: string;
 	namespace: string;
 	version: string;
@@ -100,10 +100,9 @@ export interface EventIncoming<E = any, C = any> {
 		transactions: string;
 		logs: string;
 		query: string;
-		graphql?: string;
-		trigger?: string;
-		entitlements?: string;
-		manifests?: string;
+		graphql: string;
+		entitlements: string;
+		manifests: string;
 	};
 	"token": string;
 }
