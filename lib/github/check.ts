@@ -168,7 +168,7 @@ export async function createCheck(
 						ctx,
 					)}`,
 				),
-				details: parameters.details
+				text: parameters.details
 					? truncateText(parameters.details)
 					: undefined,
 				annotations: [],
