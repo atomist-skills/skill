@@ -15,6 +15,7 @@
  */
 
 import { Octokit } from "@octokit/rest"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import fetch from "node-fetch";
 
 import { Contextual } from "../handler/handler";
 import { debug } from "../log/console";
@@ -64,6 +65,9 @@ export function api(
 			info: debug,
 			warn: debug,
 			error: debug,
+		},
+		request: {
+			fetch,
 		},
 	});
 
