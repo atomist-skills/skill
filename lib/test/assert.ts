@@ -92,7 +92,7 @@ export async function assertSkill(
 
 	await namespace.run(async () => {
 		if (isEventIncoming(payload)) {
-			await processEvent(payload, handlerLoader("events"), factory);
+			await processEvent(payload, handlerLoader(), factory);
 		}
 	});
 	return status;
