@@ -20,6 +20,7 @@ export enum DockerRegistryType {
 	Gcr = "GCR",
 	Ghcr = "GHCR",
 	DockerHub = "DOCKER_HUB",
+	Acr = "ACR",
 }
 
 export interface DockerRegistry {
