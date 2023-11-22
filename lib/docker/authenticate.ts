@@ -119,6 +119,15 @@ export async function authenticate(
 						};
 					}
 					break;
+				case DockerRegistryType.Acr:
+					dockerConfig.auths[url[0]] = {
+						auth: Buffer.from(
+							registry["docker.registry/username"] +
+								":" +
+								registry["docker.registry/secret"],
+						)?.toString("base64"),
+					};
+					break;
 				default:
 					if (
 						registry["docker.registry/server-url"]?.startsWith(
