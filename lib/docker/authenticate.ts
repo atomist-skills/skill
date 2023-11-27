@@ -28,20 +28,12 @@ import { Contextual, EventContext } from "../handler/handler";
 import { debug, warn } from "../log/index";
 import { createFile } from "../tmp_fs";
 import { replacer, toArray } from "../util";
-
-export type ExtendedDockerRegistry = DockerRegistry & {
-	serviceAccount: string;
-	arn: string;
-	externalId: string;
-	region: string;
-};
+import { retrieveRegistryCredentials } from "./secret";
 
 export async function doAuthed<T>(
 	ctx: EventContext<any, any>,
-	registries: Array<ExtendedDockerRegistry | ExtendedDockerRegistry[]>,
-	cb: (
-		registry: ExtendedDockerRegistry | ExtendedDockerRegistry[],
-	) => Promise<T>,
+	registries: Array<DockerRegistry | DockerRegistry[]>,
+	cb: (registry: DockerRegistry | DockerRegistry[]) => Promise<T>,
 ): Promise<T> {
 	let error;
 	for (const registry of registries) {
@@ -82,7 +74,8 @@ export async function authenticate(
 		auths: {},
 	} as any;
 	if (registries?.length > 0) {
-		for (const registry of registries.filter(r => !!r)) {
+		for (const reg of registries.filter(r => !!r)) {
+			const registry = await retrieveRegistryCredentials(ctx, reg);
 			const url = registry["docker.registry/server-url"].split("/");
 			switch (registry["docker.registry/type"]) {
 				case DockerRegistryType.Ecr:

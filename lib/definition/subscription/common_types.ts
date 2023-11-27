@@ -25,14 +25,14 @@ export enum DockerRegistryType {
 
 export interface DockerRegistry {
 	"docker.registry/type": DockerRegistryType;
-	"docker.registry/secret": string;
-	"docker.registry/username": string;
+	"docker.registry/secret"?: string;
+	"docker.registry/username"?: string;
 	"docker.registry/server-url": string;
-	"docker.registry.gcr/service-account": string;
-	"docker.registry.gar/service-account": string;
-	"docker.registry.ecr/arn": string;
-	"docker.registry.ecr/external-id": string;
-	"docker.registry.ecr/region": string;
+	"docker.registry.gcr/service-account"?: string;
+	"docker.registry.gar/service-account"?: string;
+	"docker.registry.ecr/arn"?: string;
+	"docker.registry.ecr/external-id"?: string;
+	"docker.registry.ecr/region"?: string;
 }
 
 export interface OnPush {
