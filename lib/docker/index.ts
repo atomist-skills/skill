@@ -15,4 +15,7 @@
  */
 
 export * from "./authenticate";
-export { retrieveRegistryCredentials } from "./secret";
+export {
+	retrieveRegistryCredentials,
+	storeRegistryCredentials,
+} from "./secret";
