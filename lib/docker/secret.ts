@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 import { DockerRegistry } from "../definition/subscription/common_types";
 import { EventContext } from "../handler";
 import { error } from "../log";
@@ -14,10 +16,16 @@ export async function storeRegistryCredentials(
 
 	let hasSecret = false;
 	try {
-		await client.accessSecretVersion({
+		const [secret] = await client.accessSecretVersion({
 			name: `${getSecretVersionName(ctx, registry)}/versions/latest`,
 		});
 		hasSecret = true;
+		const existingRegistry = JSON.parse(
+			Buffer.from(secret.payload.data).toString(),
+		);
+		if (_.isEqual(existingRegistry, registry)) {
+			return;
+		}
 	} catch (e) {
 		// Intentionally left blank
 	}
