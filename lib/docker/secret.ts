@@ -2,7 +2,7 @@ import * as _ from "lodash";
 
 import { DockerRegistry } from "../definition/subscription/common_types";
 import { EventContext } from "../handler";
-import { error } from "../log";
+import { debug, error } from "../log";
 import { hash, isStaging } from "../util";
 
 export async function storeRegistryCredentials(
@@ -12,6 +12,13 @@ export async function storeRegistryCredentials(
 	const SecretManagerServiceClient = (
 		await import("@google-cloud/secret-manager")
 	).SecretManagerServiceClient;
+	debug(
+		`Storing Docker registry creds in secret ${getSecretVersionName(
+			ctx,
+			registry,
+		)})}`,
+	);
+
 	const client = new SecretManagerServiceClient();
 
 	let hasSecret = false;
