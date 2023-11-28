@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import isEqual = require("lodash.isequal");
 
 import { DockerRegistry } from "../definition/subscription/common_types";
 import { EventContext } from "../handler";
@@ -30,7 +30,7 @@ export async function storeRegistryCredentials(
 		const existingRegistry = JSON.parse(
 			Buffer.from(secret.payload.data).toString(),
 		);
-		if (_.isEqual(existingRegistry, registry)) {
+		if (isEqual(existingRegistry, registry)) {
 			return;
 		}
 	} catch (e) {
