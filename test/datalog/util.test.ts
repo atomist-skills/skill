@@ -18,6 +18,7 @@ import * as assert from "power-assert";
 
 import {
 	asKeyword,
+	asRaw,
 	entity,
 	entityRefs,
 	entityWithId,
@@ -72,5 +73,24 @@ describe("datalog.util", () => {
 		const ref = entityRefs(entities, "foo/bar");
 		assert.deepStrictEqual(ref.length, 1);
 		assert.deepStrictEqual(ref[0], "$foo");
+	});
+	it("should correctly serialize atomist/tx-iff", () => {
+		const entities = [
+			entity("foo/bar", "$foo", {
+				"atomist/tx-iff": {
+					args: {
+						"tx-arg": 1233,
+					},
+					where: asRaw(`[[?entity :goal.result/deviation-count _ ?tx true]
+                                  [(< ?tx ?tx-arg)]]`),
+				},
+				"foo": "bar",
+			}),
+		];
+		assert.deepStrictEqual(
+			toEdnString(entities),
+			'[{:schema/entity-type :foo/bar :schema/entity "$foo" :atomist/tx-iff {:args {:tx-arg 1233} :where [[?entity :goal.result/deviation-count _ ?tx true]\n' +
+				'                                  [(< ?tx ?tx-arg)]]} :foo.bar/foo "bar"}]',
+		);
 	});
 });

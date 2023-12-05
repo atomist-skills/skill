@@ -19,6 +19,8 @@ import { guid, hash, toArray } from "../util";
 
 export type EntityKeyword = { _key: string };
 
+export type EntityRaw = { _raw: string };
+
 export type EntityType =
 	| string
 	| string[]
@@ -30,7 +32,12 @@ export type EntityType =
 	| Date[]
 	| { set: string[] }
 	| { add: string[] }
-	| EntityKeyword;
+	| {
+			args: Record<string, string | number>;
+			where: EntityRaw;
+	  }
+	| EntityKeyword
+	| undefined;
 
 export type Entity = {
 	"schema/entity-type": EntityKeyword;
@@ -144,4 +151,8 @@ export function asKeyword(value: string): EntityKeyword {
 		return { _key: value.slice(1) };
 	}
 	return { _key: value };
+}
+
+export function asRaw(value: string): EntityRaw {
+	return { _raw: value };
 }

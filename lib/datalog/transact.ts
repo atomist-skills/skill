@@ -103,6 +103,9 @@ export function toEdnString(value: Record<string, any>): string {
 	if (value?._key) {
 		return `:${value._key}`;
 	}
+	if (value?._raw) {
+		return value._raw;
+	}
 	if (value instanceof Map) {
 		return `{${[...value]
 			.map(([k, v]) => `${toEdnString(k)} ${toEdnString(v)}`)
