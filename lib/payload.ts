@@ -86,7 +86,7 @@ export interface EventIncoming<E = any, C = any> {
 		"sync-request"?: {
 			name: string;
 			configuration: Configuration;
-			metadata: Record<string, any>;
+			metadata: E;
 		};
 		"validation"?: {
 			"configuration": Configuration;
