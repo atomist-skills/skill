@@ -201,8 +201,8 @@ export async function editContent<D>(
 		credential: { token: string };
 		owner: string;
 		repo: string;
-		base: string;
 		sha: string;
+		base?: string;
 		head?: string;
 		force?: boolean;
 	},
@@ -218,8 +218,7 @@ export async function editContent<D>(
 		!parameters.credential.token ||
 		!parameters.owner ||
 		!parameters.repo ||
-		!parameters.sha ||
-		!parameters.base
+		!parameters.sha
 	) {
 		throw new EditContentError(
 			EditContentErrorCode.InvalidParameters,
@@ -236,25 +235,27 @@ export async function editContent<D>(
 
 	// Verify that the base branch hasn't moved on
 	let ref;
-	try {
-		ref = (
-			await gh.git.getRef({
-				owner: parameters.owner,
-				repo: parameters.repo,
-				ref: `heads/${parameters.base}`,
-			})
-		).data;
-	} catch (e) {
-		throw new EditContentError(
-			EditContentErrorCode.InvalidRef,
-			`Failed to read ref '${parameters.base}'`,
-		);
-	}
-	if (parameters.sha !== ref.object.sha) {
-		throw new EditContentError(
-			EditContentErrorCode.InvalidSha,
-			`Ref '${parameters.base}' points to different commit '${ref.object.sha}'`,
-		);
+	if (parameters.base) {
+		try {
+			ref = (
+				await gh.git.getRef({
+					owner: parameters.owner,
+					repo: parameters.repo,
+					ref: `heads/${parameters.base}`,
+				})
+			).data;
+		} catch (e) {
+			throw new EditContentError(
+				EditContentErrorCode.InvalidRef,
+				`Failed to read ref '${parameters.base}'`,
+			);
+		}
+		if (parameters.sha !== ref.object.sha) {
+			throw new EditContentError(
+				EditContentErrorCode.InvalidSha,
+				`Ref '${parameters.base}' points to different commit '${ref.object.sha}'`,
+			);
+		}
 	}
 
 	const read = async (path: string) => {
@@ -381,7 +382,7 @@ export async function editContent<D>(
 				sha: commit.sha,
 				force:
 					// Never attempt a force push on main or master branch; only on our branches
-					parameters.head && refName.startsWith("atomist/")
+					parameters.head && refName.startsWith("docker/")
 						? parameters.force
 						: false,
 			});
