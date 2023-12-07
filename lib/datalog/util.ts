@@ -15,6 +15,7 @@
  */
 
 import kebabcase = require("lodash.kebabcase");
+import { mapSubscription } from "../map";
 import { guid, hash, toArray } from "../util";
 
 export type EntityKeyword = { _key: string };
@@ -155,4 +156,8 @@ export function asKeyword(value: string): EntityKeyword {
 
 export function asRaw(value: string): EntityRaw {
 	return { _raw: value };
+}
+
+export function toObject<T>(obj: any): T {
+	return mapSubscription<T>(obj);
 }
