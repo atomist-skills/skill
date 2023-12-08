@@ -86,8 +86,8 @@ export function formatCommitMarkers(
 ): string {
 	return `
 
- [atomist:generated]
- [atomist-skill:${ctx.event.skill.namespace}/${ctx.event.skill.name}]${
+ [docker-scout:generated]
+ [docker-scout-correlation-id:${ctx.event["execution-id"]}]${
 		tags.length > 0 ? "\n" : ""
 	}${tags.map(t => ` [${t}]`).join("\n")}`;
 }
@@ -98,20 +98,14 @@ export function formatMarkers(ctx: EventContext, ...tags: string[]): string {
 		undefined;
 	return `
 <!--
-  [atomist:generated]
-  [atomist-skill:${ctx.event.skill.namespace}/${ctx.event.skill.name}]
-  [atomist-version:${ctx.event.skill.version}]
-  [atomist-configuration:${
-		ctx.event.context.subscription?.configuration?.name ||
-		ctx.event.context.webhook?.configuration?.name
-  }]
-  [atomist-workspace-id:${ctx.event["workspace-id"]}]${
+  [docker-scout:generated]
+  [docker-scout-workspace-id:${ctx.event["workspace-id"]}]${
 		tx
 			? `
-  [atomist-tx:${tx}]`
+  [docker-scout-tx:${tx}]`
 			: ""
 	}
-  [atomist-correlation-id:${ctx.event["execution-id"]}]${
+  [docker-scout-correlation-id:${ctx.event["execution-id"]}]${
 		tags.length > 0 ? "\n" : ""
 	}${tags.map(t => `  [${t}]`).join("\n")}
 -->`;
