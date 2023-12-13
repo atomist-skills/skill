@@ -25,6 +25,7 @@ export type EntityRaw = { _raw: string };
 export type EntityType =
 	| string
 	| string[]
+	| string[][]
 	| number
 	| number[]
 	| boolean
