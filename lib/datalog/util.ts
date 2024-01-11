@@ -34,6 +34,7 @@ export type EntityType =
 	| Date[]
 	| { set: string[] }
 	| { add: string[] }
+	| { retract: true }
 	| {
 			args: Record<string, string | number>;
 			where: EntityRaw;
