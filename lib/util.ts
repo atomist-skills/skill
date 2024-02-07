@@ -263,6 +263,18 @@ export function isStaging(): boolean {
 	).includes("-stage");
 }
 
+export function dockerHubDomain(): string {
+	return process.env.DOCKERHUB_DOMAIN || "hub.docker.com";
+}
+
+export function dockerHubAuthDomain(): string {
+	return process.env.DOCKERHUB_AUTH_DOMAIN || "auth.docker.com";
+}
+
+export function dockerHubRegistryDomain(): string {
+	return process.env.DOCKERHUB_REGISTRY_DOMAIN || "registry-1.docker.io";
+}
+
 export function pluralize(
 	text: string,
 	count: number | any[],
