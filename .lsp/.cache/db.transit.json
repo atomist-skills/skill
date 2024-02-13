@@ -1,0 +1,23 @@
+[
+  "^ ",
+  "~:classpath",
+  ["~#set", []],
+  "~:project-hash",
+  "",
+  "~:project-root",
+  "/Users/neil/development/skill",
+  "~:kondo-config-hash",
+  "e1041ae25e82413939db0862796fba5205b5b8067f477765b614615c78e5d507",
+  "~:dependency-scheme",
+  "jar",
+  "~:analysis",
+  null,
+  "~:analysis-checksums",
+  ["^ "],
+  "~:project-analysis-type",
+  "~:project-and-full-dependencies",
+  "~:version",
+  12,
+  "~:stubs-generation-namespaces",
+  ["^1", []]
+]
