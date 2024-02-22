@@ -1,5 +1,5 @@
 import * as proc from "child_process";
-import { parseEDNString } from "edn-data";
+import { parseEDNString, toEDNStringFromSimpleObject } from "edn-data";
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import * as dt from "luxon";
@@ -223,6 +223,10 @@ async function registerSkill(
 		);
 	}
 
+	// registration updates the etag,
+	// which we can race on if we go straight to configure
+	await new Promise<void>(resolve => setTimeout(() => resolve(), 1500));
+
 	return { skill, skillConfigYaml };
 }
 
@@ -303,7 +307,15 @@ export async function skillLocalRun(options: LocalRunOptions): Promise<any> {
 	channel.bind("scout:execution_trigger", async data => {
 		await handlePusherEvent(data, options.url);
 	});
-	channel.bind("scout:sync_request", async data => {
+	channel.bind("scout:sync_request", async wrapper => {
+		// for sync requests they come in wrapped in a trigger object
+		const event = parseEDNString(wrapper, {
+			mapAs: "object",
+			keywordAs: "string",
+			listAs: "array",
+		}) as any;
+		const data = toEDNStringFromSimpleObject(event["trigger"]);
+
 		await handlePusherEvent(data, options.url);
 	});
 	return new Promise<any>(() => {
@@ -389,24 +401,32 @@ export async function inlineDatalogResources(
 }
 
 async function handlePusherEvent(data: string, url: string) {
-	const event = parseEDNString(data, {
-		mapAs: "object",
-		keywordAs: "string",
-		listAs: "array",
-	}) as any;
-
-	const http = await createHttpClient();
-	if (event["compact?"]) {
-		const response = await (
-			await createHttpClient().get(event.urls.execution, {
-				headers: { Authorization: `Bearer ${event.token}` },
-			})
-		).text();
-		data = `${response.slice(0, -1)} :token "${event.token}"}`;
-	}
-
-	info(`Incoming subscription: %s`, data);
 	try {
+		const event = parseEDNString(data, {
+			mapAs: "object",
+			keywordAs: "string",
+			listAs: "array",
+		}) as any;
+
+		const http = createHttpClient();
+		if (event["compact?"]) {
+			const execUrl =
+				event.urls.execution ||
+				`https://api.dso.docker.com/executions/${event["execution-id"]}/trigger`;
+			const executionResponse = await http.get(execUrl, {
+				headers: { Authorization: `Bearer ${event.token}` },
+			});
+			if (executionResponse.status >= 300) {
+				warn(
+					"Failed to find execution trigger data for event %s, skipping",
+					event["execution-id"],
+				);
+			}
+			const response = await executionResponse.text();
+			data = `${response.slice(0, -1)} :token "${event.token}"}`;
+		}
+
+		info(`Incoming subscription: %s`, data);
 		const response = await http.post(url, {
 			body: data,
 			headers: { "Content-Type": "application/edn" },
@@ -415,7 +435,7 @@ async function handlePusherEvent(data: string, url: string) {
 			warn("Issue handling subscription");
 		}
 	} catch (e) {
-		warn("Unhandled issue posting subscription");
+		warn("Unhandled issue posting subscription", e);
 	}
 }
 
