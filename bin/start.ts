@@ -24,6 +24,7 @@ nodeWindowPolyfill.register();
 import * as yargs from "yargs";
 
 import { error } from "../lib/log";
+import { LocalRunOptions } from "../lib/script/skill_local_run";
 
 // tslint:disable-next-line:no-unused-expression
 void yargs
@@ -308,13 +309,7 @@ void yargs
 			}
 		},
 	)
-	.command<{
-		cwd: string;
-		workspace: string;
-		apiKey: string;
-		url: string;
-		version: boolean;
-	}>(
+	.command<LocalRunOptions>(
 		["start"],
 		"Start a local skill",
 		args =>
@@ -327,12 +322,23 @@ void yargs
 				},
 				workspace: {
 					type: "string",
-					description: "Id of workspace",
+					description: "docker organization to register the skill under",
 					demandOption: true,
 				},
 				apiKey: {
 					type: "string",
-					description: "API key",
+					description: "docker organization to register the skill under",
+					demandOption: true,
+				},
+				organization: {
+					type: "string",
+					description: "docker organization to register the skill under",
+					demandOption: true,
+				},
+				prod: {
+					type: "boolean",
+					description: "register the skill into the production environment",
+					default: false,
 					demandOption: false,
 				},
 				url: {

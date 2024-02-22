@@ -1,4 +1,5 @@
 import { parseEDNString } from "edn-data";
+import * as proc from "child_process";
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import * as dt from "luxon";
@@ -13,9 +14,22 @@ import { Project, withGlobMatches } from "../project";
 import { createProjectLoader } from "../project/loader";
 import { defaults } from "./skill_container";
 import { AtomistSkillInput } from "./skill_input";
-import { apiKey } from "./skill_register";
 
 import merge = require("lodash.merge");
+import { apiKey } from "./skill_register";
+
+const APP_KEY_PROD = "e7f313cb5f6445399f58";
+const APP_KEY_STAGING = "06c3da0f7d1f0601872d";
+
+export interface LocalRunOptions {
+	cwd: string;
+	organization: string;
+	url: string;
+	prod: boolean;
+	workspace: string;
+	apiKey: string;
+	verbose: boolean;
+}
 
 type AtomistSkillConfigYaml = Array<{
 	name: string;
@@ -94,13 +108,7 @@ async function configureSkill(
 async function registerSkill(
 	wd: string,
 	key: string,
-	options: {
-		workspace: string;
-		apiKey: string;
-		cwd: string;
-		url: string;
-		verbose?: boolean;
-	},
+	options: LocalRunOptions,
 	gc: GraphQLClient,
 ) {
 	let skill: any = await defaults(wd);
@@ -153,13 +161,7 @@ async function registerSkill(
 	return { skill, skillConfigYaml };
 }
 
-export async function skillLocalRun(options: {
-	workspace: string;
-	apiKey: string;
-	cwd: string;
-	url: string;
-	verbose?: boolean;
-}): Promise<any> {
+export async function skillLocalRun(options: LocalRunOptions): Promise<any> {
 	const lock: { locked: boolean; timestamp?: number } = { locked: false };
 
 	if (!options.verbose) {
@@ -168,10 +170,13 @@ export async function skillLocalRun(options: {
 		(Pusher as any).logToConsole = true;
 	}
 
+	const hubToken = await getHubToken('staging');
+	console.log(hubToken);
+	return;
+
 	const key = options.apiKey || (await apiKey());
 	const wd = options.cwd || process.cwd();
-	// eslint-disable-next-line deprecation/deprecation
-	const gc = createGraphQLClient(key, options.workspace);
+	const gc = createGraphQLClient(key, options.organization);
 
 	const { skill, skillConfigYaml } = await registerSkill(
 		wd,
@@ -226,7 +231,8 @@ export async function skillLocalRun(options: {
 		options.workspace,
 	);
 
-	const pusher = new (Pusher as any)("e7f313cb5f6445399f58", {
+	const appKey = options.prod ? APP_KEY_PROD : APP_KEY_STAGING;
+	const pusher = new (Pusher as any)(appKey, {
 		cluster: "mt1",
 		channelAuthorization: {
 			endpoint: "https://api.atomist.com/pusher/channel/auth",
@@ -241,8 +247,11 @@ export async function skillLocalRun(options: {
 			skill.namespace
 		}_${skill.name}`,
 	);
-	channel.bind("execution-trigger", async data => {
+	channel.bind("scout:execution_trigger", async data => {
 		// incoming event
+		await handlePusherEvent(data, options.url);
+	});
+	channel.bind("scout:sync_request", async data => {
 		await handlePusherEvent(data, options.url);
 	});
 	return new Promise<any>(() => {
@@ -355,5 +364,94 @@ async function handlePusherEvent(data: string, url: string) {
 		}
 	} catch (e) {
 		warn("Unhandled issue posting subscription");
+	}
+}
+
+interface HubCredentials {
+	username: string
+	password: string
+}
+const CRED_ADDRESSES = {
+	prod: {
+		host: 'index.docker.io', // to determine which credential store to use
+		index: 'https://index.docker.io/v1/', // to request credentials from the store
+		login: 'https://hub.docker.com/v2/users/login', // to auth against
+	},
+	staging: {
+		host: 'registry-1-stage.docker.io',
+		index: 'https://registry-1-stage.docker.io/v1/',
+		login: 'https://hub-stage.docker.com/v2/users/login',
+	}
+}
+async function getHubToken(env: 'prod' | 'staging'): Promise<string> {
+	const {host, index, login} = CRED_ADDRESSES[env];
+
+	// optional envvar overrides
+	if (process.env.SKILL_HUB_USER && process.env.SKILL_HUB_PASSWORD) {
+		return await loginHub(env, {
+			username: process.env.SKILL_HUB_USER,
+			password: process.env.SKILL_HUB_PASSWORD,
+		});
+	}
+	
+	const { auths, credHelpers, credsStore } = await getHubConfig();
+	const directAuth = (auths[host] || auths[index]);
+	if (auths && directAuth && directAuth.auth) {
+		if (directAuth.auth) {
+			const [ username, password ] = Buffer.from(directAuth.auth, 'base64').toString().split(':');
+			return await loginHub(login, {username, password});
+		}
+	} else if (credHelpers && credHelpers[host]) {
+		const creds = await getCredentialsFromStore(credHelpers[host], index);
+		return await loginHub(login, creds);
+	} else if (credsStore) {
+		const creds = await getCredentialsFromStore(credsStore, index);
+		return await loginHub(login, creds);
+	}
+
+	throw new Error(`Failed to find a matching credential store for env ${env}`)
+}
+
+async function loginHub(url: string, credentials: HubCredentials): Promise<string> {
+	const response = await createHttpClient().post(url, {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(credentials),
+	});
+	const body = await response.json();
+	if (response.status >= 400) {
+		throw new Error(`Hub login to ${url} failed with status code ${response.status}: ${body}`)
+	}
+
+	return body.token;
+}
+
+async function getHubConfig(): Promise<{
+	auths?: {
+		[registry: string]: {
+			auth?: string // base64 encoded
+		}
+	}
+	credHelpers?: {
+		[registry: string]: string
+	}
+	credsStore?: string
+}> {
+	const configDir = process.env.DOCKER_CONFIG || path.join(os.homedir(), ".docker")
+	const configContents = await fs.readFile(path.join(configDir, "config.json"));
+	return JSON.parse(configContents.toString());
+}
+
+export async function getCredentialsFromStore(store: string, host: string): Promise<HubCredentials> {
+	const execResult = proc.spawnSync(`docker-credential-${store}`, ['get'], { input: host });
+	if (execResult.status !== 0) {
+		throw new Error(`spawn docker-credential-${store} failed to get credentials for host ${host}`)
+	}
+
+	const { Username, Secret } = JSON.parse(execResult.output.join('\n'));
+	return { 
+		username: Username,
+		password: Secret,
 	}
 }
