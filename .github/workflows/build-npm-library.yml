@@ -1,0 +1,17 @@
+name: build-npm-library
+on:
+  push:
+    branches:
+      - "**"
+jobs:
+  build-npm:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 14
+      - run: npm ci
+      - run: npm run compile
+      - run: npm run test
