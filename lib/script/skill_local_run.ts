@@ -410,10 +410,7 @@ async function handlePusherEvent(data: string, url: string) {
 
 		const http = createHttpClient();
 		if (event["compact?"]) {
-			const execUrl =
-				event.urls.execution ||
-				`https://api.dso.docker.com/executions/${event["execution-id"]}/trigger`;
-			const executionResponse = await http.get(execUrl, {
+			const executionResponse = await http.get(event.urls.trigger, {
 				headers: { Authorization: `Bearer ${event.token}` },
 			});
 			if (executionResponse.status >= 300) {
