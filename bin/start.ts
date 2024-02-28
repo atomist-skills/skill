@@ -349,6 +349,20 @@ void yargs
 					default: false,
 					demandOption: false,
 				},
+				skill: {
+					type: "string",
+					description:
+						"Selects, by name, the skill to run from a multi-document skill.yaml. When not specified, assumes there is only one definition in skill.yaml",
+					default: undefined,
+					demandOption: false,
+				},
+				namespace: {
+					type: "string",
+					description:
+						"Overrides the namespace to register the skill to",
+					default: undefined,
+					demandOption: false,
+				},
 			}),
 		async argv => {
 			try {

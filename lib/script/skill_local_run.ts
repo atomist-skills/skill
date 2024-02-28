@@ -70,6 +70,8 @@ export interface LocalRunOptions {
 	url: string;
 	env: EnvironmentKey;
 	verbose: boolean;
+	skill?: string;
+	namespace?: string;
 }
 
 type AtomistSkillConfigYaml = Array<{
@@ -185,13 +187,51 @@ async function registerSkill(
 		userConfig: false,
 	});
 
-	const skillConfigYaml = (
-		await getYamlFile<AtomistSkillConfigYaml>(p, "skill.config.yaml")
-	)?.doc;
+	let skillConfigYaml: AtomistSkillConfigYaml;
+	const configDefs =
+		(await getYamlFile<AtomistSkillConfigYaml>(p, "skill.config.yaml"))
+			?.docs || [];
+	if (configDefs.length !== 0) {
+		if (configDefs.length > 1) {
+			info(
+				"Multiple entries were found in skill.config.yaml, only using the first one.",
+			);
+		}
+		skillConfigYaml = configDefs[0];
+	}
 
 	// load skill.yaml from project (at this point it can be the container filesystem or repo contents)
-	const skillYaml = (await getYamlFile<AtomistYaml>(p, "skill.yaml")).doc
-		.skill;
+	let skillYaml: any;
+	const skillDefs = await getYamlFile<AtomistYaml>(p, "skill.yaml");
+	if (!skillDefs) {
+		throw new Error("skill.yaml not found");
+	} else if (skillDefs.docs.length === 0) {
+		throw new Error("skill.yaml contains no skill definitions");
+	} else if (skillDefs.docs.length === 1) {
+		if (options.skill) {
+			warn("Ignoring --skill as there is only definition in skill.yaml");
+		}
+		skillYaml = skillDefs.docs[0].skill;
+	} else {
+		if (!options.skill) {
+			throw new Error(
+				"Expected a single document in skill.yaml, but multiple were found. Use --skill to specify the skill name to run.",
+			);
+		}
+		skillYaml = skillDefs.docs.find(
+			s => s.skill.name === options.skill,
+		)?.skill;
+		if (!skillYaml) {
+			throw new Error(
+				`Skill ${options.skill} was not found in skill.yaml`,
+			);
+		}
+	}
+
+	if (options.namespace) {
+		skillYaml.namespace = options.namespace;
+	}
+
 	skill = merge(skill, skillYaml, {});
 
 	skill.name = `${skill.name}-${os.userInfo().username}`;
@@ -327,22 +367,17 @@ export interface AtomistYaml {
 	skill: any;
 }
 
-export const AtomistYamlFileName = "skill.package.yaml";
-
 export async function getYamlFile<D = any>(
 	project: Project,
-	name: string = AtomistYamlFileName,
-	options: { parse: boolean } = {
-		parse: true,
-	},
-): Promise<{ name: string; content: string; doc?: D } | undefined> {
+	name: string,
+): Promise<{ name: string; content: string; docs: D[] } | undefined> {
 	if (await fs.pathExists(project.path(name))) {
 		const content = (await fs.readFile(project.path(name))).toString();
-		const doc: any = options.parse ? yaml.load(content) : undefined;
+		const docs: D[] = yaml.loadAll(content) as D[];
 		return {
 			name,
 			content,
-			doc,
+			docs,
 		};
 	}
 	return undefined;
