@@ -31,7 +31,6 @@ import { CloneOptions } from "../project/clone";
 import { Project } from "../project/project";
 import { AuthenticatedRepositoryId } from "../repository/id";
 import * as status from "../status";
-import { isStaging } from "../util";
 import { transactAudit } from "./audit";
 import { markdownLink } from "./badge";
 import { Action, Annotation, Conclusion, Severity } from "./policy";
@@ -179,7 +178,7 @@ export function checkHandler<S, C>(parameters: {
 			if (!ctx.chain.details.check) {
 				return undefined;
 			}
-			const app = isStaging() ? "atomista" : "atomist";
+			const app = "docker-scout";
 			const tx = ctx.event.context.subscription?.metadata?.tx;
 			const checks = (
 				await api(ctx.chain.id).checks.listForRef({
