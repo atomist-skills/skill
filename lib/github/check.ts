@@ -81,9 +81,8 @@ export async function createCheck(
 ): Promise<Check> {
 	let terminated = false;
 	const externalId =
-		ctx.event.context.subscription?.metadata?.[
-			"after-basis-t"
-		]?.toString() || ctx.event["execution-id"];
+		ctx.event.context.subscription?.metadata?.["tx"]?.toString() ||
+		ctx.event["execution-id"];
 	// Check if there is a check open with that name
 	const openChecks = (
 		await api(id, ctx).checks.listForRef({
