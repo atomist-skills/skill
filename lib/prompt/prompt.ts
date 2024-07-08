@@ -19,7 +19,6 @@ import { Arg, CommandIncoming } from "../payload";
 import { ParameterObjectValue } from "./parameter";
 import cloneDeep = require("lodash.clonedeep");
 import map = require("lodash.map");
-import set = require("lodash.set");
 
 /**
  * Object with properties defining parameters. Useful for combination via spreads.
@@ -121,16 +120,7 @@ export function commandRequestParameterPromptFactory<T>(
 			return params;
 		}
 
-		// Set up the thread_ts for this response message
-		let threadTs;
-		if (options.thread === true && !!payload.source) {
-			threadTs = (payload?.source?.slack as any)?.message?.ts;
-		} else if (typeof options.thread === "string") {
-			threadTs = options.thread;
-		}
-
 		const destination = cloneDeep(payload.source);
-		set(destination, "slack.thread_ts", threadTs);
 
 		// Create a continuation message using the existing HandlerResponse and mixing in parameters
 		// and parameter_specs
