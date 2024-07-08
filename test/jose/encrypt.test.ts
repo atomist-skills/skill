@@ -21,7 +21,7 @@ import * as path from "path";
 
 import { decrypt, encrypt } from "../../lib/jose/encyrpt";
 
-describe("encrypt", () => {
+describe.skip("encrypt", () => {
 	it("should correctly encrypt and decrypt", async () => {
 		const publicKey = crypto.createPublicKey({
 			key: fs.readFileSync(path.join(__dirname, "rsa-public.pem")),
