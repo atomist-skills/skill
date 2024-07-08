@@ -153,7 +153,7 @@ describe("util", () => {
 			const date = new Date(dateStr);
 			assert.strictEqual(
 				formatDate(date, dt.DateTime.DATETIME_FULL),
-				"August 12, 2021, 8:31 PM UTC",
+				"August 12, 2021 at 8:31 PM UTC",
 			);
 		});
 	});
