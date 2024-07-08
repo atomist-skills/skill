@@ -57,11 +57,6 @@
   "dependencies": {
     "@atomist/skill-logging": "^2.0.1",
     "@atomist/slack-messages": "^1.2.2",
-    "@aws-sdk/client-ecr": "^3.82.0",
-    "@aws-sdk/client-sts": "^3.82.0",
-    "@graphql-codegen/cli": "^2.6.2",
-    "@graphql-codegen/typescript": "^1.23.0",
-    "@graphql-codegen/typescript-operations": "^1.18.4",
     "@octokit/plugin-rest-endpoint-methods": "^10.1.0",
     "@octokit/rest": "^20.0.2",
     "@types/body-parser": "^1.19.1",
@@ -137,6 +132,11 @@
     "yargs": "^17.2.1"
   },
   "optionalDependencies": {
+    "@aws-sdk/client-ecr": "^3.82.0",
+    "@aws-sdk/client-sts": "^3.82.0",
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^1.23.0",
+    "@graphql-codegen/typescript-operations": "^1.18.4",
     "@google-cloud/functions-framework": "^1.10.0",
     "@google-cloud/secret-manager": "^5.6.0",
     "@google-cloud/storage": "^7.11.2"
