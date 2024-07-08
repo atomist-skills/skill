@@ -15,14 +15,14 @@
  */
 
 import * as crypto from "crypto";
+import * as jose from "jose";
 
 export async function decrypt<T = string>(
 	jwe: string,
 	privateKey: crypto.KeyObject,
 ): Promise<T> {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const { default: compactDecrypt } = require("jose/jwe/compact/decrypt");
-	const { plaintext } = await compactDecrypt(jwe, privateKey);
+	const { plaintext } = await jose.compactDecrypt(jwe, privateKey);
 	try {
 		return JSON.parse(Buffer.from(plaintext).toString());
 	} catch (e) {
@@ -35,8 +35,7 @@ export async function encrypt<T>(
 	publicKey: crypto.KeyObject,
 ): Promise<string> {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const { default: CompactEncrypt } = require("jose/jwe/compact/encrypt");
-	return new CompactEncrypt(
+	return new jose.CompactEncrypt(
 		Buffer.from(
 			typeof payload === "string" ? payload : JSON.stringify(payload),
 		),

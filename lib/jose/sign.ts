@@ -15,14 +15,13 @@
  */
 
 import * as crypto from "crypto";
+import * as jose from "jose";
 
 export async function sign<T = string>(
 	payload: T,
 	privateKey: crypto.KeyObject,
 ): Promise<string> {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const { default: CompactSign } = require("jose/jws/compact/sign");
-	const jws = await new CompactSign(
+	const jws = await new jose.CompactSign(
 		Buffer.from(
 			typeof payload === "string" ? payload : JSON.stringify(payload),
 		),
@@ -36,9 +35,7 @@ export async function verify<T>(
 	signature: string,
 	publicKey: crypto.KeyObject,
 ): Promise<T> {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const { default: compactVerify } = require("jose/jws/compact/verify");
-	const { payload } = await compactVerify(signature, publicKey);
+	const { payload } = await jose.compactVerify(signature, publicKey);
 	try {
 		return JSON.parse(Buffer.from(payload).toString()) as T;
 	} catch (e) {
