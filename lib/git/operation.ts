@@ -250,8 +250,7 @@ export async function editCommit(
 		}
 	}
 	if (!(await status(projectOrCwd)).isClean) {
-		const msg =
-			message || `Updates from Atomist skill\n\n[atomist:generated]`;
+		const msg = message || `Updates from Scout\n\n[docker-scout:generated]`;
 		await commit(projectOrCwd, msg, author);
 	}
 	return files;
@@ -263,12 +262,14 @@ export async function editCommit(
 export async function commit(
 	projectOrCwd: Project | string,
 	message: string,
-	options: { name?: string; email?: string } = {},
+	options: { name?: string; email?: string; opts?: string[] } = {
+		opts: ["--no-verify", "--no-gpg-sign", "--signoff"],
+	},
 ): Promise<void> {
 	const dir = cwd(projectOrCwd);
 	await execPromise("git", ["add", "."], { cwd: dir });
-	const botName = "Atomist Bot";
-	const botEmail = "bot@atomist.com";
+	const botName = "Docker Scout [bot]";
+	const botEmail = "scout-bot@docker.com";
 	const env = {
 		...process.env,
 		GIT_AUTHOR_NAME: botName,
@@ -278,8 +279,11 @@ export async function commit(
 	};
 	await execPromise(
 		"git",
-		["commit", "-m", message, "--no-verify", "--no-gpg-sign", "--signoff"],
-		{ cwd: dir, env },
+		["commit", "-m", message, ...(options.opts || [])],
+		{
+			cwd: dir,
+			env,
+		},
 	);
 }
 

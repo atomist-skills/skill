@@ -119,7 +119,7 @@ export async function persistChanges(
 	const slug = `${project.id.owner}/${project.id.repo}`;
 	const commitMsg =
 		addCommitMarkers(commit.message, ctx) ||
-		`Updates from ${ctx.skill.namespace}/${ctx.skill.name}\n\n[atomist:generated]`;
+		`Updates from ${ctx.skill.namespace}/${ctx.skill.name}\n\n[docker-scout:generated]`;
 	const repoUrl = `https://github.com/${slug}`;
 	const branch = createPullRequest
 		? pullRequest.branch ||
@@ -537,7 +537,7 @@ export function addCommitMarkers(
 	if (!msg) {
 		return msg;
 	}
-	if (!msg.includes("[atomist:generated]")) {
+	if (!msg.includes("[docker-scout:generated]")) {
 		return `${msg.trim()}${formatCommitMarkers(ctx)}`;
 	} else {
 		return msg;
