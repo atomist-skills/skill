@@ -91,10 +91,9 @@ export function formatCommitMarkers(
 ): string {
 	return `
 
- [atomist:generated]
- [atomist-skill:${ctx.skill.namespace}/${ctx.skill.name}]${
-		tags.length > 0 ? "\n" : ""
-	}${tags.map(t => ` [${t}]`).join("\n")}`;
+ [docker-scout:generated]${tags.length > 0 ? "\n" : ""}${tags
+		.map(t => ` [${t}]`)
+		.join("\n")}`;
 }
 
 export function formatMarkers(
@@ -125,31 +124,7 @@ export function formatMarkers(
 }
 
 export function formatFooter(ctx: Contextual<any, any>): string {
-	// Do not format footer for DSO skills
-	if (toArray(ctx.configuration)?.[0].parameters?.atomist?.policy) {
-		return "";
-	}
-
-	const skillUrl =
-		ctx.configuration?.parameters?.atomist?.skillUrl ||
-		`https://go.atomist.com/catalog/skills/${ctx.skill.namespace}/${ctx.skill.name}`;
-	return `	
----
-
-<p align="center">
-<sub>
-<a href="${skillUrl}">${ctx.skill.namespace}/${
-		ctx.skill.name
-	}</a> \u00B7 ${toArray(ctx.configuration || [])
-		.map(
-			c =>
-				`<a href="${
-					c.parameters?.atomist?.configurationUrl || c.url
-				}">Configure</a>`,
-		)
-		.join("\u00B7")}
-</sub>
-</p>`;
+	return "";
 }
 
 export async function convergeLabel(
