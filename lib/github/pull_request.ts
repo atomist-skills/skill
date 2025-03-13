@@ -79,6 +79,7 @@ export async function persistChanges(
 	},
 	commit: {
 		message?: string;
+		opts?: string[];
 		editors?: git.CommitEditor[];
 	},
 ): Promise<HandlerStatus> {
@@ -115,6 +116,7 @@ export async function persistChanges(
 	const author = {
 		name: push.author.name,
 		email: push.author.email,
+		opts: commit.opts,
 	};
 	const slug = `${project.id.owner}/${project.id.repo}`;
 	const commitMsg =
