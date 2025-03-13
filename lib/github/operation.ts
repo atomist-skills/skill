@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Octokit } from "@octokit/rest"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
 
 import { Contextual } from "../handler/handler";
@@ -35,8 +35,6 @@ export function api(
 	ctx?: Contextual<any, any>,
 ): Octokit {
 	const url = id?.apiUrl || DefaultGitHubApiUrl;
-
-	const { Octokit } = require("@octokit/rest"); // eslint-disable-line @typescript-eslint/no-var-requires
 
 	const octokit = new Octokit({
 		auth: id?.credential ? `token ${id.credential.token}` : undefined,
