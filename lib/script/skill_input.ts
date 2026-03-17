@@ -103,6 +103,10 @@ export enum AtomistSkillRuntime {
 	Nodejs10 = "nodejs10",
 	Nodejs12 = "nodejs12",
 	Nodejs14 = "nodejs14",
+	Nodejs16 = "nodejs16",
+	Nodejs18 = "nodejs18",
+	Nodejs20 = "nodejs20",
+	Nodejs22 = "nodejs22",
 	Python37 = "python37",
 	Go113 = "go113",
 }
@@ -399,7 +403,7 @@ export async function createJavaScriptSkillInput(
 					timeout: is.runtime?.timeout || 60,
 					runtime:
 						(is.runtime?.platform as any) ||
-						AtomistSkillRuntime.Nodejs14,
+						AtomistSkillRuntime.Nodejs22,
 					name: "gcf",
 					url: undefined,
 				},
