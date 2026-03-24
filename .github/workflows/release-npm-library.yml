@@ -10,8 +10,8 @@ jobs:
     outputs:
       new_version: ${{ steps.tag-version.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org"
@@ -19,7 +19,7 @@ jobs:
       - run: npm run compile
       - run: npm run test
       - id: tag-version
-        uses: mathieudutour/github-tag-action@v6.1
+        uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - run: npm version --no-git-tag-version -f ${{ steps.tag-version.outputs.new_version }}
