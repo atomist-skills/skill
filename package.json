@@ -98,7 +98,7 @@
     "glob-gitignore": "1.0.14",
     "graphql": "15.7.2",
     "graphql-tag": "2.12.5",
-    "handlebars": "4.7.7",
+    "handlebars": "4.7.9",
     "jose": "5.6.3",
     "js-yaml": "4.1.0",
     "json-bigint": "1.0.0",
