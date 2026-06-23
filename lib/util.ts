@@ -268,7 +268,7 @@ export function dockerHubDomain(): string {
 }
 
 export function dockerHubAuthDomain(): string {
-	return process.env.DOCKERHUB_AUTH_DOMAIN || "auth.docker.com";
+	return process.env.DOCKERHUB_AUTH_DOMAIN || "auth.docker.io";
 }
 
 export function dockerHubRegistryDomain(): string {
